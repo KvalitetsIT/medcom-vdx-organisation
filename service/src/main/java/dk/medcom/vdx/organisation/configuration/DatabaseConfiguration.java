@@ -1,6 +1,8 @@
 package dk.medcom.vdx.organisation.configuration;
 
 import org.flywaydb.core.Flyway;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +19,7 @@ import java.util.List;
 @EntityScan(basePackages = { "dk.medcom.vdx.organisation" })
 @EnableTransactionManagement
 public class DatabaseConfiguration {
+    private static final Logger logger = LoggerFactory.getLogger(DatabaseConfiguration.class);
     @Bean
     public DataSource dataSource(@Value("${jdbc.url}") String jdbcUrl, @Value("${jdbc.user}") String jdbcUser, @Value("${jdbc.pass}") String jdbcPass) {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
@@ -28,7 +31,8 @@ public class DatabaseConfiguration {
     }
 
     @Bean(initMethod = "migrate")
-    public Flyway flyway(DataSource dataSource, @Value("${spring.flyway.locations#classpath:db/migration}") List<String> locations) {
+    public Flyway flyway(DataSource dataSource, @Value("${spring.flyway.locations:classpath:db/migration}") List<String> locations) {
+        logger.info("Reading migration files from {}.", locations);
         return Flyway.configure()
                 .dataSource(dataSource)
                 .table("organisation_flyway_schema_history")
