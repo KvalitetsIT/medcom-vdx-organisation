@@ -6,6 +6,9 @@
         </encoder>
     </appender>
 
+    <logger name="dk.medcom.vdx" level="debug" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
 
     <logger name="dk.kvalitetsit" level="debug" additivity="false">
         <appender-ref ref="STDOUT" />

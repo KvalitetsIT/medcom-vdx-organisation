@@ -1,0 +1,269 @@
+openapi: 3.0.0
+info:
+  title: Kithugs
+  description: API description for KITHUGS.
+  version: "1.0.0"
+  contact:
+    email: development@kvalitetitsit.dk
+tags:
+  - name: Organisation
+    description: Read, search, create, and update operations for Organisations
+  - name: Organisationt Tree
+    description: Search operations for the hierarchy of Organisations
+
+servers:
+  - url: '{protocol}://{environment}:{port}'
+    variables:
+      protocol:
+        enum:
+          - http
+          - https
+        default: http
+      environment:
+        enum:
+          - localhost # Docker-compose setup
+        default: localhost # Development
+      port:
+        enum:
+          - 8080
+        default: 8080
+paths:
+  /services/organisation/{code}:
+    get:
+      tags:
+        - Organisation
+      summary: Read organisation
+      description: Read a single organisation
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation'
+
+  /services/organisation/uri:
+    post:
+      tags:
+        - Organisation
+      summary: Get organisations by URIs
+      description: GGet organisations identified by a meeting uri with domain
+      requestBody:
+        description: List of URI to find matching organisation for
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/organisation-uri-request'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation-uri'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+
+  /services/organisationtree/{code}:
+    get:
+      tags:
+        - Organisation Tree
+      summary: Get a specific part of the organisation tree
+      description: Get a specific organisation tree (rooted at the specified code)
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisationtree'
+
+components:
+  responses:
+    '400':
+      description: "Bad Request. This could be because: * One of the required parameters/properties are missing or is empty <br> * Length of input is exceeding maximum length <br> (See a possible detailed error message in the in the response.)"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/basic-error'
+    '401':
+      description: "Unauthorized. This could be because: <br> * The calling system has not been properly authenticated."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/basic-error'
+    '403':
+      description: "Forbidden. This could be because: <br> * The requested information does not belong the organisation of the user <br> * The calling user does not have the required roles"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/basic-error'
+    '404':
+      description: "Not Found. This could be because: <br> * The organisation requested has been deleted or has never existed"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/basic-error'
+    '409':
+      description: "Conflict. This could be because: <br> * A uniqueness constraint on organisation code is being violated"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/basic-error'
+
+  schemas:
+    organisation-uri-request:
+      type: array
+      items:
+        type: string
+        example: '1234@rooms.vconf.dk'
+
+    organisation-uri:
+      type: array
+      items:
+        type: object
+        properties:
+          code:
+            description: The code that uniquely identifies an organisation
+            type: string
+            maxLength: 100
+            example: organisation_a
+          name:
+            description: The name of the organisation
+            type: string
+            maxLength: 100
+            example: Organisation with the full name A
+          groupId:
+            description: The ID of the group this organisation is part of
+            type: integer
+            format: int64
+            example: 23
+          uri:
+            description: URI for whits result
+            type: string
+            example: '1234@rooms.vconf.dk'
+          booked:
+            description: Is this meeting booked
+            type: boolean
+            example: true
+          groupName:
+            description: Group Name
+            type: string
+            maxLength: 250
+
+    organisation:
+      type: object
+      required:
+        - code
+        - name
+        - poolSize
+      properties:
+#        parentCode:
+#          description: The code that uniquely identifies the parent organisation
+#          type: string
+#          maxLength: 100
+#          example: level_one_org
+        code:
+          description: The code that uniquely identifies an organisation
+          type: string
+          maxLength: 100
+          example: organisation_a
+        name:
+          description: The name of the organisation
+          type: string
+          maxLength: 100
+          example: Organisation with the full name A
+        poolSize:
+          description: The meeting room pool size for the organisation
+          type: integer
+          format: int32
+          example: 200
+        smsSenderName:
+          type: string
+          maxLength: 11
+          example: Min Organisation
+        smsCallbackUrl:
+          type: string
+          maxLength: 100
+          example: http://callback.api/%reference%?status=%status%
+          description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
+
+    organisationtree:
+      type: object
+      required:
+        - code
+        - name
+        - poolSize
+      properties:
+        code:
+          description: The code that uniquely identifies an organisation
+          type: string
+          maxLength: 100
+          example: organisation_a
+        name:
+          description: The name of the organisation
+          type: string
+          maxLength: 100
+          example: Organisation with the full name A
+        poolSize:
+          description: The meeting room pool size for the organisation
+          type: integer
+          format: int32
+          example: 200
+        children:
+          description: The suborganisations of this organisation
+          type: array
+          items:
+            $ref: '#/components/schemas/organisationtree'
+        smsSenderName:
+          type: string
+          maxLength: 11
+          example: Min Organisation
+        smsCallbackUrl:
+          type: string
+          maxLength: 100
+          example: http://callback.api/%reference%?status=%status%
+          description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
+
+    basic-error:
+      type: object
+      required:
+        - error
+        - path
+        - status
+        - status_text
+        - timestamp
+      properties:
+        error:
+          description: Error message.
+          type: string
+        path:
+          description: Path
+          type: string
+        status:
+          description: HTTP status code
+          type: integer
+        status_text:
+          description: HTTP status text
+          type: string
+        timestamp:
+          description: Time of error
+          type: string
+          format: date-time

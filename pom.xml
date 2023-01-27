@@ -31,10 +31,10 @@
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.0.2</version>
 	</parent>
-	<groupId>dk.kvalitetsit.kithugs</groupId>
-	<artifactId>kithugs</artifactId>
+	<groupId>dk.medcom.vdx.organisation</groupId>
+	<artifactId>medcom-vdx-organisation</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>kithugs</name>
+	<name>medcom-vdx-organisation</name>
 	<description>KITHUGS service</description>
 
 	<properties>
@@ -57,27 +57,34 @@
 		<dependencies>
 			<!-- Modules in project -->
 			<dependency>
-				<groupId>dk.kvalitetsit.kithugs</groupId>
+				<groupId>dk.medcom.vdx.organisation</groupId>
 				<artifactId>service</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
-				<groupId>dk.kvalitetsit.kithugs</groupId>
+				<groupId>dk.medcom.vdx.organisation</groupId>
 				<artifactId>integrationtest</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
-				<groupId>dk.kvalitetsit.kithugs</groupId>
+				<groupId>dk.medcom.vdx.organisation</groupId>
 				<artifactId>web</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 
 			<dependency>
-				<groupId>dk.kvalitetsit.kithugs</groupId>
+				<groupId>dk.medcom.vdx.organisation</groupId>
 				<artifactId>documentation</artifactId>
 				<version>${project.version}</version>
+			</dependency>
+
+			<!-- Pin flyway to 6.0.8 -->
+			<dependency>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-core</artifactId>
+				<version>7.15.0</version>
 			</dependency>
 
 			<!-- Logging -->
@@ -85,6 +92,12 @@
 				<groupId>net.logstash.logback</groupId>
 				<artifactId>logstash-logback-encoder</artifactId>
 				<version>7.2</version>
+			</dependency>
+
+			<dependency>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-starter-jpa</artifactId>
+				<version>3.0.2</version>
 			</dependency>
 
 			<!-- Actuator and prometheus -->
