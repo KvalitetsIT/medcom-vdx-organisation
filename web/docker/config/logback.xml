@@ -20,6 +20,10 @@
         </encoder>
     </appender>
 
+    <logger name="dk.medcom.vdx" level="${LOG_LEVEL}" additivity="false">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
     <logger name="dk.kvalitetsit" level="${LOG_LEVEL}" additivity="false">
         <appender-ref ref="STDOUT" />
     </logger>
