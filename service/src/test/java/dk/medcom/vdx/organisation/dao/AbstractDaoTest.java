@@ -37,6 +37,8 @@ abstract public class AbstractDaoTest {
             System.setProperty("jdbc.user", username);
             System.setProperty("jdbc.pass", password);
 
+            System.setProperty("spring.flyway.locations", "classpath:db/migration");
+
             initialized = new Object();
         }
     }

@@ -80,9 +80,21 @@ public class ServiceStarter {
                 .withEnv("JDBC_USER", "hellouser")
                 .withEnv("JDBC_PASS", "secret1234")
 
+                .withEnv("sessiondata_headername", "x-sessiondata")
+
+                .withEnv("userservice_token_attribute_organisation", "dk:medcom:organisation_id")
+                .withEnv("userservice_token_attribute_email", "dk:medcom:email")
+                .withEnv("userservice_token_attribute_userrole", "dk:medcom:video:role")
+
+                .withEnv("mapping_role_provisioner", "meeting-provision")
+                .withEnv("mapping_role_user", "meeting-user")
+                .withEnv("mapping_role_meeting_planner", "meeting-planner")
+                .withEnv("mapping_role_admin", "meeting-admin")
+
                 .withEnv("ALLOWED_ORIGINS", "*")
 
                 .withEnv("spring.flyway.locations", "classpath:db/migration,filesystem:/app/sql")
+
                 .withClasspathResourceMapping("db/migration/V901__extra_data_for_integration_test.sql", "/app/sql/V901__extra_data_for_integration_test.sql", BindMode.READ_ONLY)
                 .withClasspathResourceMapping("db/migration/V902__views.sql", "/app/sql/V902__views.sql", BindMode.READ_ONLY)
 //                .withEnv("JVM_OPTS", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000")

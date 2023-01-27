@@ -100,7 +100,6 @@
 				<version>3.0.2</version>
 			</dependency>
 
-
 			<!-- Actuator and prometheus -->
 			<dependency>
 				<groupId>dk.kvalitetsit</groupId>

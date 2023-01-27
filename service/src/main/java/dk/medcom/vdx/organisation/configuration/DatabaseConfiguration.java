@@ -1,7 +1,5 @@
 package dk.medcom.vdx.organisation.configuration;
 
-import dk.medcom.vdx.organisation.dao.jpa.OrganisationRepository;
-import dk.medcom.vdx.organisation.dao.jpa.SchedulingInfoRepository;
 import org.flywaydb.core.Flyway;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
@@ -12,6 +10,7 @@ import org.springframework.jdbc.datasource.DriverManagerDataSource;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import javax.sql.DataSource;
+import java.util.List;
 
 @Configuration
 @EnableJpaRepositories( basePackages = "dk.medcom.vdx.organisation")
@@ -29,10 +28,11 @@ public class DatabaseConfiguration {
     }
 
     @Bean(initMethod = "migrate")
-    public Flyway flyway(DataSource dataSource) {
+    public Flyway flyway(DataSource dataSource, @Value("${spring.flyway.locations#classpath:db/migration}") List<String> locations) {
         return Flyway.configure()
                 .dataSource(dataSource)
                 .table("organisation_flyway_schema_history")
+                .locations(locations.toArray(String[]::new))
                 .load();
     }
 }
