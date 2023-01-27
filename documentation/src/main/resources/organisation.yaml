@@ -166,7 +166,7 @@ components:
           groupName:
             description: Group Name
             type: string
-            # TODO Denne skal også lige have max længde osv.
+            maxLength: 250
 
     organisation:
       type: object

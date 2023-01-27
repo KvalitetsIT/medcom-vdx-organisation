@@ -13,8 +13,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class OrganisationIT extends AbstractIntegrationTest {
@@ -22,6 +21,9 @@ public class OrganisationIT extends AbstractIntegrationTest {
     private OrganisationTreeApi organisationTreeApi;
 
     private static final String SESSION_MEDCOM_ORGANISATION = "ewogICAiVXNlckF0dHJpYnV0ZXMiOnsKICAgICAgImRrOm1lZGNvbTp2aWRlbzpyb2xlIjpbCiAgICAgICAgICJtZWV0aW5nLWFkbWluIgogICAgICBdLAogICAgICAiZGs6bWVkY29tOm9yZ2FuaXNhdGlvbl9pZCI6WwogICAgICAgICAibWVkY29tIgogICAgICBdLAogICAgICAiZGs6bWVkY29tOmVtYWlsIjpbCiAgICAgICAgICJlbWFpbEBkb21haW4uY29tIgogICAgICBdCiAgIH0KfQo=";
+    private static final String SESSION_NOT_ADMIN = "ewogICAiVXNlckF0dHJpYnV0ZXMiOnsKICAgICAgImRrOm1lZGNvbTp2aWRlbzpyb2xlIjpbCiAgICAgICAgICJpLWFtLXVua25vd24iCiAgICAgIF0sCiAgICAgICJkazptZWRjb206b3JnYW5pc2F0aW9uX2lkIjpbCiAgICAgICAgICJtZWRjb20iCiAgICAgIF0sCiAgICAgICJkazptZWRjb206ZW1haWwiOlsKICAgICAgICAgImVtYWlsQGRvbWFpbi5jb20iCiAgICAgIF0KICAgfQp9Cgo=";
+    private static final String SESSION_MEETING_USER = "ewogICAiVXNlckF0dHJpYnV0ZXMiOnsKICAgICAgImRrOm1lZGNvbTp2aWRlbzpyb2xlIjpbCiAgICAgICAgICJtZWV0aW5nLXVzZXIiCiAgICAgIF0sCiAgICAgICJkazptZWRjb206b3JnYW5pc2F0aW9uX2lkIjpbCiAgICAgICAgICJtZWRjb20iCiAgICAgIF0sCiAgICAgICJkazptZWRjb206ZW1haWwiOlsKICAgICAgICAgImVtYWlsQGRvbWFpbi5jb20iCiAgICAgIF0KICAgfQp9Cgo=";
+    private OrganisationApi unauthorizedOrganisationApi;
 
     @Before
     public void setupApiClient() {
@@ -30,7 +32,16 @@ public class OrganisationIT extends AbstractIntegrationTest {
                 .setOffsetDateTimeFormat(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss X"))
                 .addDefaultHeader("X-SESSIONDATA", SESSION_MEDCOM_ORGANISATION);
         organisationApi = new OrganisationApi(apiClient);
+
         organisationTreeApi = new OrganisationTreeApi(apiClient);
+
+        var unauthorizedApiClient = new ApiClient()
+                .setBasePath(getApiBasePath())
+                .setOffsetDateTimeFormat(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss X"))
+                .addDefaultHeader("X-SESSIONDATA", SESSION_NOT_ADMIN);
+
+        unauthorizedOrganisationApi = new OrganisationApi(unauthorizedApiClient);
+
     }
 
     @Test
@@ -101,5 +112,24 @@ public class OrganisationIT extends AbstractIntegrationTest {
         assertEquals("parent org", parentOrganisation.getName());
         assertEquals("sms-sender", parentOrganisation.getSmsSenderName());
         assertEquals("callback", parentOrganisation.getSmsCallbackUrl());
+    }
+
+    @Test
+    public void testUnauthorizedWhenUnknownRole() {
+        var expectedException = assertThrows(ApiException.class, () -> unauthorizedOrganisationApi.servicesOrganisationCodeGet("some code"));
+        assertEquals(401, expectedException.getCode());
+    }
+
+    @Test
+    public void testUnauthorizedWhenNotAdmin() {
+        var unauthorizedApiClient = new ApiClient()
+                .setBasePath(getApiBasePath())
+                .setOffsetDateTimeFormat(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss X"))
+                .addDefaultHeader("X-SESSIONDATA", SESSION_MEETING_USER);
+
+        var api = new OrganisationApi(unauthorizedApiClient);
+
+        var expectedException = assertThrows(ApiException.class, () -> api.servicesOrganisationCodeGet("some code"));
+        assertEquals(401, expectedException.getCode());
     }
 }
