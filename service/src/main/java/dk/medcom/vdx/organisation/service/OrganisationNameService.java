@@ -54,6 +54,8 @@ public class OrganisationNameService implements OrganisationService {
                 newOrganisation.setSmsSenderName(null);
                 newOrganisation.setSmsCallbackUrl(null);
 
+                organisationDao.insert(newOrganisation);
+
                 return getOrganisationById(code);
             }
         }

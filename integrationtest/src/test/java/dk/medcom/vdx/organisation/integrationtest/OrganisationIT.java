@@ -160,4 +160,13 @@ public class OrganisationIT extends AbstractIntegrationTest {
         assertEquals(null, result.getSmsCallbackUrl());
         assertEquals(0, result.getPoolSize());
     }
+
+    @Test
+    public void testGetOrCreateFromTemplateNotFound() throws ApiException {
+        var input = "i_dont_exist";
+
+        var exception = assertThrows(ApiException.class, () -> organisationApi.servicesOrganisationCodeGet(input, true));
+        assertNotNull(exception);
+        assertEquals(404, exception.getCode());
+    }
 }
