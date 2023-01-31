@@ -4,11 +4,16 @@ import dk.medcom.vdx.organisation.context.UserContextFactory;
 import dk.medcom.vdx.organisation.context.UserContextService;
 import dk.medcom.vdx.organisation.context.UserContextServiceImpl;
 import dk.medcom.vdx.organisation.context.WspUserContext;
+import dk.medcom.vdx.organisation.dao.GroupsDao;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
+import dk.medcom.vdx.organisation.dao.OrganisationTemplateDao;
 import dk.medcom.vdx.organisation.dao.OrganisationViews;
 import dk.medcom.vdx.organisation.dao.impl.OrganisationDaoImpl;
 import dk.medcom.vdx.organisation.dao.impl.OrganisationViewsImpl;
+import dk.medcom.vdx.organisation.dao.jpa.OrganisationRepository;
 import dk.medcom.vdx.organisation.interceptor.UserSecurityInterceptor;
+import dk.medcom.vdx.organisation.service.OrganisationNameService;
+import dk.medcom.vdx.organisation.service.OrganisationService;
 import dk.medcom.vdx.organisation.service.OrganisationTreeBuilder;
 import dk.medcom.vdx.organisation.service.OrganisationTreeService;
 import dk.medcom.vdx.organisation.service.impl.OrganisationTreeBuilderImpl;
@@ -86,6 +91,14 @@ public class OrganisationConfiguration implements WebMvcConfigurer {
     @Bean
     public OrganisationTreeService organisationTreeService(OrganisationDao organisationDao) {
         return new OrganisationTreeServiceImpl(organisationDao);
+    }
+
+    @Bean
+    public OrganisationService organisationService(OrganisationRepository organisationRepository,
+                                                   OrganisationTemplateDao organisationTemplateDao,
+                                                   OrganisationDao organisationDao,
+                                                   GroupsDao groupsDao) {
+        return new OrganisationNameService(organisationRepository, organisationTemplateDao, organisationDao, groupsDao);
     }
 
     @Bean

@@ -4,7 +4,7 @@ import dk.medcom.vdx.organisation.aspect.APISecurityAnnotation;
 import dk.medcom.vdx.organisation.context.UserRole;
 import dk.medcom.vdx.organisation.controller.exception.ResourceNotFoundException;
 import dk.medcom.vdx.organisation.service.OrganisationByUriService;
-import dk.medcom.vdx.organisation.service.OrganisationNameService;
+import dk.medcom.vdx.organisation.service.OrganisationService;
 import org.openapitools.api.OrganisationApi;
 import org.openapitools.model.Organisation;
 import org.openapitools.model.OrganisationUriInner;
@@ -14,25 +14,37 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @RestController
 public class OrganisationController implements OrganisationApi {
-    private static final Logger LOGGER = LoggerFactory.getLogger(OrganisationController.class);
-    private final OrganisationNameService organisationService;
+    private static final Logger logger = LoggerFactory.getLogger(OrganisationController.class);
+    private final OrganisationService organisationService;
     private final OrganisationByUriService organisationByUriService;
 
-    public OrganisationController(OrganisationNameService organisationService, OrganisationByUriService organisationByUriService) {
+    public OrganisationController(OrganisationService organisationService, OrganisationByUriService organisationByUriService) {
         this.organisationService = organisationService;
         this.organisationByUriService = organisationByUriService;
     }
 
     @Override
     @APISecurityAnnotation({ UserRole.ADMIN })
-    public ResponseEntity<Organisation> servicesOrganisationCodeGet(String code) {
-        LOGGER.debug("Entry of /services/organisation.get code: " + code);
+    public ResponseEntity<Organisation> servicesOrganisationCodeGet(String code, Boolean fromTemplate) {
+        logger.debug("Entry of /services/organisation.get code: " + code);
 
-        var optionalOrganisation = organisationService.getOrganisationById(code);
+        if(fromTemplate == null) {
+            fromTemplate = false;
+        }
+
+        Optional<dk.medcom.vdx.organisation.dao.jpa.entity.Organisation> optionalOrganisation;
+        if(fromTemplate) {
+            optionalOrganisation = organisationService.getOrganisationOrCreateFromTemplate(code);
+        }
+        else {
+            optionalOrganisation = organisationService.getOrganisationById(code);
+        }
+
         var organisation = optionalOrganisation.orElseThrow(() -> new ResourceNotFoundException("OrganisationId", code));
 
         var response = new Organisation();
@@ -49,10 +61,10 @@ public class OrganisationController implements OrganisationApi {
     @Override
     @APISecurityAnnotation({ UserRole.ADMIN })
     public ResponseEntity<List<OrganisationUriInner>> servicesOrganisationUriPost(List<String> requestBody) {
-        LOGGER.debug("Entry of /services/organisation/uri.post count: " + requestBody.size());
+        logger.debug("Entry of /services/organisation/uri.post count: " + requestBody.size());
 
         Set<OrganisationUriInner> resource = organisationByUriService.getOrganisationByUriWithDomain(requestBody);
-        LOGGER.debug("Exit of /services/organisation/uri.post return count: " + resource.size());
+        logger.debug("Exit of /services/organisation/uri.post return count: " + resource.size());
         return ResponseEntity.ok(resource.stream().toList());
     }
 }

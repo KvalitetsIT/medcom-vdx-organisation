@@ -1,10 +1,13 @@
 package dk.medcom.vdx.organisation.dao.impl;
 
+import com.fasterxml.jackson.databind.util.Named;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
@@ -12,9 +15,11 @@ import java.util.Map;
 
 public class OrganisationDaoImpl implements OrganisationDao {
     private final DataSource dataSource;
+    private final NamedParameterJdbcTemplate template;
 
     public OrganisationDaoImpl(DataSource dataSource) {
         this.dataSource = dataSource;
+        template = new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Override
@@ -62,5 +67,26 @@ public class OrganisationDaoImpl implements OrganisationDao {
         parameters.put("group_id", groupId);
 
         return template.queryForObject(sql, parameters, BeanPropertyRowMapper.newInstance(Organisation.class));
+    }
+
+    @Override
+    public long insert(Organisation newOrganisation) {
+        var sql = "insert into organisation(group_id, organisation_id, name, pool_size, sms_sender_name, allow_custom_uri_without_domain, sms_callback_url)" +
+                " values(:group_id, :organisation_id, :name, :pool_size, :sms_sender_name, :allow_custom_uri_with_domain, :sms_callback_url)";
+
+        var parameters = new MapSqlParameterSource().
+                addValue("group_id", newOrganisation.getGroupId()).
+                addValue("organisation_id", newOrganisation.getOrganisationId()).
+                addValue("name", newOrganisation.getOrganisationName()).
+                addValue("pool_size", newOrganisation.getPoolSize()).
+                addValue("sms_sender_name", newOrganisation.getSmsSenderName()).
+                addValue("allow_custom_uri_with_domain", 0).
+                addValue("sms_callback_url", newOrganisation.getSmsCallbackUrl());
+
+        var keyHolder = new GeneratedKeyHolder();
+
+        template.update(sql, parameters, keyHolder);
+
+        return keyHolder.getKey().longValue();
     }
 }

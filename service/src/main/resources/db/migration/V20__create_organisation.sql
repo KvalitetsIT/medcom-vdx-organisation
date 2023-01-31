@@ -13,4 +13,4 @@ CREATE TABLE if not exists `organisation` (
   KEY `idx_group_id` (`id`,`group_id`),
   KEY `group_id` (`group_id`),
   CONSTRAINT `organisation_ibfk_1` FOREIGN KEY (`group_id`) REFERENCES `groups` (`group_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=1583 DEFAULT CHARSET=latin1
+);

@@ -12,4 +12,4 @@ CREATE TABLE if not exists `groups` (
   PRIMARY KEY (`group_id`),
   KEY `idx_groupid_deleted` (`group_id`,`deleted_time`),
   KEY `idx_deleted_time` (`deleted_time`)
-) ENGINE=InnoDB AUTO_INCREMENT=2306 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin
+);

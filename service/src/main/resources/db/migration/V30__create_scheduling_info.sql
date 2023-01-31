@@ -6,4 +6,4 @@ CREATE TABLE if not exists scheduling_info (
   PRIMARY KEY (id)
 --  FOREIGN KEY (meetings_id) REFERENCES meetings(id),
 --  FOREIGN KEY (scheduling_template_id) REFERENCES scheduling_template(id)
-)
+);

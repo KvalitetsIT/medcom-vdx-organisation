@@ -1,14 +1,14 @@
 openapi: 3.0.0
 info:
-  title: Kithugs
-  description: API description for KITHUGS.
+  title: VDX Organisation
+  description: API description for VDX Organisation.
   version: "1.0.0"
   contact:
     email: development@kvalitetitsit.dk
 tags:
   - name: Organisation
     description: Read, search, create, and update operations for Organisations
-  - name: Organisationt Tree
+  - name: Organisation Tree
     description: Search operations for the hierarchy of Organisations
 
 servers:
@@ -41,6 +41,13 @@ paths:
           schema:
             type: string
           example: 'organisation_a'
+        - name: from_template
+          in: query
+          description: If set to true the organisation will be created if an template is found for the organisation.
+          required: false
+          schema:
+            type: boolean
+
       responses:
         '200':
           description: Ok
