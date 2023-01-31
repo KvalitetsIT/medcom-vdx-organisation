@@ -6,4 +6,6 @@ public interface OrganisationDao {
     Organisation findOrganisation(String code);
 
     Organisation findOrganisationByGroupId(long groupId);
+
+    long insert(Organisation newOrganisation);
 }

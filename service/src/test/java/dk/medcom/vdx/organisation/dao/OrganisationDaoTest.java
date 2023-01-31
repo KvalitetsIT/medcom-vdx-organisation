@@ -1,6 +1,7 @@
 package dk.medcom.vdx.organisation.dao;
 
 
+import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.dao.impl.OrganisationDaoImpl;
 import org.junit.Before;
 import org.junit.Test;
@@ -97,5 +98,30 @@ public class OrganisationDaoTest extends AbstractDaoTest {
     public void testOrganisationByGroupIdNotFound() {
         long notFound = 47382;
         organisationDao.findOrganisationByGroupId(notFound);
+    }
+
+    @Test
+    public void testInsert() {
+        var input = new Organisation();
+        input.setPoolSize(10);
+        input.setOrganisationId("org code");
+        input.setOrganisationName("org name");
+        input.setSmsSenderName("sms name");
+        input.setSmsCallbackUrl("sms callback");
+        input.setGroupId(13L);
+
+
+        var id = organisationDao.insert(input);
+        assertTrue(id > 0);
+
+        var dbOrganisation = organisationDao.findOrganisation(input.getOrganisationId());
+        assertNotNull(dbOrganisation);
+
+        assertEquals(input.getGroupId(), dbOrganisation.getGroupId());
+        assertEquals(input.getOrganisationId(), dbOrganisation.getOrganisationId());
+        assertEquals(input.getOrganisationName(), dbOrganisation.getOrganisationName());
+        assertEquals(input.getPoolSize(), dbOrganisation.getPoolSize());
+        assertEquals(input.getSmsSenderName(), dbOrganisation.getSmsSenderName());
+        assertEquals(input.getSmsCallbackUrl(), dbOrganisation.getSmsCallbackUrl());
     }
 }

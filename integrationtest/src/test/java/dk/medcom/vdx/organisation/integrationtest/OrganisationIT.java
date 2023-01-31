@@ -77,7 +77,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
     @Test
     public void testReadOrganisation() throws ApiException {
-        var response = organisationApi.servicesOrganisationCodeGet("test-org");
+        var response = organisationApi.servicesOrganisationCodeGet("test-org", false);
 
         assertNotNull(response);
         assertEquals("test-org", response.getCode());
@@ -88,7 +88,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
     @Test
     public void testReadOrganisationNoSmsSenderName() throws ApiException {
-        var response = organisationApi.servicesOrganisationCodeGet("kvak");
+        var response = organisationApi.servicesOrganisationCodeGet("kvak", false);
 
         assertNotNull(response);
         assertEquals("kvak", response.getCode());
@@ -116,7 +116,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
     @Test
     public void testUnauthorizedWhenUnknownRole() {
-        var expectedException = assertThrows(ApiException.class, () -> unauthorizedOrganisationApi.servicesOrganisationCodeGet("some code"));
+        var expectedException = assertThrows(ApiException.class, () -> unauthorizedOrganisationApi.servicesOrganisationCodeGet("some code", false));
         assertEquals(401, expectedException.getCode());
     }
 
@@ -129,7 +129,44 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
         var api = new OrganisationApi(unauthorizedApiClient);
 
-        var expectedException = assertThrows(ApiException.class, () -> api.servicesOrganisationCodeGet("some code"));
+        var expectedException = assertThrows(ApiException.class, () -> api.servicesOrganisationCodeGet("some code", false));
         assertEquals(401, expectedException.getCode());
+    }
+
+    @Test
+    public void testGetOrCreateFromTemplateFound() throws ApiException {
+        var input = "test-org";
+
+        var result = organisationApi.servicesOrganisationCodeGet(input, true);
+        assertNotNull(result);
+
+        assertEquals(input, result.getCode());
+        assertEquals("company name test-org", result.getName());
+        assertEquals("MinAfsender", result.getSmsSenderName());
+        assertEquals("some_url", result.getSmsCallbackUrl());
+        assertEquals(0, result.getPoolSize());
+    }
+
+    @Test
+    public void testGetOrCreateFromTemplateFoundInTemplate() throws ApiException {
+        var input = "from_template";
+
+        var result = organisationApi.servicesOrganisationCodeGet(input, true);
+        assertNotNull(result);
+
+        assertEquals(input, result.getCode());
+        assertEquals("template name", result.getName());
+        assertEquals(null, result.getSmsSenderName());
+        assertEquals(null, result.getSmsCallbackUrl());
+        assertEquals(0, result.getPoolSize());
+    }
+
+    @Test
+    public void testGetOrCreateFromTemplateNotFound() throws ApiException {
+        var input = "i_dont_exist";
+
+        var exception = assertThrows(ApiException.class, () -> organisationApi.servicesOrganisationCodeGet(input, true));
+        assertNotNull(exception);
+        assertEquals(404, exception.getCode());
     }
 }
