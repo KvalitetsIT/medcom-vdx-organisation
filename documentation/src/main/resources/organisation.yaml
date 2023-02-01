@@ -218,6 +218,7 @@ components:
         - code
         - name
         - poolSize
+        - children
       properties:
         code:
           description: The code that uniquely identifies an organisation

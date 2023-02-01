@@ -62,13 +62,13 @@ public class OrganisationTreeControllerTest {
         assertEquals(childTwo.getOrganisationName(), childTwoTree.getName());
         assertEquals(childTwo.getGroupId().toString(), childTwoTree.getCode());
         assertEquals(0, childTwoTree.getPoolSize().intValue());
-        assertNull(childTwoTree.getChildren());
+        assertEquals(0, childTwoTree.getChildren().size());
 
         treeChild = childOneTree.getChildren().get(0);
         assertEquals(child.getOrganisationName(), treeChild.getName());
         assertEquals(child.getOrganisationId(), treeChild.getCode());
         assertEquals(0, treeChild.getPoolSize().intValue());
-        assertNull(treeChild.getChildren());
+        assertTrue(treeChild.getChildren().isEmpty());
     }
 
     @Test(expected = ResourceNotFoundException.class)

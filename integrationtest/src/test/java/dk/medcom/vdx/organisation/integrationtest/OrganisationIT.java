@@ -196,6 +196,6 @@ public class OrganisationIT extends AbstractIntegrationTest {
         Assert.assertEquals("child", child.getCode());
         Assert.assertEquals(0, child.getPoolSize().intValue());
         Assert.assertEquals("child org", child.getName());
-        Assert.assertNull(child.getChildren());
+        Assert.assertEquals(0, child.getChildren().size());
     }
 }

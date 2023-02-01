@@ -59,7 +59,7 @@ public class OrganisationTreeBuilderTest {
         assertNull(childTwoTree.getSmsCallbackUrl());
         assertNull(childTwoTree.getSmsSenderName());
         assertEquals(0, childTwoTree.getPoolSize().intValue());
-        assertNull(childTwoTree.getChildren());
+        assertTrue(childTwoTree.getChildren().isEmpty());
 
         treeChild = childOneTree.getChildren().get(0);
         assertEquals(child.getOrganisationName(), treeChild.getName());
@@ -67,7 +67,7 @@ public class OrganisationTreeBuilderTest {
         assertNull(treeChild.getSmsCallbackUrl());
         assertNull(treeChild.getSmsSenderName());
         assertEquals(0, treeChild.getPoolSize().intValue());
-        assertNull(treeChild.getChildren());
+        assertTrue(treeChild.getChildren().isEmpty());
     }
 
     @Test
