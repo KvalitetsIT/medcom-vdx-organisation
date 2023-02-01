@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: VDX Organisation
   description: API description for VDX Organisation.
-  version: "1.0.0"
+  version: "0.0.4"
   contact:
     email: development@kvalitetitsit.dk
 tags:
