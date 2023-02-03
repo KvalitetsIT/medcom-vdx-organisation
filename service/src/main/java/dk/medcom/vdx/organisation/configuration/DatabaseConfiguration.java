@@ -46,10 +46,11 @@ public class DatabaseConfiguration {
     }
 
     @Bean(initMethod = "migrate")
-    public Flyway flyway(DataSource dataSource, @Value("${spring.flyway.locations:classpath:db/migration}") List<String> locations) {
+    public Flyway flyway(DataSource dataSource, @Value("${spring.flyway.locations:classpath:db/migration}") List<String> locations, @Value("${FLYWAY_BASELINE_ON_MIGRATE:false}") boolean baseline) {
         logger.info("Reading migration files from {}.", locations);
         return Flyway.configure()
                 .dataSource(dataSource)
+                .baselineOnMigrate(baseline)
                 .table("organisation_flyway_schema_history")
                 .locations(locations.toArray(String[]::new))
                 .load();
