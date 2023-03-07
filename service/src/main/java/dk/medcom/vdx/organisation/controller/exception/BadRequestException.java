@@ -1,8 +1,9 @@
 package dk.medcom.vdx.organisation.controller.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
 
-@ResponseStatus(value = HttpStatus.BAD_REQUEST)
-public class BadRequestException extends RuntimeException {
+public class BadRequestException extends AbstractApiException {
+    public BadRequestException(String errorMessage) {
+        super(HttpStatus.BAD_REQUEST, errorMessage);
+    }
 }
