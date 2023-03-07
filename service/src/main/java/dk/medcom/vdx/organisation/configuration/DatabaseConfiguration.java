@@ -1,9 +1,7 @@
 package dk.medcom.vdx.organisation.configuration;
 
 import dk.medcom.vdx.organisation.dao.GroupsDao;
-import dk.medcom.vdx.organisation.dao.OrganisationTemplateDao;
 import dk.medcom.vdx.organisation.dao.impl.GroupsDaoImpl;
-import dk.medcom.vdx.organisation.dao.impl.OrganisationTemplateDaoImpl;
 import org.flywaydb.core.Flyway;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,11 +22,6 @@ import java.util.List;
 @EnableTransactionManagement
 public class DatabaseConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(DatabaseConfiguration.class);
-
-    @Bean
-    public OrganisationTemplateDao organisationTemplateDao(DataSource dataSource) {
-        return new OrganisationTemplateDaoImpl(dataSource);
-    }
 
     @Bean
     public GroupsDao groupsDao(DataSource dataSource) {

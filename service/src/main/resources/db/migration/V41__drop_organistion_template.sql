@@ -1,0 +1,1 @@
+drop table organisation_template;

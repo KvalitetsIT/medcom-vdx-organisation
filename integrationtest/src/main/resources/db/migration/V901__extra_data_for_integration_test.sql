@@ -31,4 +31,3 @@ VALUES (1, '1238@test.dk', 'PROVISIONED_OK', 5);
 INSERT INTO scheduling_info (id, uri_with_domain, provision_status, organisation_id)
 VALUES (2, '1239@test.dk', 'PROVISIONED_OK', 7);
 
-insert into organisation_template(id, organisation_code, name, parent_organisation_code) values(1, 'from_template', 'template name', 'test-org');
