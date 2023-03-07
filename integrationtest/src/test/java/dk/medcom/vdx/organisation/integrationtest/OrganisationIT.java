@@ -6,12 +6,15 @@ import org.junit.Ignore;
 import org.junit.Test;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
+import org.openapitools.client.JSON;
 import org.openapitools.client.api.OrganisationApi;
 import org.openapitools.client.api.OrganisationTreeApi;
+import org.openapitools.client.model.BasicError;
+import org.openapitools.client.model.OrganisationCreate;
 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -29,7 +32,6 @@ public class OrganisationIT extends AbstractIntegrationTest {
     public void setupApiClient() {
         var apiClient = new ApiClient()
                 .setBasePath(getApiBasePath())
-                .setOffsetDateTimeFormat(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss X"))
                 .addDefaultHeader("X-SESSIONDATA", SESSION_MEDCOM_ORGANISATION);
         organisationApi = new OrganisationApi(apiClient);
 
@@ -37,7 +39,6 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
         var unauthorizedApiClient = new ApiClient()
                 .setBasePath(getApiBasePath())
-                .setOffsetDateTimeFormat(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss X"))
                 .addDefaultHeader("X-SESSIONDATA", SESSION_NOT_ADMIN);
 
         unauthorizedOrganisationApi = new OrganisationApi(unauthorizedApiClient);
@@ -77,7 +78,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
     @Test
     public void testReadOrganisation() throws ApiException {
-        var response = organisationApi.servicesOrganisationCodeGet("test-org", false);
+        var response = organisationApi.servicesOrganisationCodeGet("test-org");
 
         assertNotNull(response);
         assertEquals("test-org", response.getCode());
@@ -88,7 +89,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
     @Test
     public void testReadOrganisationNoSmsSenderName() throws ApiException {
-        var response = organisationApi.servicesOrganisationCodeGet("kvak", false);
+        var response = organisationApi.servicesOrganisationCodeGet("kvak");
 
         assertNotNull(response);
         assertEquals("kvak", response.getCode());
@@ -116,7 +117,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
     @Test
     public void testUnauthorizedWhenUnknownRole() {
-        var expectedException = assertThrows(ApiException.class, () -> unauthorizedOrganisationApi.servicesOrganisationCodeGet("some code", false));
+        var expectedException = assertThrows(ApiException.class, () -> unauthorizedOrganisationApi.servicesOrganisationCodeGet("some code"));
         assertEquals(401, expectedException.getCode());
     }
 
@@ -124,50 +125,55 @@ public class OrganisationIT extends AbstractIntegrationTest {
     public void testUnauthorizedWhenNotAdmin() {
         var unauthorizedApiClient = new ApiClient()
                 .setBasePath(getApiBasePath())
-                .setOffsetDateTimeFormat(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss X"))
                 .addDefaultHeader("X-SESSIONDATA", SESSION_MEETING_USER);
 
         var api = new OrganisationApi(unauthorizedApiClient);
 
-        var expectedException = assertThrows(ApiException.class, () -> api.servicesOrganisationCodeGet("some code", false));
+        var expectedException = assertThrows(ApiException.class, () -> api.servicesOrganisationCodeGet("some code"));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void testGetOrCreateFromTemplateFound() throws ApiException {
-        var input = "test-org";
+    public void testCreateOrganisationAlreadyExists() {
+        var input = "from_template";
 
-        var result = organisationApi.servicesOrganisationCodeGet(input, true);
-        assertNotNull(result);
+        var inputOrganisation = new OrganisationCreate();
+        inputOrganisation.code("test-org");
 
-        assertEquals(input, result.getCode());
-        assertEquals("company name test-org", result.getName());
-        assertEquals("MinAfsender", result.getSmsSenderName());
-        assertEquals("some_url", result.getSmsCallbackUrl());
-        assertEquals(0, result.getPoolSize());
+        var exception = assertThrows(ApiException.class, () -> organisationApi.servicesOrganisationParentCodePost(input, inputOrganisation));
+        assertNotNull(exception);
+        assertEquals(400, exception.getCode());
+        var error = JSON.getGson().fromJson(exception.getResponseBody(), BasicError.class);
+        assertEquals("Organisation test-org already exists.", error.getError());
     }
 
     @Test
-    public void testGetOrCreateFromTemplateFoundInTemplate() throws ApiException {
-        var input = "from_template";
+    public void testCreateOrganisation() throws ApiException {
+        var input = "child";
+        var inputOrganisation = new OrganisationCreate();
+        inputOrganisation.setCode(UUID.randomUUID().toString());
 
-        var result = organisationApi.servicesOrganisationCodeGet(input, true);
+        var result = organisationApi.servicesOrganisationParentCodePost(input, inputOrganisation);
         assertNotNull(result);
 
-        assertEquals(input, result.getCode());
-        assertEquals("template name", result.getName());
+        assertEquals(inputOrganisation.getCode(), result.getCode());
+        assertEquals(inputOrganisation.getCode(), result.getName());
         assertEquals(null, result.getSmsSenderName());
         assertEquals(null, result.getSmsCallbackUrl());
         assertEquals(0, result.getPoolSize());
     }
 
     @Test
-    public void testGetOrCreateFromTemplateNotFound() throws ApiException {
+    public void testCreateOrganisationParentNotFound() {
         var input = "i_dont_exist";
+        var inputOrganisation = new OrganisationCreate();
+        inputOrganisation.code("code");
 
-        var exception = assertThrows(ApiException.class, () -> organisationApi.servicesOrganisationCodeGet(input, true));
+        var exception = assertThrows(ApiException.class, () -> organisationApi.servicesOrganisationParentCodePost(input, inputOrganisation));
         assertNotNull(exception);
-        assertEquals(404, exception.getCode());
+        assertEquals(400, exception.getCode());
+        var error = JSON.getGson().fromJson(exception.getResponseBody(), BasicError.class);
+        assertEquals("Parent organisation i_dont_exist not found", error.getError());
     }
 
     @Test
