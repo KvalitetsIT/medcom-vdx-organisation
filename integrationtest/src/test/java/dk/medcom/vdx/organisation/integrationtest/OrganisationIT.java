@@ -10,8 +10,16 @@ import org.openapitools.client.JSON;
 import org.openapitools.client.api.OrganisationApi;
 import org.openapitools.client.api.OrganisationTreeApi;
 import org.openapitools.client.model.BasicError;
+import org.openapitools.client.model.Organisation;
 import org.openapitools.client.model.OrganisationCreate;
+import org.openapitools.client.model.Organisationtree;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -98,6 +106,25 @@ public class OrganisationIT extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testReadOrganisationWithSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/organisation/æ/åø")).
+                header("X-SESSIONDATA", SESSION_MEDCOM_ORGANISATION).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        var response = JSON.getGson().fromJson(responseString.body(), Organisation.class);
+
+        assertNotNull(response);
+        assertEquals("æ/åø", response.getCode());
+        assertEquals("This is with a slash", response.getName());
+        assertNull(response.getSmsSenderName());
+    }
+
+    @Test
     public void testReadOrganisationTree() throws ApiException {
         var response = organisationTreeApi.servicesOrganisationtreeCodeGet("child");
         assertNotNull(response);
@@ -113,6 +140,26 @@ public class OrganisationIT extends AbstractIntegrationTest {
         assertEquals("parent org", parentOrganisation.getName());
         assertEquals("sms-sender", parentOrganisation.getSmsSenderName());
         assertEquals("callback", parentOrganisation.getSmsCallbackUrl());
+    }
+
+    @Test
+    public void testReadOrganisationTreeWithSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/organisationtree/æ/åø")).
+                header("X-SESSIONDATA", SESSION_MEDCOM_ORGANISATION).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        var response = JSON.getGson().fromJson(responseString.body(), Organisationtree.class);
+
+        assertNotNull(response);
+        assertEquals("æ/åø", response.getCode());
+        assertEquals("This is with a slash", response.getName());
+        assertNull(response.getSmsSenderName());
+        assertTrue(response.getChildren().isEmpty());
     }
 
     @Test
