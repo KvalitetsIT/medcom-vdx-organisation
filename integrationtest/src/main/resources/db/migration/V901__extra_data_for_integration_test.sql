@@ -12,6 +12,8 @@ insert into groups(group_id, group_name, group_type, parent_id) values(11, 'pare
 insert into groups(group_id, group_name, group_type, parent_id) values(12, 'child_one', 2, 11);
 insert into groups(group_id, group_name, group_type, parent_id) values(13, 'child', 2, 12);
 insert into groups(group_id, group_name, group_type, parent_id) values(15, 'medcom', 1, null);
+insert into groups(group_id, group_name, group_type, parent_id) values(16, 'æ/åø', 2, null);
+
 -- * organisation *
 INSERT INTO organisation (id, organisation_id, name, group_id) VALUES (1, 'company 1', 'company name 1', 1);
 INSERT INTO organisation (id, organisation_id, name, group_id) VALUES (2, 'company 2', 'company name 2', 2);
@@ -24,6 +26,7 @@ INSERT INTO organisation (id, organisation_id, name, pool_size, group_id, allow_
 insert into organisation(id, organisation_id, name, pool_size, group_id, sms_sender_name, sms_callback_url) values(10, 'parent', 'parent org', 20, 11, 'sms-sender', 'callback');
 insert into organisation(id, organisation_id, name, group_id) values(11, 'child', 'child org', 13);
 insert into organisation(id, organisation_id, name, group_id) values(12, 'medcom', 'This Is Medcom', 15);
+insert into organisation(id, organisation_id, name, group_id) values(13, 'æ/åø', 'This is with a slash', 16);
 
 INSERT INTO scheduling_info (id, uri_with_domain, provision_status, organisation_id)
 VALUES (1, '1238@test.dk', 'PROVISIONED_OK', 5);

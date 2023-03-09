@@ -6,11 +6,14 @@ import dk.medcom.vdx.organisation.controller.exception.ResourceNotFoundException
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.service.OrganisationTreeBuilder;
 import dk.medcom.vdx.organisation.service.OrganisationTreeService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.openapitools.api.OrganisationTreeApi;
 import org.openapitools.model.Organisationtree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -24,6 +27,15 @@ public class OrganisationTreeController implements OrganisationTreeApi  {
     public OrganisationTreeController(OrganisationTreeService organisationTreeService, OrganisationTreeBuilder organisationTreeBuilder) {
         this.organisationTreeService = organisationTreeService;
         this.organisationTreeBuilder = organisationTreeBuilder;
+    }
+
+    @APISecurityAnnotation({UserRole.ADMIN})
+    @RequestMapping(method = RequestMethod.GET, value = "/services/organisationtree/**", produces = { "application/json" })
+    public ResponseEntity<Organisationtree> getOrganisationTreeSlash(HttpServletRequest request) {
+        var organisation = request.getServletPath().replaceFirst("/services/organisationtree/", "");
+        logger.info("Reading organisation tree with slash. Translated to {}.", organisation);
+
+        return servicesOrganisationtreeCodeGet(organisation);
     }
 
     @Override

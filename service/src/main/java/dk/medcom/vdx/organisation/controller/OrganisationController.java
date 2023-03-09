@@ -7,6 +7,7 @@ import dk.medcom.vdx.organisation.controller.exception.ResourceNotFoundException
 import dk.medcom.vdx.organisation.service.OrganisationByUriService;
 import dk.medcom.vdx.organisation.service.OrganisationService;
 import dk.medcom.vdx.organisation.service.exception.InvalidDataException;
+import jakarta.servlet.http.HttpServletRequest;
 import org.openapitools.api.OrganisationApi;
 import org.openapitools.model.Organisation;
 import org.openapitools.model.OrganisationCreate;
@@ -14,6 +15,8 @@ import org.openapitools.model.OrganisationUriInner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -28,6 +31,17 @@ public class OrganisationController implements OrganisationApi {
     public OrganisationController(OrganisationService organisationService, OrganisationByUriService organisationByUriService) {
         this.organisationService = organisationService;
         this.organisationByUriService = organisationByUriService;
+    }
+
+    @APISecurityAnnotation({UserRole.ADMIN})
+    @RequestMapping(method = RequestMethod.GET, value = "/services/organisation/**",
+            produces = { "application/json" }
+    )
+    public ResponseEntity<Organisation> getOrganisationSlash(HttpServletRequest request){
+        var organisation = request.getServletPath().replaceFirst("/services/organisation/", "");;
+        logger.info("Reading organisation with slash. Translated to {}.", organisation);
+
+        return servicesOrganisationCodeGet(organisation);
     }
 
     @Override
