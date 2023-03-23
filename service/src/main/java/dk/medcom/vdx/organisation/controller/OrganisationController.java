@@ -85,6 +85,12 @@ public class OrganisationController implements OrganisationApi {
 
     @Override
     @APISecurityAnnotation({ UserRole.ADMIN })
+    @RequestMapping(
+            method = RequestMethod.POST,
+            value = {"/services/organisation/uri", "/services/organisation/uri/"},
+            produces = { "application/json" },
+            consumes = { "application/json" }
+    )
     public ResponseEntity<List<OrganisationUriInner>> servicesOrganisationUriPost(List<String> requestBody) {
         logger.debug("Entry of /services/organisation/uri.post count: " + requestBody.size());
 
