@@ -31,6 +31,9 @@ public class UserSecurityInterceptor implements HandlerInterceptor {
 
 		if(userContext == null) {
 			logger.warn("No user context found");
+			if(logger.isDebugEnabled()) {
+				logger.debug(request.getRequestURI());
+			}
 			throw new PermissionDeniedException();
 		}
 
