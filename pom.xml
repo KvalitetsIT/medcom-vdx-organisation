@@ -64,6 +64,13 @@
 
 			<dependency>
 				<groupId>dk.medcom.vdx.organisation</groupId>
+				<artifactId>service</artifactId>
+				<version>${project.version}</version>
+				<type>test-jar</type>
+			</dependency>
+
+			<dependency>
+				<groupId>dk.medcom.vdx.organisation</groupId>
 				<artifactId>integrationtest</artifactId>
 				<version>${project.version}</version>
 			</dependency>

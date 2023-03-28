@@ -15,7 +15,7 @@ insert into groups(group_id, group_name, group_type, parent_id) values(15, 'medc
 insert into groups(group_id, group_name, group_type, parent_id) values(16, 'æ/åø', 2, null);
 
 -- * organisation *
-INSERT INTO organisation (id, organisation_id, name, group_id) VALUES (1, 'company 1', 'company name 1', 1);
+INSERT INTO organisation (id, organisation_id, name, group_id, sms_sender_name) VALUES (1, 'company 1', 'company name 1', 1, 'SomeSender');
 INSERT INTO organisation (id, organisation_id, name, group_id) VALUES (2, 'company 2', 'company name 2', 2);
 INSERT INTO organisation (id, organisation_id, name, group_id) VALUES (3, 'company 3', 'company name 3', 3);
 INSERT INTO organisation (id, organisation_id, name, group_id) VALUES (4, 'kvak', 'company name kvak', 4);
@@ -33,4 +33,15 @@ VALUES (1, '1238@test.dk', 'PROVISIONED_OK', 5);
 
 INSERT INTO scheduling_info (id, uri_with_domain, provision_status, organisation_id)
 VALUES (2, '1239@test.dk', 'PROVISIONED_OK', 7);
+
+-- test data for views
+
+insert into entities_meetingroom(uuid, group_id, name) values ('80b58b9f-36ec-4e04-8ae5-092918542114', 1, 'multiple_one');
+insert into entities_meetingroom(uuid, group_id, name) values ('de99982f-12c8-4dae-903e-3df3085a93b8', 2, 'multiple_two');
+
+insert into entities_meetingroom_alias(uuid, relation_uuid, alias) values('8eda3a3d-70bd-474d-a727-91bd46ded2ec', '80b58b9f-36ec-4e04-8ae5-092918542114', 'alias_one');
+insert into entities_meetingroom_alias(uuid, relation_uuid, alias) values('045003a1-9b31-4197-94ed-56690cd7878b', '80b58b9f-36ec-4e04-8ae5-092918542114', 'alias_two');
+
+insert into entities_meetingroom_alias(uuid, relation_uuid, alias) values('53c785c6-aaf7-4263-acd0-0f7ba371337f', 'de99982f-12c8-4dae-903e-3df3085a93b8', 'alias_one');
+insert into entities_meetingroom_alias(uuid, relation_uuid, alias) values('ad4171ba-d901-44fa-8301-2546aeef24b3', 'de99982f-12c8-4dae-903e-3df3085a93b8', 'alias_two');
 

@@ -1,31 +1,6 @@
 ![Build Status](https://github.com/KvalitetsIT/medcom-vdx-organisation/workflows/CICD/badge.svg)
 # medcom-vdx-organisation
 
-Template repository showing how to be a good Java Spring Boot citizen in a k8s cluster.
-
-## A good citizen
-
-Below is a set of recommendations for being a good service. The recommendations are not tied to a specific language or 
-framework.
-
-1. Configuration through environment variables.
-2. Expose readiness endpoint
-3. Expose endpoint that Prometheus can scrape
-4. Be stateless
-5. Support multiple instances
-6. Always be in a releasable state
-7. Automate build and deployment.
-
-Some of above recommendations are heavily inspired by [https://12factor.net/](https://12factor.net/). It is recommended 
-read [https://12factor.net/](https://12factor.net/) for more inspiration and further details. Some points go 
-further than just being a good service and also touches areas like operations.
-
-## Getting started
-
-Run `./setup.sh GIT_REPOSITORY_NAME`.
-
-Above does a search/replace in relevant files. 
-
 ## Endpoints
 
 ### Service
@@ -48,11 +23,20 @@ In the docker-compose setup is also an example on how to set custom endpoints fo
 
 ## Configuration
 
-| Environment variable | Description | Required |
-|----------------------|-------------|---------- |
-| JDBC_URL | JDBC connection URL | Yes |
-| JDBC_USER | JDBC user          | Yes |
-| JDBC_PASS | JDBC password      | Yes |
-| LOG_LEVEL | Log Level for applikation  log. Defaults to INFO. | No |
-| LOG_LEVEL_FRAMEWORK | Log level for framework. Defaults to INFO. | No |
-| CORRELATION_ID | HTTP header to take correlation id from. Used to correlate log messages. Defaults to "x-request-id". | No
+| Environment variable                     | Description                                                                                          | Required |
+|------------------------------------------|------------------------------------------------------------------------------------------------------|----------|
+| JDBC_URL                                 | JDBC connection URL                                                                                  | Yes      |
+| JDBC_USER                                | JDBC user                                                                                            | Yes      |
+| JDBC_PASS                                | JDBC password                                                                                        | Yes      |
+| LOG_LEVEL                                | Log Level for applikation  log. Defaults to INFO.                                                    | No       |
+| LOG_LEVEL_FRAMEWORK                      | Log level for framework. Defaults to INFO.                                                           | No       |
+| CORRELATION_ID                           | HTTP header to take correlation id from. Used to correlate log messages. Defaults to "x-request-id". | No       |
+| sessiondata_headername                   | HTTP header containing session data.                                                                 | Yes      |
+| userservice_token_attribute_organisation | Attribute to read organisation from in sessiondata_header                                            | Yes      | 
+| userservice_token_attribute_email        | Attribute to read email from in sessiondata_header                                                   | Yes      |
+| userservice_token_attribute_userrole     | Attribute to read user role from in sessiondata_header                                               | Yes      | 
+| mapping_role_provisioner                 | Attribute value to map to meeting-provision role.                                                    | Yes      |
+| mapping_role_user                        | Attribute value to map to meeting-user role.                                                         | Yes      |
+| mapping_role_meeting_planner             | Attribute value to map to meeting-planner role.                                                      | Yes      |
+| mapping_role_admin                       | Attribute value to map to meeting-admin role.                                                        | Yes      |
+ | ALLOWED_ORIGINS                          | Allowed CORS origins                                                                                 | Yes      |  
