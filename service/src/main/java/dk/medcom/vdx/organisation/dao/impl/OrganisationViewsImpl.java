@@ -34,12 +34,16 @@ public class OrganisationViewsImpl implements OrganisationViews {
 
         String sql = "SELECT group_id FROM view_entities_meetingroom WHERE FIND_IN_SET(:uri_with_domain,LOWER(aliases))";
 
-        try {
-            Long result = template.queryForObject(sql, parameters, Long.class);
+        var result = template.queryForList(sql, parameters, Long.class);
 
-            return Optional.ofNullable(result);
-        } catch (EmptyResultDataAccessException e) {
+        if(result.isEmpty()) {
             return Optional.empty();
+        }
+        else {
+            if(result.size() > 1) {
+                logger.info("Found multiple rows for {}. Returning first row.", uri);
+            }
+            return Optional.ofNullable(result.get(0));
         }
     }
 

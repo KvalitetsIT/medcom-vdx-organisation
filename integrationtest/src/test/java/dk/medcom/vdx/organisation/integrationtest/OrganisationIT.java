@@ -2,7 +2,6 @@ package dk.medcom.vdx.organisation.integrationtest;
 
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
@@ -26,6 +25,7 @@ import java.util.UUID;
 
 import static org.junit.Assert.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 public class OrganisationIT extends AbstractIntegrationTest {
     private OrganisationApi organisationApi;
@@ -71,7 +71,6 @@ public class OrganisationIT extends AbstractIntegrationTest {
     }
 
     @Test
-    @Ignore // missing view view_entities_meetingroom
     public void testOrganisationByUri_StatusNotPROVISIONED_OK() throws ApiException {
         // Given
         List<String> uris = new ArrayList<>();
@@ -205,8 +204,8 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
         assertEquals(inputOrganisation.getCode(), result.getCode());
         assertEquals(inputOrganisation.getCode(), result.getName());
-        assertEquals(null, result.getSmsSenderName());
-        assertEquals(null, result.getSmsCallbackUrl());
+        assertNull(result.getSmsSenderName());
+        assertNull(result.getSmsCallbackUrl());
         assertEquals(0, result.getPoolSize());
     }
 

@@ -95,7 +95,7 @@ public class ServiceStarter {
 
                 .withEnv("spring.flyway.locations", "classpath:db/migration,filesystem:/app/sql")
 
-                .withClasspathResourceMapping("db/migration/V901__extra_data_for_integration_test.sql", "/app/sql/V901__extra_data_for_integration_test.sql", BindMode.READ_ONLY)
+                .withClasspathResourceMapping("db/migration/V903__insert_test_data.sql", "/app/sql/V903__insert_test_data.sql", BindMode.READ_ONLY)
                 .withClasspathResourceMapping("db/migration/V902__views.sql", "/app/sql/V902__views.sql", BindMode.READ_ONLY)
 //                .withEnv("JVM_OPTS", "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8000")
 

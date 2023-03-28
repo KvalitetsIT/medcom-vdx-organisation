@@ -135,7 +135,7 @@ public class OrganisationTest extends AbstractDaoTest {
 		List<Organisation> organizations = subject.findByPoolSizeNotNull();
 
 		assertNotNull(organizations);
-		assertEquals(4, organizations.size());
+		assertEquals(2, organizations.size());
 
 		var optionalOorganization = organizations.stream().filter(x -> x.getName().equals("company name another-test-org")).findFirst();
 

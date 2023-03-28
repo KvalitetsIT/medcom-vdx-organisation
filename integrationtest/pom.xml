@@ -13,6 +13,13 @@
 
     <dependencies>
         <dependency>
+            <groupId>dk.medcom.vdx.organisation</groupId>
+            <artifactId>service</artifactId>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mockserver</artifactId>
             <scope>test</scope>
