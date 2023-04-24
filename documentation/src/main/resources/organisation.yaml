@@ -28,6 +28,59 @@ servers:
           - 8080
         default: 8080
 paths:
+  /services/organisation:
+    get:
+      tags:
+        - Organisation
+      summary: Read organisation
+      description: Read a single organisation
+      parameters:
+        - name: organisationCode
+          in: query
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation'
+
+    post:
+      tags:
+        - Organisation
+      summary: Create organisation
+      description: Create a single organisation with the option to create it in a parent organisation.
+      parameters:
+        - name: parent_code
+          in: query
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+      requestBody:
+        description: Organisation to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/organisation-create'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+
   /services/organisation/{code}:
     get:
       tags:
@@ -106,6 +159,27 @@ paths:
           $ref: '#/components/responses/401'
         '403':
           $ref: '#/components/responses/403'
+
+  /services/organisationtree:
+    get:
+      tags:
+        - Organisation Tree
+      summary: Get a specific part of the organisation tree
+      description: Get a specific organisation tree (rooted at the specified code)
+      parameters:
+        - name: organisationCode
+          in: query
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisationtree'
 
   /services/organisationtree/{code}:
     get:

@@ -65,6 +65,15 @@ public class OrganisationController implements OrganisationApi {
     }
 
     @Override
+    @APISecurityAnnotation({ UserRole.ADMIN })
+    public ResponseEntity<Organisation> servicesOrganisationGet(String code) {
+        logger.debug("Entry of /services/organisation.get with query parameter: " + code);
+
+        return servicesOrganisationCodeGet(code);
+    }
+
+    @Override
+    @APISecurityAnnotation({ UserRole.ADMIN })
     public ResponseEntity<Organisation> servicesOrganisationParentCodePost(String parentCode, OrganisationCreate organisationCreate) {
         logger.debug("Entry of /services/organisation.post code: " + organisationCreate.getCode());
 
@@ -81,6 +90,14 @@ public class OrganisationController implements OrganisationApi {
             logger.info("Error during creation of organisation", e);
             throw new BadRequestException(e.getMessage());
         }
+    }
+
+    @Override
+    @APISecurityAnnotation({ UserRole.ADMIN })
+    public ResponseEntity<Organisation> servicesOrganisationPost(String parentCode, OrganisationCreate organisationCreate) {
+        logger.debug("Entry of /services/organisation.post by query parameter code: " + organisationCreate.getCode());
+
+        return servicesOrganisationParentCodePost(parentCode, organisationCreate);
     }
 
     @Override
