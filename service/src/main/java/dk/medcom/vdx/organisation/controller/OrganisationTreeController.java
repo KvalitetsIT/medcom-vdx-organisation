@@ -49,4 +49,12 @@ public class OrganisationTreeController implements OrganisationTreeApi  {
             logger.debug("Done getOrganisationTree(code: {})", code);
         }
     }
+
+    @Override
+    @APISecurityAnnotation({ UserRole.ADMIN })
+    public ResponseEntity<Organisationtree> servicesOrganisationtreeGet(String organisationCode) {
+        logger.info("Reading organisation tree by query parameter: {}.", organisationCode);
+
+        return servicesOrganisationtreeCodeGet(organisationCode);
+    }
 }

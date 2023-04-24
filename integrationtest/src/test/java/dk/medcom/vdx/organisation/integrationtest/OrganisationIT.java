@@ -162,6 +162,45 @@ public class OrganisationIT extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testReadOrganisationTreeWithSlashQueryParameter() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/organisationtree?organisationCode=æ/åø")).
+                header("X-SESSIONDATA", SESSION_MEDCOM_ORGANISATION).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        var response = JSON.getGson().fromJson(responseString.body(), Organisationtree.class);
+
+        assertNotNull(response);
+        assertEquals("æ/åø", response.getCode());
+        assertEquals("This is with a slash", response.getName());
+        assertNull(response.getSmsSenderName());
+        assertTrue(response.getChildren().isEmpty());
+    }
+
+    @Test
+    public void testReadOrganisationWithSlashQueryParameter() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/organisation?organisationCode=æ/åø")).
+                header("X-SESSIONDATA", SESSION_MEDCOM_ORGANISATION).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        var response = JSON.getGson().fromJson(responseString.body(), Organisation.class);
+
+        assertNotNull(response);
+        assertEquals("æ/åø", response.getCode());
+        assertEquals("This is with a slash", response.getName());
+        assertNull(response.getSmsSenderName());
+    }
+
+    @Test
     public void testUnauthorizedWhenUnknownRole() {
         var expectedException = assertThrows(ApiException.class, () -> unauthorizedOrganisationApi.servicesOrganisationCodeGet("some code"));
         assertEquals(401, expectedException.getCode());
@@ -200,6 +239,22 @@ public class OrganisationIT extends AbstractIntegrationTest {
         inputOrganisation.setCode(UUID.randomUUID().toString());
 
         var result = organisationApi.servicesOrganisationParentCodePost(input, inputOrganisation);
+        assertNotNull(result);
+
+        assertEquals(inputOrganisation.getCode(), result.getCode());
+        assertEquals(inputOrganisation.getCode(), result.getName());
+        assertNull(result.getSmsSenderName());
+        assertNull(result.getSmsCallbackUrl());
+        assertEquals(0, result.getPoolSize());
+    }
+
+    @Test
+    public void testCreateOrganisationParentInQuery() throws ApiException {
+        var input = "æ/åø";
+        var inputOrganisation = new OrganisationCreate();
+        inputOrganisation.setCode(UUID.randomUUID().toString());
+
+        var result = organisationApi.servicesOrganisationPost(input, inputOrganisation);
         assertNotNull(result);
 
         assertEquals(inputOrganisation.getCode(), result.getCode());
