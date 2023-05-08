@@ -45,3 +45,17 @@ insert into entities_meetingroom_alias(uuid, relation_uuid, alias) values('04500
 insert into entities_meetingroom_alias(uuid, relation_uuid, alias) values('53c785c6-aaf7-4263-acd0-0f7ba371337f', 'de99982f-12c8-4dae-903e-3df3085a93b8', 'alias_one');
 insert into entities_meetingroom_alias(uuid, relation_uuid, alias) values('ad4171ba-d901-44fa-8301-2546aeef24b3', 'de99982f-12c8-4dae-903e-3df3085a93b8', 'alias_two');
 
+-- used for dk.medcom.vdx.organisation.integrationtest.OrganisationIT.testReadOrganisationTree_with_group_only
+INSERT INTO `groups` (`group_id`, `group_name`, `group_type`, `parent_id`, `created_time`, `created_by`, `updated_time`, `updated_by`, `deleted_time`, `deleted_by`) VALUES (22, 'VDX', '2', NULL, '2020-09-03 09:17:11', 'system', '0001-01-01 00:00:00', NULL, '0001-01-01 00:00:00', NULL);
+INSERT INTO `organisation` (`id`, `group_id`, `organisation_id`, `name`, `deleted_time`, `pool_size`, `sms_sender_name`, `allow_custom_uri_without_domain`, `sms_callback_url`) VALUES (NULL, '22', 'vdx', 'VDX', '0001-01-01 00:00:00', '4', 'VDX Video', '0', NULL);
+
+INSERT INTO `groups` (`group_id`, `group_name`, `group_type`, `parent_id`, `created_time`, `created_by`, `updated_time`, `updated_by`, `deleted_time`, `deleted_by`) VALUES (21, 'Offentlige organisationer', '1', '22', '2020-10-01 09:41:12', 'jsk@medcom.dk', '0001-01-01 00:00:00', NULL, '0001-01-01 00:00:00', NULL);
+
+INSERT INTO `groups` (`group_id`, `group_name`, `group_type`, `parent_id`, `created_time`, `created_by`, `updated_time`, `updated_by`, `deleted_time`, `deleted_by`) VALUES (20, 'Medcom', '2', '21', '2020-09-03 09:18:10', 'system', '2020-10-01 11:43:46', 'jsk@medcom.dk', '0001-01-01 00:00:00', NULL);
+INSERT INTO `organisation` (`id`, `group_id`, `organisation_id`, `name`, `deleted_time`, `pool_size`, `sms_sender_name`, `allow_custom_uri_without_domain`, `sms_callback_url`) VALUES (NULL, '20', 'medcom1', 'Medcom', '0001-01-01 00:00:00', '4', NULL, '1', NULL);
+
+INSERT INTO `groups` (`group_id`, `group_name`, `group_type`, `parent_id`, `created_time`, `created_by`, `updated_time`, `updated_by`, `deleted_time`, `deleted_by`) VALUES (42, 'Test Gruppe 1', '1', '20', '2023-02-03 21:27:40', 'jsk@medcom.dk', '2023-02-04 00:49:59', 'jsk@medcom.dk', '0001-01-01 00:00:00', NULL);
+INSERT INTO `organisation` (`id`, `group_id`, `organisation_id`, `name`, `deleted_time`, `pool_size`, `sms_sender_name`, `allow_custom_uri_without_domain`, `sms_callback_url`) VALUES (NULL, '42', 'c53f8165-35e8-46db-b052-d93493c139d5/TestGruppe123', 'Test Gruppe 123', '2023-02-03 23:39:48', NULL, NULL, '0', NULL), (NULL, '42', 'a5fe2e71-6c60-47af-a496-d039f463b399/TestGruppe123', 'Test Gruppe 1234', '2023-02-04 00:49:43', NULL, NULL, '0', NULL);
+
+INSERT INTO `groups` (`group_id`, `group_name`, `group_type`, `parent_id`, `created_time`, `created_by`, `updated_time`, `updated_by`, `deleted_time`, `deleted_by`) VALUES (27, 'MedCom Test 2', '2', '42', '2022-02-07 07:34:09', 'jsk@medcom.dk', '2023-02-03 23:22:00', 'jsk@medcom.dk', '0001-01-01 00:00:00', NULL);
+INSERT INTO `organisation` (`id`, `group_id`, `organisation_id`, `name`, `deleted_time`, `pool_size`, `sms_sender_name`, `allow_custom_uri_without_domain`, `sms_callback_url`) VALUES (NULL, '27', 'medcom_test_2', 'MedCom Test 2', '0001-01-01 00:00:00', NULL, NULL, '0', NULL);
