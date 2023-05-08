@@ -305,4 +305,39 @@ public class OrganisationIT extends AbstractIntegrationTest {
         Assert.assertEquals("child org", child.getName());
         Assert.assertEquals(0, child.getChildren().size());
     }
+
+    @Test
+    public void testReadOrganisationTree_with_group_only() throws ApiException {
+        var response = organisationTreeApi.servicesOrganisationtreeCodeGet("medcom_test_2");
+
+        assertNotNull(response);
+        Assert.assertEquals("VDX", response.getName());
+        Assert.assertEquals(4, response.getPoolSize().intValue());
+        Assert.assertEquals("vdx", response.getCode());
+        Assert.assertEquals(1, response.getChildren().size());
+
+        var child = response.getChildren().get(0);
+        Assert.assertEquals("21", child.getCode());
+        Assert.assertEquals(0, child.getPoolSize().intValue());
+        Assert.assertEquals("Offentlige organisationer", child.getName());
+        Assert.assertEquals(1, child.getChildren().size());
+
+        child = child.getChildren().get(0);
+        Assert.assertEquals("medcom1", child.getCode());
+        Assert.assertEquals(4, child.getPoolSize().intValue());
+        Assert.assertEquals("Medcom", child.getName());
+        Assert.assertEquals(1, child.getChildren().size());
+
+        child = child.getChildren().get(0);
+        Assert.assertEquals("Test Gruppe 1", child.getName());
+        Assert.assertEquals(0, child.getPoolSize().intValue());
+        Assert.assertEquals("42", child.getCode());
+        Assert.assertEquals(1, child.getChildren().size());
+
+        child = child.getChildren().get(0);
+        Assert.assertEquals("medcom_test_2", child.getCode());
+        Assert.assertEquals(0, child.getPoolSize().intValue());
+        Assert.assertEquals("MedCom Test 2", child.getName());
+        Assert.assertEquals(0, child.getChildren().size());
+    }
 }

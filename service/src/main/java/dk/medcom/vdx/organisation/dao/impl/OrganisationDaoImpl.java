@@ -58,7 +58,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 "o.name organisation_name, " +
                 "o.sms_sender_name, " +
                 "o.sms_callback_url " +
-                "from groups g left outer join organisation o on g.group_id = o.group_id " +
+                "from groups g left outer join (select * from organisation where deleted_time = '0001-01-01 00:00:00') o on g.group_id = o.group_id " +
                 "where g.group_id = :group_id " +
                 "and g.deleted_time = '0001-01-01 00:00:00'";
 
