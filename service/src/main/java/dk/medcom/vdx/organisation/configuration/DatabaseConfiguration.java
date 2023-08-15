@@ -43,7 +43,6 @@ public class DatabaseConfiguration {
         logger.info("Reading migration files from {}.", locations);
         return Flyway.configure()
                 .dataSource(dataSource)
-                .baselineOnMigrate(baseline)
                 .table("organisation_flyway_schema_history")
                 .locations(locations.toArray(String[]::new))
                 .load();
