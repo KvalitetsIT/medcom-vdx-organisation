@@ -89,4 +89,30 @@ public class OrganisationDaoImpl implements OrganisationDao {
 
         return keyHolder.getKey().longValue();
     }
+
+    @Override
+    public Organisation findOrganisationByHistoryApiKey(String historyApiKey) {
+        NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
+        var sql = "select o.pool_size, " +
+                "g.parent_id, " +
+                "g.group_id, " +
+                "g.group_name, " +
+                "o.organisation_id, " +
+                "o.name organisation_name, " +
+                "o.sms_sender_name, " +
+                "o.sms_callback_url " +
+                "from organisation o, groups g " +
+                "where o.history_api_key = :history_api_key" +
+                "  and g.group_id = o.group_id";
+
+        Map<String, String> parameters = new HashMap<>();
+        parameters.put("history_api_key", historyApiKey);
+
+        try {
+            return template.queryForObject(sql, parameters, BeanPropertyRowMapper.newInstance(Organisation.class));
+        }
+        catch(EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
 }

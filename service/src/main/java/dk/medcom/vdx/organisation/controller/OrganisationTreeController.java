@@ -8,6 +8,7 @@ import dk.medcom.vdx.organisation.service.OrganisationTreeBuilder;
 import dk.medcom.vdx.organisation.service.OrganisationTreeService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.openapitools.api.OrganisationTreeApi;
+import org.openapitools.model.OrganisationTreeForApiKey;
 import org.openapitools.model.Organisationtree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,5 +57,14 @@ public class OrganisationTreeController implements OrganisationTreeApi  {
         logger.info("Reading organisation tree by query parameter: {}.", organisationCode);
 
         return servicesOrganisationtreeCodeGet(organisationCode);
+    }
+
+    @Override
+    public ResponseEntity<Organisationtree> servicesV1OrganisationTreeForApiKeyPost(OrganisationTreeForApiKey organisationTreeForApiKey) {
+        logger.info("Reading organisation tree for api key.");
+
+        var organisations = organisationTreeService.findOrganisations(organisationTreeForApiKey.getApiKeyType(), organisationTreeForApiKey.getApiKey()).orElseThrow(() -> new ResourceNotFoundException("Request does not identify an organisation."));;
+
+        return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTree(organisations));
     }
 }

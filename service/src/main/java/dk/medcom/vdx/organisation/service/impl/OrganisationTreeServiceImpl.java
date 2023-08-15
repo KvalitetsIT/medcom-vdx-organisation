@@ -22,6 +22,26 @@ public class OrganisationTreeServiceImpl implements OrganisationTreeService {
     @Override
     public Optional<List<Organisation>> findOrganisations(String code) {
         var organisation = organisationDao.findOrganisation(code);
+        return getOrganisations(code, organisation);
+    }
+
+    @Override
+    public Optional<List<Organisation>> findOrganisations(String apiKeyType, String apiKey) {
+        if(apiKeyType.equals("history")) {
+            var organisation = organisationDao.findOrganisationByHistoryApiKey(apiKey);
+            if(organisation == null) {
+                logger.info("Organisation not found in database.");
+                return Optional.empty();
+            }
+
+            return getOrganisations(organisation.getOrganisationId(), organisation);
+
+        }
+
+        return Optional.empty();
+    }
+
+    private Optional<List<Organisation>> getOrganisations(String code, Organisation organisation) {
         if(organisation == null) {
             logger.debug("Organisation {} not found in database.", code);
             return Optional.empty();

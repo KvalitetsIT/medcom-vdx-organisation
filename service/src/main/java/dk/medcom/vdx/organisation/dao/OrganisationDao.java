@@ -8,4 +8,6 @@ public interface OrganisationDao {
     Organisation findOrganisationByGroupId(long groupId);
 
     long insert(Organisation newOrganisation);
+
+    Organisation findOrganisationByHistoryApiKey(String historyApiKey);
 }

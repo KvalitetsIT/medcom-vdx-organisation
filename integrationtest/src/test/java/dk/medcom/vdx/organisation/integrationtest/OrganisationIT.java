@@ -8,10 +8,7 @@ import org.openapitools.client.ApiException;
 import org.openapitools.client.JSON;
 import org.openapitools.client.api.OrganisationApi;
 import org.openapitools.client.api.OrganisationTreeApi;
-import org.openapitools.client.model.BasicError;
-import org.openapitools.client.model.Organisation;
-import org.openapitools.client.model.OrganisationCreate;
-import org.openapitools.client.model.Organisationtree;
+import org.openapitools.client.model.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -126,6 +123,24 @@ public class OrganisationIT extends AbstractIntegrationTest {
     @Test
     public void testReadOrganisationTree() throws ApiException {
         var response = organisationTreeApi.servicesOrganisationtreeCodeGet("child");
+        assertNotNull(response);
+
+        var childOrganisation = response.getChildren().get(0).getChildren().get(0).getChildren().get(0);
+        assertEquals("child", childOrganisation.getCode());
+        assertEquals("child org", childOrganisation.getName());
+        assertNull(childOrganisation.getSmsSenderName());
+        assertNull(childOrganisation.getSmsCallbackUrl());
+
+        var parentOrganisation = response.getChildren().get(0);
+        assertEquals("parent", parentOrganisation.getCode());
+        assertEquals("parent org", parentOrganisation.getName());
+        assertEquals("sms-sender", parentOrganisation.getSmsSenderName());
+        assertEquals("callback", parentOrganisation.getSmsCallbackUrl());
+    }
+
+    @Test
+    public void testReadOrganisationTreeByApiKey() throws ApiException {
+        var response = organisationTreeApi.servicesV1OrganisationTreeForApiKeyPost(new OrganisationTreeForApiKey().apiKey("8adeac18-f061-4992-818b-8d4461ccfaa7").apiKeyType("history"));
         assertNotNull(response);
 
         var childOrganisation = response.getChildren().get(0).getChildren().get(0).getChildren().get(0);
