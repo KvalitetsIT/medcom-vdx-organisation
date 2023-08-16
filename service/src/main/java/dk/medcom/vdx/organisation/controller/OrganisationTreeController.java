@@ -61,6 +61,7 @@ public class OrganisationTreeController implements OrganisationTreeApi  {
     }
 
     @Override
+    @APISecurityAnnotation({ UserRole.ADMIN })
     public ResponseEntity<OrganisationTreeForApiKeyResponse> servicesV1OrganisationTreeForApiKeyPost(OrganisationTreeForApiKey organisationTreeForApiKey) {
         logger.info("Reading organisation tree for api key.");
 
