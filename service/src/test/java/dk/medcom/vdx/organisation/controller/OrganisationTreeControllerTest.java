@@ -7,6 +7,7 @@ import dk.medcom.vdx.organisation.service.impl.OrganisationTreeBuilderImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.openapitools.model.OrganisationTreeForApiKey;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -75,6 +76,60 @@ public class OrganisationTreeControllerTest {
     public void testOrganisationNotFound() {
         var input = "not_found";
         Mockito.when(organisationTreeService.findOrganisations(input)).thenReturn(Optional.empty());
+        organisationTreeController.servicesOrganisationtreeCodeGet(input);
+    }
+
+    @Test
+    public void testGetOrganisationTreeByApiKey() {
+        var input = "child";
+
+        var child = createOrganisation("child", 13, 12, null, "child_code");
+        var childOne = createOrganisation("childOne", 12, 11, null, null);
+        var childTwo = createOrganisation("childtwo", 14, 11, null, null);
+        var parent = createOrganisation("parent", 11, 10, 20, "parent_code");
+        var superParent = createOrganisation("superParent", 10, null, null, null);
+
+        Mockito.when(organisationTreeService.findOrganisations("history", input)).thenReturn(Optional.of(Arrays.asList(child, childOne, parent, superParent, childTwo)));
+
+        var resultEntity = organisationTreeController.servicesV1OrganisationTreeForApiKeyPost(new OrganisationTreeForApiKey(input, "history"));
+        assertNotNull(resultEntity);
+
+        var result = resultEntity.getBody();
+
+        assertEquals(0, result.getPoolSize().intValue());
+        assertEquals(superParent.getOrganisationName(), result.getName());
+        assertEquals(superParent.getGroupId().toString(), result.getCode());
+        assertEquals(1, result.getChildren().size());
+
+        var treeChild = result.getChildren().get(0);
+        assertEquals(parent.getOrganisationName(), treeChild.getName());
+        assertEquals(parent.getOrganisationId(), treeChild.getCode());
+        assertEquals(20, treeChild.getPoolSize().intValue());
+        assertEquals(2, treeChild.getChildren().size());
+
+        var childOneTree = treeChild.getChildren().get(0);
+        assertEquals(childOne.getOrganisationName(), childOneTree.getName());
+        assertEquals(childOne.getGroupId().toString(), childOneTree.getCode());
+        assertEquals(0, childOneTree.getPoolSize().intValue());
+        assertEquals(1, childOneTree.getChildren().size());
+
+        var childTwoTree = treeChild.getChildren().get(1);
+        assertEquals(childTwo.getOrganisationName(), childTwoTree.getName());
+        assertEquals(childTwo.getGroupId().toString(), childTwoTree.getCode());
+        assertEquals(0, childTwoTree.getPoolSize().intValue());
+        assertEquals(0, childTwoTree.getChildren().size());
+
+        treeChild = childOneTree.getChildren().get(0);
+        assertEquals(child.getOrganisationName(), treeChild.getName());
+        assertEquals(child.getOrganisationId(), treeChild.getCode());
+        assertEquals(0, treeChild.getPoolSize().intValue());
+        assertTrue(treeChild.getChildren().isEmpty());
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void testOrganisationByApiKeyNotFound() {
+        var input = "not_found";
+        Mockito.when(organisationTreeService.findOrganisations("history", input)).thenReturn(Optional.empty());
         organisationTreeController.servicesOrganisationtreeCodeGet(input);
     }
 

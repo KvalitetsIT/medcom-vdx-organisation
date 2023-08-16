@@ -47,6 +47,32 @@ public class OrganisationTreeServiceTest {
         assertOrganisation(result.stream().filter(x -> x.getGroupId() == 10L).findFirst(), 10, null, null);
     }
 
+    @Test
+    public void testGetOrganisationTreeForApiKey() {
+        String apiKey = "api-key";
+        String apiKeyType = "history";
+
+        var child = createOrganisation(13, 12, null);
+        Mockito.when(organisationDao.findOrganisationByHistoryApiKey(apiKey)).thenReturn(child);
+
+        var childOne = createOrganisation(12, 11, null);
+        Mockito.when(organisationDao.findOrganisationByGroupId(child.getParentId())).thenReturn(childOne);
+
+        var parent = createOrganisation(11, 10, 20);
+        Mockito.when(organisationDao.findOrganisationByGroupId(childOne.getParentId())).thenReturn(parent);
+
+        var superParent = createOrganisation(10, null, null);
+        Mockito.when(organisationDao.findOrganisationByGroupId(parent.getParentId())).thenReturn(superParent);
+
+        var result = organisationTreeService.findOrganisations(apiKeyType, apiKey).orElseThrow(RuntimeException::new);
+
+        assertEquals(4, result.size());
+        assertOrganisation(result.stream().filter(x -> x.getGroupId() == 13L).findFirst(), 13, 12L, null);
+        assertOrganisation(result.stream().filter(x -> x.getGroupId() == 12L).findFirst(), 12, 11L, null);
+        assertOrganisation(result.stream().filter(x -> x.getGroupId() == 11L).findFirst(), 11, 10L, 20);
+        assertOrganisation(result.stream().filter(x -> x.getGroupId() == 10L).findFirst(), 10, null, null);
+    }
+
     private void assertOrganisation(Optional<Organisation> expectedOrganisation, int groupId, Long parentId, Integer poolSize) {
         assertTrue(expectedOrganisation.isPresent());
 
@@ -80,5 +106,31 @@ public class OrganisationTreeServiceTest {
         assertTrue(result.isEmpty());
 
         Mockito.verify(organisationDao, times(1)).findOrganisation(input);
+    }
+
+    @Test
+    public void testOrganisationForApiKeyNotFound() {
+        String apiKey = "not_found";
+        String apiKeyType = "history";
+
+        Mockito.when(organisationDao.findOrganisationByHistoryApiKey(apiKey)).thenReturn(null);
+
+        var result = organisationTreeService.findOrganisations(apiKeyType, apiKey);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        Mockito.verify(organisationDao, times(1)).findOrganisationByHistoryApiKey(apiKey);
+    }
+
+    @Test
+    public void testOrganisationForUnknownApiKeyType() {
+        String apiKey = "not_found";
+        String apiKeyType = "invalid";
+
+        var result = organisationTreeService.findOrganisations(apiKeyType, apiKey);
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        Mockito.verifyNoMoreInteractions(organisationDao);
     }
 }

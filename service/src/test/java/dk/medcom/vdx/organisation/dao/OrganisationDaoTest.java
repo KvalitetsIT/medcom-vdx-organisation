@@ -124,4 +124,26 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         assertEquals(input.getSmsSenderName(), dbOrganisation.getSmsSenderName());
         assertEquals(input.getSmsCallbackUrl(), dbOrganisation.getSmsCallbackUrl());
     }
+
+    @Test
+    public void testFindOrganisationByApiKey() {
+        var result = organisationDao.findOrganisationByHistoryApiKey("23646a74-7737-4bab-a8a9-07f21471a14a");
+
+        assertNotNull(result);
+        assertEquals(15, result.getGroupId().intValue());
+        assertEquals("medcom", result.getGroupName());
+        assertEquals("medcom", result.getOrganisationId());
+        assertEquals("This Is Medcom", result.getOrganisationName());
+        assertNull(result.getParentId());
+        assertNull(result.getPoolSize());
+        assertNull(result.getSmsSenderName());
+        assertNull(result.getSmsCallbackUrl());
+    }
+
+    @Test
+    public void testFindOrganisationByApiKeyNotFound() {
+        var result = organisationDao.findOrganisationByHistoryApiKey("NOT FOUND");
+
+        assertNull(result);
+    }
 }

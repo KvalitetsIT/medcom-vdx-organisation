@@ -59,7 +59,7 @@ public class OrganisationTest extends AbstractDaoTest {
 			Assert.assertNotNull(organisation);
 			numberOfOrganisations++;
 		}
-		assertEquals(16, numberOfOrganisations);
+		assertEquals(17, numberOfOrganisations);
 	}
 	
 	@Test

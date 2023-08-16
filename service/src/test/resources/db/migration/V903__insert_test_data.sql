@@ -13,6 +13,8 @@ insert into groups(group_id, group_name, group_type, parent_id) values(12, 'chil
 insert into groups(group_id, group_name, group_type, parent_id) values(13, 'child', 2, 12);
 insert into groups(group_id, group_name, group_type, parent_id) values(15, 'medcom', 1, null);
 insert into groups(group_id, group_name, group_type, parent_id) values(16, 'æ/åø', 2, null);
+insert into groups(group_id, group_name, group_type, parent_id) values(17, 'another-child', 2, 11);
+
 
 -- * organisation *
 INSERT INTO organisation (id, organisation_id, name, group_id, sms_sender_name) VALUES (1, 'company 1', 'company name 1', 1, 'SomeSender');
@@ -24,9 +26,10 @@ INSERT INTO organisation (id, organisation_id, name, group_id) VALUES (6, 'anoth
 INSERT INTO organisation (id, organisation_id, name, pool_size, group_id, allow_custom_uri_without_domain) VALUES (7, 'pool-test-org', 'company name another-test-org', 10, 7, 1);
 
 insert into organisation(id, organisation_id, name, pool_size, group_id, sms_sender_name, sms_callback_url) values(10, 'parent', 'parent org', 20, 11, 'sms-sender', 'callback');
-insert into organisation(id, organisation_id, name, group_id) values(11, 'child', 'child org', 13);
-insert into organisation(id, organisation_id, name, group_id) values(12, 'medcom', 'This Is Medcom', 15);
+insert into organisation(id, organisation_id, name, group_id, history_api_key) values(11, 'child', 'child org', 13, '8adeac18-f061-4992-818b-8d4461ccfaa7');
+insert into organisation(id, organisation_id, name, group_id, history_api_key) values(12, 'medcom', 'This Is Medcom', 15, '23646a74-7737-4bab-a8a9-07f21471a14a');
 insert into organisation(id, organisation_id, name, group_id) values(13, 'æ/åø', 'This is with a slash', 16);
+insert into organisation(id, organisation_id, name, group_id, history_api_key) values(14, 'another-child', 'This is a another child', 17, 'kuk');
 
 INSERT INTO scheduling_info (id, uri_with_domain, provision_status, organisation_id)
 VALUES (1, '1238@test.dk', 'PROVISIONED_OK', 5);

@@ -8,4 +8,6 @@ import java.util.Optional;
 
 public interface OrganisationTreeService {
     Optional<List<Organisation>> findOrganisations(String code);
+
+    Optional<List<Organisation>> findOrganisations(String apiKeyType, String apiKey);
 }
