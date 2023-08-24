@@ -10,7 +10,6 @@ import dk.medcom.vdx.organisation.service.OrganisationTreeService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.openapitools.api.OrganisationTreeApi;
 import org.openapitools.model.OrganisationTreeForApiKey;
-import org.openapitools.model.OrganisationTreeForApiKeyResponse;
 import org.openapitools.model.Organisationtree;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,7 +42,7 @@ public class OrganisationTreeController implements OrganisationTreeApi  {
 
     @Override
     @APISecurityAnnotation({UserRole.ADMIN})
-    public ResponseEntity<Organisationtree> servicesOrganisationtreeCodeGet(String code) { // tilføj group id til denne.
+    public ResponseEntity<Organisationtree> servicesOrganisationtreeCodeGet(String code) {
         logger.debug("Enter getOrganisationTree(code: {})", code);
         try {
             List<Organisation> organisations = organisationTreeService.findOrganisations(code).orElseThrow(() -> new ResourceNotFoundException("The code: "+code+" does not identify an organisation"));
@@ -79,11 +78,11 @@ public class OrganisationTreeController implements OrganisationTreeApi  {
 
     @Override
     @APISecurityAnnotation({ UserRole.ADMIN })
-    public ResponseEntity<OrganisationTreeForApiKeyResponse> servicesV1OrganisationTreeForApiKeyPost(OrganisationTreeForApiKey organisationTreeForApiKey) {
+    public ResponseEntity<Organisationtree> servicesV1OrganisationTreeForApiKeyPost(OrganisationTreeForApiKey organisationTreeForApiKey) {
         logger.info("Reading organisation tree for api key.");
 
         var organisations = organisationTreeService.findOrganisations(organisationTreeForApiKey.getApiKeyType(), organisationTreeForApiKey.getApiKey()).orElseThrow(() -> new ResourceNotFoundException("Request does not identify an organisation."));;
 
-        return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTreeForApiKey(organisations));
+        return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTree(organisations));
     }
 }
