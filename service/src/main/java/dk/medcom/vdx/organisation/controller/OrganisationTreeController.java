@@ -2,6 +2,7 @@ package dk.medcom.vdx.organisation.controller;
 
 import dk.medcom.vdx.organisation.aspect.APISecurityAnnotation;
 import dk.medcom.vdx.organisation.context.UserRole;
+import dk.medcom.vdx.organisation.controller.exception.BadRequestException;
 import dk.medcom.vdx.organisation.controller.exception.ResourceNotFoundException;
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.service.OrganisationTreeBuilder;
@@ -42,7 +43,7 @@ public class OrganisationTreeController implements OrganisationTreeApi  {
 
     @Override
     @APISecurityAnnotation({UserRole.ADMIN})
-    public ResponseEntity<Organisationtree> servicesOrganisationtreeCodeGet(String code) {
+    public ResponseEntity<Organisationtree> servicesOrganisationtreeCodeGet(String code) { // tilføj group id til denne.
         logger.debug("Enter getOrganisationTree(code: {})", code);
         try {
             List<Organisation> organisations = organisationTreeService.findOrganisations(code).orElseThrow(() -> new ResourceNotFoundException("The code: "+code+" does not identify an organisation"));
@@ -54,10 +55,26 @@ public class OrganisationTreeController implements OrganisationTreeApi  {
 
     @Override
     @APISecurityAnnotation({ UserRole.ADMIN })
-    public ResponseEntity<Organisationtree> servicesOrganisationtreeGet(String organisationCode) {
+    public ResponseEntity<Organisationtree> servicesOrganisationtreeGet(String organisationCode, Integer groupId) {
         logger.info("Reading organisation tree by query parameter: {}.", organisationCode);
 
-        return servicesOrganisationtreeCodeGet(organisationCode);
+        if(organisationCode != null && groupId != null) {
+            logger.info("organisationCode and groupId is mutually exclusive. Returning 400.");
+            throw new BadRequestException("organisationCode and groupId is mutually exclusive.");
+        }
+
+        if(organisationCode == null && groupId == null) {
+            logger.info("Either organisationCode or groupId must be set.");
+            throw new BadRequestException("Either organisationCode or groupId must be set.");
+        }
+
+        if(organisationCode != null) {
+            return servicesOrganisationtreeCodeGet(organisationCode);
+        }
+
+        var organisations = organisationTreeService.getByGroupId(groupId).orElseThrow(() -> new ResourceNotFoundException("The group Id %s does not exist.".formatted(groupId)));
+
+        return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTree(organisations));
     }
 
     @Override

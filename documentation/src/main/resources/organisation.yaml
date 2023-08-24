@@ -193,10 +193,19 @@ paths:
       parameters:
         - name: organisationCode
           in: query
-          required: true
+          required: false
+          description: Organisation code to search for. Mutually exclusive with groupId.
           schema:
             type: string
           example: 'organisation_a'
+        - name: groupId
+          in: query
+          required: false
+          description: Group id to search for. Mutually exclusive with organisationCode.
+          schema:
+            type: integer
+            format: int32
+          example: 14
       responses:
         '200':
           description: Ok
@@ -204,6 +213,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/organisationtree'
+
 
   /services/organisationtree/{code}:
     get:

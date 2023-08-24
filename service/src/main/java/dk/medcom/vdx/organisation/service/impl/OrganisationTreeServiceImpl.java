@@ -41,6 +41,12 @@ public class OrganisationTreeServiceImpl implements OrganisationTreeService {
         return Optional.empty();
     }
 
+    @Override
+    public Optional<List<Organisation>> getByGroupId(Integer groupId) {
+        var organisation = organisationDao.findOrganisationByGroupId(groupId);
+        return getOrganisations(organisation.getOrganisationId(), organisation);
+    }
+
     private Optional<List<Organisation>> getOrganisations(String code, Organisation organisation) {
         if(organisation == null) {
             logger.debug("Organisation {} not found in database.", code);
