@@ -46,7 +46,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/organisation-tree-for-api-key-response'
+                $ref: '#/components/schemas/organisationtree'
         '400':
           $ref: '#/components/responses/400'
         '401':
@@ -399,6 +399,11 @@ components:
           maxLength: 100
           example: http://callback.api/%reference%?status=%status%
           description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
+        groupId:
+          type: integer
+          format: int32
+          description: Group id
+          example: 4
 
     organisation-tree-for-api-key:
       type: object
@@ -413,47 +418,6 @@ components:
         api_key_type:
           type: string
           description: Type of API key.
-
-    organisation-tree-for-api-key-response:
-      type: object
-      required:
-        - code
-        - name
-        - poolSize
-        - children
-      properties:
-        code:
-          description: The code that uniquely identifies an organisation
-          type: string
-          maxLength: 100
-          example: organisation_a
-        name:
-          description: The name of the organisation
-          type: string
-          maxLength: 100
-          example: Organisation with the full name A
-        poolSize:
-          description: The meeting room pool size for the organisation
-          type: integer
-          format: int32
-          example: 200
-        children:
-          description: The suborganisations of this organisation
-          type: array
-          items:
-            $ref: '#/components/schemas/organisation-tree-for-api-key-response'
-        smsSenderName:
-          type: string
-          maxLength: 11
-          example: Min Organisation
-        smsCallbackUrl:
-          type: string
-          maxLength: 100
-          example: http://callback.api/%reference%?status=%status%
-          description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
-        groupId:
-          type: integer
-          format: int32
 
     basic-error:
       type: object
