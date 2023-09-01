@@ -157,6 +157,44 @@ public class OrganisationIT extends AbstractIntegrationTest {
     }
 
     @Test
+    public void testReadOrganisationTreeChildrenByGroupId() throws ApiException {
+        var response = organisationTreeApi.servicesOrganisationtreeChildrenGet(10);
+        assertNotNull(response);
+
+        assertEquals(10, response.getGroupId());
+        assertEquals(1, response.getChildren().size());
+
+        var children = response.getChildren();
+        assertEquals(11, children.get(0).getGroupId());
+        assertEquals(2, children.get(0).getChildren().size());
+
+        children = children.get(0).getChildren();
+        assertEquals(12, children.get(0).getGroupId());
+        assertEquals(1, children.get(0).getChildren().size());
+
+        assertEquals(17, children.get(1).getGroupId());
+        assertEquals(0, children.get(1).getChildren().size());
+
+        children = children.get(0).getChildren();
+        assertEquals(13, children.get(0).getGroupId());
+        assertEquals(0, children.get(0).getChildren().size());
+    }
+
+    @Test
+    public void testReadOrganisationTreeChildrenByGroupIdNotFOund() throws ApiException {
+        var exception = assertThrows(ApiException.class, () -> organisationTreeApi.servicesOrganisationtreeChildrenGet(123));
+        assertNotNull(exception);
+        assertEquals(404, exception.getCode());
+    }
+
+    @Test
+    public void testReadOrganisationByGroupIdNotFound() throws ApiException {
+        var exception = assertThrows(ApiException.class, () -> organisationTreeApi.servicesOrganisationtreeGet(null, 123));
+        assertNotNull(exception);
+        assertEquals(404, exception.getCode());
+    }
+
+    @Test
     public void testReadOrganisationTreeByApiKey() throws ApiException {
         var response = organisationTreeApi.servicesV1OrganisationTreeForApiKeyPost(new OrganisationTreeForApiKey().apiKey("8adeac18-f061-4992-818b-8d4461ccfaa7").apiKeyType("history"));
         assertNotNull(response);

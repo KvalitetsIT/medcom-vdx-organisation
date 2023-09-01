@@ -2,10 +2,15 @@ package dk.medcom.vdx.organisation.dao;
 
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 
+import java.util.List;
+import java.util.Optional;
+
 public interface OrganisationDao {
     Organisation findOrganisation(String code);
 
-    Organisation findOrganisationByGroupId(long groupId);
+    Optional<Organisation> findOrganisationByGroupId(long groupId);
+
+    List<Organisation> findOrganisationByParentId(long groupId);
 
     long insert(Organisation newOrganisation);
 

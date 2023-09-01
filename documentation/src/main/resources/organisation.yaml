@@ -214,6 +214,28 @@ paths:
               schema:
                 $ref: '#/components/schemas/organisationtree'
 
+  /services/organisationtree-children:
+    get:
+      tags:
+        - Organisation Tree
+      summary: Get organisation and all it's children.
+      description: Get organisation and all it's children.
+      parameters:
+        - name: groupId
+          in: query
+          required: true
+          description: Group id to search for.
+          schema:
+            type: integer
+            format: int32
+          example: 14
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisationtree'
 
   /services/organisationtree/{code}:
     get:

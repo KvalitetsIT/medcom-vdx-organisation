@@ -7,6 +7,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.Assert.*;
@@ -30,13 +32,13 @@ public class OrganisationTreeServiceTest {
         Mockito.when(organisationDao.findOrganisation("child")).thenReturn(child);
 
         var childOne = createOrganisation(12, 11, null);
-        Mockito.when(organisationDao.findOrganisationByGroupId(child.getParentId())).thenReturn(childOne);
+        Mockito.when(organisationDao.findOrganisationByGroupId(child.getParentId())).thenReturn(Optional.of(childOne));
 
         var parent = createOrganisation(11, 10, 20);
-        Mockito.when(organisationDao.findOrganisationByGroupId(childOne.getParentId())).thenReturn(parent);
+        Mockito.when(organisationDao.findOrganisationByGroupId(childOne.getParentId())).thenReturn(Optional.of(parent));
 
         var superParent = createOrganisation(10, null, null);
-        Mockito.when(organisationDao.findOrganisationByGroupId(parent.getParentId())).thenReturn(superParent);
+        Mockito.when(organisationDao.findOrganisationByGroupId(parent.getParentId())).thenReturn(Optional.of(superParent));
 
         var result = organisationTreeService.findOrganisations(input).orElseThrow(RuntimeException::new);
 
@@ -52,16 +54,16 @@ public class OrganisationTreeServiceTest {
         var input = 13;
 
         var child = createOrganisation(13, 12, null);
-        Mockito.when(organisationDao.findOrganisationByGroupId(input)).thenReturn(child);
+        Mockito.when(organisationDao.findOrganisationByGroupId(input)).thenReturn(Optional.of(child));
 
         var childOne = createOrganisation(12, 11, null);
-        Mockito.when(organisationDao.findOrganisationByGroupId(child.getParentId())).thenReturn(childOne);
+        Mockito.when(organisationDao.findOrganisationByGroupId(child.getParentId())).thenReturn(Optional.of(childOne));
 
         var parent = createOrganisation(11, 10, 20);
-        Mockito.when(organisationDao.findOrganisationByGroupId(childOne.getParentId())).thenReturn(parent);
+        Mockito.when(organisationDao.findOrganisationByGroupId(childOne.getParentId())).thenReturn(Optional.of(parent));
 
         var superParent = createOrganisation(10, null, null);
-        Mockito.when(organisationDao.findOrganisationByGroupId(parent.getParentId())).thenReturn(superParent);
+        Mockito.when(organisationDao.findOrganisationByGroupId(parent.getParentId())).thenReturn(Optional.of(superParent));
 
         var result = organisationTreeService.getByGroupId(input).orElseThrow(RuntimeException::new);
 
@@ -82,13 +84,13 @@ public class OrganisationTreeServiceTest {
         Mockito.when(organisationDao.findOrganisationByHistoryApiKey(apiKey)).thenReturn(child);
 
         var childOne = createOrganisation(12, 11, null);
-        Mockito.when(organisationDao.findOrganisationByGroupId(child.getParentId())).thenReturn(childOne);
+        Mockito.when(organisationDao.findOrganisationByGroupId(child.getParentId())).thenReturn(Optional.of(childOne));
 
         var parent = createOrganisation(11, 10, 20);
-        Mockito.when(organisationDao.findOrganisationByGroupId(childOne.getParentId())).thenReturn(parent);
+        Mockito.when(organisationDao.findOrganisationByGroupId(childOne.getParentId())).thenReturn(Optional.of(parent));
 
         var superParent = createOrganisation(10, null, null);
-        Mockito.when(organisationDao.findOrganisationByGroupId(parent.getParentId())).thenReturn(superParent);
+        Mockito.when(organisationDao.findOrganisationByGroupId(parent.getParentId())).thenReturn(Optional.of(superParent));
 
         var result = organisationTreeService.findOrganisations(apiKeyType, apiKey).orElseThrow(RuntimeException::new);
 
@@ -124,6 +126,55 @@ public class OrganisationTreeServiceTest {
         assertTrue(result.isEmpty());
 
         Mockito.verify(organisationDao, times(1)).findOrganisationByHistoryApiKey(apiKey);
+    }
+
+    @Test
+    public void testFindChildrenByGroupId() {
+        var input = 1;
+
+        var organisationOne = createOrganisation(1, null);
+        var organisationTwo = createOrganisation(2, 1);
+        var organisationThree = createOrganisation(3, 2);
+        var organisationFour = createOrganisation(4, 3);
+        var organisationFive = createOrganisation(5, 3);
+        var organisationSix = createOrganisation(6, 1);
+
+        Mockito.when(organisationDao.findOrganisationByGroupId(input)).thenReturn(Optional.of(organisationOne));
+        Mockito.when(organisationDao.findOrganisationByParentId(organisationOne.getGroupId())).thenReturn(Arrays.asList(organisationTwo, organisationSix));
+        Mockito.when(organisationDao.findOrganisationByParentId(organisationTwo.getGroupId())).thenReturn(Collections.singletonList(organisationThree));
+        Mockito.when(organisationDao.findOrganisationByParentId(organisationThree.getGroupId())).thenReturn(Arrays.asList(organisationFour, organisationFive));
+        Mockito.when(organisationDao.findOrganisationByParentId(organisationFour.getGroupId())).thenReturn(Collections.emptyList());
+        Mockito.when(organisationDao.findOrganisationByParentId(organisationFive.getGroupId())).thenReturn(Collections.emptyList());
+
+        var result = organisationTreeService.findChildrenByGroupId(input);
+
+        assertNotNull(result);
+        assertEquals(6, result.size());
+        assertTrue(result.contains(organisationOne));
+        assertTrue(result.contains(organisationTwo));
+        assertTrue(result.contains(organisationThree));
+        assertTrue(result.contains(organisationFour));
+        assertTrue(result.contains(organisationFive));
+        assertTrue(result.contains(organisationSix));
+    }
+
+    private Organisation createOrganisation(int groupId, Integer parentId) {
+        return createOrganisation(groupId, parentId, null);
+    }
+
+    @Test
+    public void testFindChildrenByGroupIdNotFound() {
+        long input = 1L;
+        Mockito.when(organisationDao.findOrganisationByGroupId(input)).thenReturn(Optional.empty());
+
+        var result = organisationTreeService.findChildrenByGroupId((int) input);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        Mockito.verify(organisationDao).findOrganisationByGroupId(input);
+
+        Mockito.verifyNoMoreInteractions(organisationDao);
     }
 
     @Test
