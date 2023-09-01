@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface OrganisationTreeBuilder {
     Organisationtree buildOrganisationTree(List<Organisation> organisationList);
+
+    Organisationtree buildOrganisationTree(List<Organisation> organisationList, Long root);
 }
