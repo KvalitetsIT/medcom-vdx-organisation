@@ -11,5 +11,7 @@ public interface OrganisationTreeService {
 
     Optional<List<Organisation>> findOrganisations(String apiKeyType, String apiKey);
 
-    Optional<List<Organisation>> getByGroupId(Integer groupId);
+    Optional<List<Organisation>> getByGroupId(int groupId);
+
+    List<Organisation> findChildrenByGroupId(int groupId);
 }

@@ -42,6 +42,23 @@ public class OrganisationTreeController implements OrganisationTreeApi  {
 
     @Override
     @APISecurityAnnotation({UserRole.ADMIN})
+    public ResponseEntity<Organisationtree> servicesOrganisationtreeChildrenGet(Integer groupId) {
+        logger.debug("Enter servicesOrganisationtreeChildrenGet(groupId: {})", groupId);
+        try {
+            List<Organisation> organisations = organisationTreeService.findChildrenByGroupId(groupId);
+
+            if(organisations.isEmpty()) {
+                throw new ResourceNotFoundException("Organisation tree with group id %s not found.".formatted(groupId));
+            }
+
+            return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTree(organisations));
+        } finally {
+            logger.debug("Done servicesOrganisationtreeChildrenGet(groupID: {})", groupId);
+        }
+    }
+
+    @Override
+    @APISecurityAnnotation({UserRole.ADMIN})
     public ResponseEntity<Organisationtree> servicesOrganisationtreeCodeGet(String code) {
         logger.debug("Enter getOrganisationTree(code: {})", code);
         try {

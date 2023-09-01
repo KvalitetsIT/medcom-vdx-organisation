@@ -1,8 +1,9 @@
 package dk.medcom.vdx.organisation.dao.impl;
 
-import com.fasterxml.jackson.databind.util.Named;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -11,9 +12,12 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 
 import javax.sql.DataSource;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class OrganisationDaoImpl implements OrganisationDao {
+    private final static Logger logger = LoggerFactory.getLogger(OrganisationDaoImpl.class);
     private final DataSource dataSource;
     private final NamedParameterJdbcTemplate template;
 
@@ -49,7 +53,7 @@ public class OrganisationDaoImpl implements OrganisationDao {
     }
 
     @Override
-    public Organisation findOrganisationByGroupId(long groupId) {
+    public Optional<Organisation> findOrganisationByGroupId(long groupId) {
         var sql = "select o.pool_size, " +
                 "g.parent_id, " +
                 "g.group_id, " +
@@ -66,7 +70,34 @@ public class OrganisationDaoImpl implements OrganisationDao {
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("group_id", groupId);
 
-        return template.queryForObject(sql, parameters, BeanPropertyRowMapper.newInstance(Organisation.class));
+        try {
+            return Optional.ofNullable(template.queryForObject(sql, parameters, BeanPropertyRowMapper.newInstance(Organisation.class)));
+        }
+        catch(EmptyResultDataAccessException e) {
+            logger.debug("Group not found: {}", groupId);
+            return Optional.empty();
+        }
+    }
+
+    @Override
+    public List<Organisation> findOrganisationByParentId(long groupId) {
+        var sql = "select o.pool_size, " +
+                "g.parent_id, " +
+                "g.group_id, " +
+                "g.group_name, " +
+                "o.organisation_id, " +
+                "o.name organisation_name, " +
+                "o.sms_sender_name, " +
+                "o.sms_callback_url " +
+                "from groups g left outer join (select * from organisation where deleted_time = '0001-01-01 00:00:00') o on g.group_id = o.group_id " +
+                "where g.parent_id = :group_id " +
+                "and g.deleted_time = '0001-01-01 00:00:00'";
+
+        NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("group_id", groupId);
+
+        return template.query(sql, parameters, BeanPropertyRowMapper.newInstance(Organisation.class));
     }
 
     @Override

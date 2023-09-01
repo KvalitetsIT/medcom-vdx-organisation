@@ -60,7 +60,7 @@ public class OrganisationDaoTest extends AbstractDaoTest {
 
     @Test
     public void testQueryOrganisationWithoutPoolByGroupId() {
-        var result = organisationDao.findOrganisationByGroupId(13L);
+        var result = organisationDao.findOrganisationByGroupId(13L).orElseThrow(() -> new RuntimeException("Organisation not found"));
 
         assertNotNull(result);
         assertEquals(12L, result.getParentId().longValue());
@@ -75,7 +75,7 @@ public class OrganisationDaoTest extends AbstractDaoTest {
 
     @Test
     public void testQueryOrganisationWithPoolByGroupId() {
-        var result = organisationDao.findOrganisationByGroupId(11L);
+        var result = organisationDao.findOrganisationByGroupId(11L).orElseThrow(() -> new RuntimeException("Organisation not found"));
 
         assertNotNull(result);
         assertEquals(10L, result.getParentId().longValue());
@@ -88,16 +88,43 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         assertEquals("callback", result.getSmsCallbackUrl());
     }
 
-    @Test(expected = EmptyResultDataAccessException.class)
+    @Test
+    public void testQueryOrganisationByParentId() {
+        var result = organisationDao.findOrganisationByParentId(12L);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+        var organisation = result.get(0);
+        assertEquals(12L, organisation.getParentId().longValue());
+        assertEquals(13L, organisation.getGroupId().longValue());
+        assertNull(organisation.getPoolSize());
+        assertEquals("child org", organisation.getOrganisationName());
+        assertEquals("child", organisation.getOrganisationId());
+        assertEquals("child", organisation.getGroupName());
+        assertNull(organisation.getSmsSenderName());
+        assertNull(organisation.getSmsCallbackUrl());
+    }
+
+    @Test
+    public void testQueryOrganisationByParentIdNotFound() {
+        var result = organisationDao.findOrganisationByParentId(123L);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
     public void testQueryDeletedGroup() {
-        organisationDao.findOrganisationByGroupId(14L);
+        var result = organisationDao.findOrganisationByGroupId(14L);
+        assertTrue(result.isEmpty());
     }
 
 
-    @Test(expected = EmptyResultDataAccessException.class)
+    @Test
     public void testOrganisationByGroupIdNotFound() {
         long notFound = 47382;
-        organisationDao.findOrganisationByGroupId(notFound);
+        var result = organisationDao.findOrganisationByGroupId(notFound);
+        assertTrue(result.isEmpty());
     }
 
     @Test
