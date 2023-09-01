@@ -9,12 +9,18 @@ import java.util.List;
 import java.util.Map;
 
 public class OrganisationTreeBuilderImpl implements OrganisationTreeBuilder {
+    @Override
     public Organisationtree buildOrganisationTree(List<Organisation> organisationList) {
+        return buildOrganisationTree(organisationList, null);
+    }
+
+    @Override
+    public Organisationtree buildOrganisationTree(List<Organisation> organisationList, Long root) {
         if (organisationList == null || organisationList.isEmpty()) {
             return null;
         }
 
-        Long rootGroupId = null;
+        Long rootGroupId = root;
         Map<Long, Organisationtree> treeMap = new HashMap<>();
         for (Organisation organisation : organisationList) {
             Organisationtree tree = mapOrganisationTree(organisation);

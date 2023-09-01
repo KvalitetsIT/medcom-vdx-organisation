@@ -51,7 +51,7 @@ public class OrganisationTreeController implements OrganisationTreeApi  {
                 throw new ResourceNotFoundException("Organisation tree with group id %s not found.".formatted(groupId));
             }
 
-            return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTree(organisations));
+            return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTree(organisations, groupId.longValue()));
         } finally {
             logger.debug("Done servicesOrganisationtreeChildrenGet(groupID: {})", groupId);
         }
