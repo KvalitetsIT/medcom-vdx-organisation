@@ -306,7 +306,7 @@ components:
           code:
             description: The code that uniquely identifies an organisation
             type: string
-            maxLength: 100
+            maxLength: 250
             example: organisation_a
           name:
             description: The name of the organisation
@@ -346,7 +346,7 @@ components:
         code:
           description: The code that uniquely identifies an organisation
           type: string
-          maxLength: 100
+          maxLength: 250
           example: organisation_a
         name:
           description: The name of the organisation
@@ -376,7 +376,7 @@ components:
         code:
           description: The code that uniquely identifies an organisation
           type: string
-          maxLength: 100
+          maxLength: 250
           example: organisation_a
         name:
           description: The name of the organisation
@@ -395,7 +395,7 @@ components:
         code:
           description: The code that uniquely identifies an organisation
           type: string
-          maxLength: 100
+          maxLength: 250
           example: organisation_a
         name:
           description: The name of the organisation
