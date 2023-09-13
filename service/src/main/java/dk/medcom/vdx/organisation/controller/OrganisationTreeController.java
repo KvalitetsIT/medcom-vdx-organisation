@@ -42,7 +42,7 @@ public class OrganisationTreeController implements OrganisationTreeApi  {
 
     @Override
     @APISecurityAnnotation({UserRole.ADMIN})
-    public ResponseEntity<Organisationtree> servicesOrganisationtreeChildrenGet(Integer groupId) {
+    public ResponseEntity<Organisationtree> servicesV1OrganisationtreeChildrenGet(Integer groupId) {
         logger.debug("Enter servicesOrganisationtreeChildrenGet(groupId: {})", groupId);
         try {
             List<Organisation> organisations = organisationTreeService.findChildrenByGroupId(groupId);
