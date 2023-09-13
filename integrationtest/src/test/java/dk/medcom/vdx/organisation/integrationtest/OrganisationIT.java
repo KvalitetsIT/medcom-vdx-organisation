@@ -158,7 +158,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
     @Test
     public void testReadOrganisationTreeChildrenByGroupId() throws ApiException {
-        var response = organisationTreeApi.servicesOrganisationtreeChildrenGet(10);
+        var response = organisationTreeApi.servicesV1OrganisationtreeChildrenGet(10);
         assertNotNull(response);
 
         assertEquals(10, response.getGroupId());
@@ -182,7 +182,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
     @Test
     public void testReadOrganisationTreeChildrenByGroupIdNotFOund() throws ApiException {
-        var exception = assertThrows(ApiException.class, () -> organisationTreeApi.servicesOrganisationtreeChildrenGet(123));
+        var exception = assertThrows(ApiException.class, () -> organisationTreeApi.servicesV1OrganisationtreeChildrenGet(123));
         assertNotNull(exception);
         assertEquals(404, exception.getCode());
     }
