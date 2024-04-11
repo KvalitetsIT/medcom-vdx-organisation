@@ -32,11 +32,6 @@
 		</dependency>
 
 		<dependency>
-			<groupId>javax.ws.rs</groupId>
-			<artifactId>javax.ws.rs-api</artifactId>
-		</dependency>
-
-		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-web</artifactId>
 		</dependency>
@@ -74,9 +69,13 @@
 		</dependency>
 
 		<dependency>
-			<groupId>javax.annotation</groupId>
-			<artifactId>javax.annotation-api</artifactId>
-			<scope>test</scope>
+			<groupId>jakarta.annotation</groupId>
+			<artifactId>jakarta.annotation-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>jakarta.ws.rs</groupId>
+			<artifactId>jakarta.ws.rs-api</artifactId>
 		</dependency>
 	</dependencies>
 	<build>
@@ -153,7 +152,7 @@
 			<plugin>
 				<groupId>org.openapitools</groupId>
 				<artifactId>openapi-generator-maven-plugin</artifactId>
-				<version>6.6.0</version>
+				<version>7.4.0</version>
 				<executions>
 					<execution>
 						<goals>
@@ -165,6 +164,7 @@
 							<configOptions>
 								<sourceFolder>src/test/java</sourceFolder>
 								<dateLibrary>java8</dateLibrary>
+								<useJakartaEe>true</useJakartaEe>
 							</configOptions>
 							<output>${project.build.directory}/generated-test-sources/openapi/test</output>
 							<generateApiTests>false</generateApiTests>
@@ -188,6 +188,8 @@
 								<performBeanValidation>true</performBeanValidation>
 								<library>spring-cloud</library>
 								<useSpringBoot3>true</useSpringBoot3>
+								<useJakartaEe>true</useJakartaEe>
+								<useTags>true</useTags>
 							</configOptions>
 							<output>${project.build.directory}/generated-sources/openapi/main</output>
 							<generateApiDocumentation>false</generateApiDocumentation>
