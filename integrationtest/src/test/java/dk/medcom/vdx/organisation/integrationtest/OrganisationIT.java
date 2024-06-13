@@ -61,10 +61,10 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
         // Then
         Assert.assertFalse(organisations.isEmpty());
-        Assert.assertEquals("pool-test-org", organisations.get(0).getCode());
-        Assert.assertEquals("company name another-test-org", organisations.get(0).getName());
-        Assert.assertEquals(Long.valueOf(7), organisations.get(0).getGroupId());
-        Assert.assertEquals(uris.get(0), organisations.get(0).getUri());
+        Assert.assertEquals("pool-test-org", organisations.getFirst().getCode());
+        Assert.assertEquals("company name another-test-org", organisations.getFirst().getName());
+        Assert.assertEquals(Long.valueOf(7), organisations.getFirst().getGroupId());
+        Assert.assertEquals(uris.getFirst(), organisations.getFirst().getUri());
     }
 
     @Test
@@ -125,13 +125,13 @@ public class OrganisationIT extends AbstractIntegrationTest {
         var response = organisationTreeApi.servicesOrganisationtreeCodeGet("child");
         assertNotNull(response);
 
-        var childOrganisation = response.getChildren().get(0).getChildren().get(0).getChildren().get(0);
+        var childOrganisation = response.getChildren().getFirst().getChildren().getFirst().getChildren().getFirst();
         assertEquals("child", childOrganisation.getCode());
         assertEquals("child org", childOrganisation.getName());
         assertNull(childOrganisation.getSmsSenderName());
         assertNull(childOrganisation.getSmsCallbackUrl());
 
-        var parentOrganisation = response.getChildren().get(0);
+        var parentOrganisation = response.getChildren().getFirst();
         assertEquals("parent", parentOrganisation.getCode());
         assertEquals("parent org", parentOrganisation.getName());
         assertEquals("sms-sender", parentOrganisation.getSmsSenderName());
@@ -143,13 +143,13 @@ public class OrganisationIT extends AbstractIntegrationTest {
         var response = organisationTreeApi.servicesOrganisationtreeGet(null, 13);
         assertNotNull(response);
 
-        var childOrganisation = response.getChildren().get(0).getChildren().get(0).getChildren().get(0);
+        var childOrganisation = response.getChildren().getFirst().getChildren().getFirst().getChildren().getFirst();
         assertEquals("child", childOrganisation.getCode());
         assertEquals("child org", childOrganisation.getName());
         assertNull(childOrganisation.getSmsSenderName());
         assertNull(childOrganisation.getSmsCallbackUrl());
 
-        var parentOrganisation = response.getChildren().get(0);
+        var parentOrganisation = response.getChildren().getFirst();
         assertEquals("parent", parentOrganisation.getCode());
         assertEquals("parent org", parentOrganisation.getName());
         assertEquals("sms-sender", parentOrganisation.getSmsSenderName());
@@ -158,37 +158,64 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
     @Test
     public void testReadOrganisationTreeChildrenByGroupId() throws ApiException {
-        var response = organisationTreeApi.servicesV1OrganisationtreeChildrenGet(10);
+        var response = organisationTreeApi.servicesV1OrganisationtreeChildrenGet(null, 10);
         assertNotNull(response);
 
         assertEquals(10, response.getGroupId());
         assertEquals(1, response.getChildren().size());
 
         var children = response.getChildren();
-        assertEquals(11, children.get(0).getGroupId());
-        assertEquals(2, children.get(0).getChildren().size());
+        assertEquals(11, children.getFirst().getGroupId());
+        assertEquals(2, children.getFirst().getChildren().size());
 
-        children = children.get(0).getChildren();
-        assertEquals(12, children.get(0).getGroupId());
-        assertEquals(1, children.get(0).getChildren().size());
+        children = children.getFirst().getChildren();
+        assertEquals(12, children.getFirst().getGroupId());
+        assertEquals(1, children.getFirst().getChildren().size());
 
         assertEquals(17, children.get(1).getGroupId());
         assertEquals(0, children.get(1).getChildren().size());
 
-        children = children.get(0).getChildren();
-        assertEquals(13, children.get(0).getGroupId());
-        assertEquals(0, children.get(0).getChildren().size());
+        children = children.getFirst().getChildren();
+        assertEquals(13, children.getFirst().getGroupId());
+        assertEquals(0, children.getFirst().getChildren().size());
     }
 
     @Test
-    public void testReadOrganisationTreeChildrenByGroupIdNotFOund() throws ApiException {
-        var exception = assertThrows(ApiException.class, () -> organisationTreeApi.servicesV1OrganisationtreeChildrenGet(123));
+    public void testReadOrganisationTreeChildrenByGroupIdNotFound() {
+        var exception = assertThrows(ApiException.class, () -> organisationTreeApi.servicesV1OrganisationtreeChildrenGet(null, 123));
         assertNotNull(exception);
         assertEquals(404, exception.getCode());
     }
 
     @Test
-    public void testReadOrganisationByGroupIdNotFound() throws ApiException {
+    public void testReadOrganisationTreeChildrenByOrganisationCode() throws ApiException {
+        var response = organisationTreeApi.servicesV1OrganisationtreeChildrenGet("parent", null);
+        assertNotNull(response);
+
+        assertEquals(11, response.getGroupId());
+        assertEquals(2, response.getChildren().size());
+
+        var children = response.getChildren();
+        assertEquals(12, children.getFirst().getGroupId());
+        assertEquals(1, children.getFirst().getChildren().size());
+
+        assertEquals(17, children.get(1).getGroupId());
+        assertEquals(0, children.get(1).getChildren().size());
+
+        children = children.getFirst().getChildren();
+        assertEquals(13, children.getFirst().getGroupId());
+        assertEquals(0, children.getFirst().getChildren().size());
+    }
+
+    @Test
+    public void testReadOrganisationTreeChildrenByOrganisationCodeNotFound() {
+        var exception = assertThrows(ApiException.class, () -> organisationTreeApi.servicesV1OrganisationtreeChildrenGet(UUID.randomUUID().toString(), null));
+        assertNotNull(exception);
+        assertEquals(404, exception.getCode());
+    }
+
+    @Test
+    public void testReadOrganisationByGroupIdNotFound() {
         var exception = assertThrows(ApiException.class, () -> organisationTreeApi.servicesOrganisationtreeGet(null, 123));
         assertNotNull(exception);
         assertEquals(404, exception.getCode());
@@ -199,13 +226,13 @@ public class OrganisationIT extends AbstractIntegrationTest {
         var response = organisationTreeApi.servicesV1OrganisationTreeForApiKeyPost(new OrganisationTreeForApiKey().apiKey("8adeac18-f061-4992-818b-8d4461ccfaa7").apiKeyType("history"));
         assertNotNull(response);
 
-        var childOrganisation = response.getChildren().get(0).getChildren().get(0).getChildren().get(0);
+        var childOrganisation = response.getChildren().getFirst().getChildren().getFirst().getChildren().getFirst();
         assertEquals("child", childOrganisation.getCode());
         assertEquals("child org", childOrganisation.getName());
         assertNull(childOrganisation.getSmsSenderName());
         assertNull(childOrganisation.getSmsCallbackUrl());
 
-        var parentOrganisation = response.getChildren().get(0);
+        var parentOrganisation = response.getChildren().getFirst();
         assertEquals("parent", parentOrganisation.getCode());
         assertEquals("parent org", parentOrganisation.getName());
         assertEquals("sms-sender", parentOrganisation.getSmsSenderName());
@@ -305,7 +332,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
     @Test
     public void testCreateOrganisation() throws ApiException {
-        var input = "child";
+        var input = "company 1";
         var inputOrganisation = new OrganisationCreate();
         inputOrganisation.setCode(UUID.randomUUID().toString());
 
@@ -358,19 +385,19 @@ public class OrganisationIT extends AbstractIntegrationTest {
         Assert.assertEquals("10", response.getCode());
         Assert.assertEquals(1, response.getChildren().size());
 
-        var child = response.getChildren().get(0);
+        var child = response.getChildren().getFirst();
         Assert.assertEquals("parent", child.getCode());
         Assert.assertEquals(20, child.getPoolSize().intValue());
         Assert.assertEquals("parent org", child.getName());
         Assert.assertEquals(1, child.getChildren().size());
 
-        child = child.getChildren().get(0);
+        child = child.getChildren().getFirst();
         Assert.assertEquals("child_one", child.getName());
         Assert.assertEquals(0, child.getPoolSize().intValue());
         Assert.assertEquals("12", child.getCode());
         Assert.assertEquals(1, child.getChildren().size());
 
-        child = child.getChildren().get(0);
+        child = child.getChildren().getFirst();
         Assert.assertEquals("child", child.getCode());
         Assert.assertEquals(0, child.getPoolSize().intValue());
         Assert.assertEquals("child org", child.getName());
@@ -387,25 +414,25 @@ public class OrganisationIT extends AbstractIntegrationTest {
         Assert.assertEquals("vdx", response.getCode());
         Assert.assertEquals(1, response.getChildren().size());
 
-        var child = response.getChildren().get(0);
+        var child = response.getChildren().getFirst();
         Assert.assertEquals("21", child.getCode());
         Assert.assertEquals(0, child.getPoolSize().intValue());
         Assert.assertEquals("Offentlige organisationer", child.getName());
         Assert.assertEquals(1, child.getChildren().size());
 
-        child = child.getChildren().get(0);
+        child = child.getChildren().getFirst();
         Assert.assertEquals("medcom1", child.getCode());
         Assert.assertEquals(4, child.getPoolSize().intValue());
         Assert.assertEquals("Medcom", child.getName());
         Assert.assertEquals(1, child.getChildren().size());
 
-        child = child.getChildren().get(0);
+        child = child.getChildren().getFirst();
         Assert.assertEquals("Test Gruppe 1", child.getName());
         Assert.assertEquals(0, child.getPoolSize().intValue());
         Assert.assertEquals("42", child.getCode());
         Assert.assertEquals(1, child.getChildren().size());
 
-        child = child.getChildren().get(0);
+        child = child.getChildren().getFirst();
         Assert.assertEquals("medcom_test_2", child.getCode());
         Assert.assertEquals(0, child.getPoolSize().intValue());
         Assert.assertEquals("MedCom Test 2", child.getName());

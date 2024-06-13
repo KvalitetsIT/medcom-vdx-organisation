@@ -178,6 +178,51 @@ public class OrganisationTreeServiceTest {
     }
 
     @Test
+    public void testFindChildrenByOrganisationCode() {
+        var input = "organisation";
+
+        var organisationOne = createOrganisation(1, null);
+        var organisationTwo = createOrganisation(2, 1);
+        var organisationThree = createOrganisation(3, 2);
+        var organisationFour = createOrganisation(4, 3);
+        var organisationFive = createOrganisation(5, 3);
+        var organisationSix = createOrganisation(6, 1);
+
+        Mockito.when(organisationDao.findOrganisation(input)).thenReturn(organisationOne);
+        Mockito.when(organisationDao.findOrganisationByParentId(organisationOne.getGroupId())).thenReturn(Arrays.asList(organisationTwo, organisationSix));
+        Mockito.when(organisationDao.findOrganisationByParentId(organisationTwo.getGroupId())).thenReturn(Collections.singletonList(organisationThree));
+        Mockito.when(organisationDao.findOrganisationByParentId(organisationThree.getGroupId())).thenReturn(Arrays.asList(organisationFour, organisationFive));
+        Mockito.when(organisationDao.findOrganisationByParentId(organisationFour.getGroupId())).thenReturn(Collections.emptyList());
+        Mockito.when(organisationDao.findOrganisationByParentId(organisationFive.getGroupId())).thenReturn(Collections.emptyList());
+
+        var result = organisationTreeService.findChildrenByOrganisationCode(input);
+
+        assertNotNull(result);
+        assertEquals(6, result.size());
+        assertTrue(result.contains(organisationOne));
+        assertTrue(result.contains(organisationTwo));
+        assertTrue(result.contains(organisationThree));
+        assertTrue(result.contains(organisationFour));
+        assertTrue(result.contains(organisationFive));
+        assertTrue(result.contains(organisationSix));
+    }
+
+    @Test
+    public void testFindChildrenByOrganisationCodeNotFound() {
+        var input = "organisation";
+        Mockito.when(organisationDao.findOrganisation(input)).thenReturn(null);
+
+        var result = organisationTreeService.findChildrenByOrganisationCode(input);
+
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
+
+        Mockito.verify(organisationDao).findOrganisation(input);
+
+        Mockito.verifyNoMoreInteractions(organisationDao);
+    }
+
+    @Test
     public void testOrganisationForUnknownApiKeyType() {
         String apiKey = "not_found";
         String apiKeyType = "invalid";

@@ -14,4 +14,6 @@ public interface OrganisationTreeService {
     Optional<List<Organisation>> getByGroupId(int groupId);
 
     List<Organisation> findChildrenByGroupId(int groupId);
+
+    List<Organisation> findChildrenByOrganisationCode(String code);
 }

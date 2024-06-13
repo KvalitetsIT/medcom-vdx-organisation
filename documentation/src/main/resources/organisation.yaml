@@ -221,10 +221,17 @@ paths:
       summary: Get organisation and all it's children.
       description: Get organisation and all it's children.
       parameters:
+        - name: organisationCode
+          in: query
+          required: false
+          description: Organisation code to search for. Mutually exclusive with groupId.
+          schema:
+            type: string
+          example: 'organisation_a'
         - name: groupId
           in: query
-          required: true
-          description: Group id to search for.
+          required: false
+          description: Group id to search for. Mutually exclusive with organisationCode.
           schema:
             type: integer
             format: int32
