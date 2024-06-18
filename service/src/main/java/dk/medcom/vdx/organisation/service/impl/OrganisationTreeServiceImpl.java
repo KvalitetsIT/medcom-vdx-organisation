@@ -68,6 +68,21 @@ public class OrganisationTreeServiceImpl implements OrganisationTreeService {
         return organisations;
     }
 
+    @Override
+    public List<Organisation> findChildrenByOrganisationCode(String code) {
+        var organisation = organisationDao.findOrganisation(code);
+        if(organisation == null) {
+            logger.info("Organisation not found in database.");
+            return Collections.emptyList();
+        }
+
+        var organisations = new ArrayList<Organisation>();
+        organisations.add(organisation);
+        organisations.addAll(children(organisation.getGroupId().intValue()));
+
+        return organisations;
+    }
+
     private List<Organisation> children(int groupId) {
         var childOrganisations = organisationDao.findOrganisationByParentId(groupId);
         var result = new ArrayList<>(childOrganisations);

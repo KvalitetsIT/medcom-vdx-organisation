@@ -42,18 +42,33 @@ public class OrganisationTreeController implements OrganisationTreeApi  {
 
     @Override
     @APISecurityAnnotation({UserRole.ADMIN})
-    public ResponseEntity<Organisationtree> servicesV1OrganisationtreeChildrenGet(Integer groupId) {
-        logger.debug("Enter servicesOrganisationtreeChildrenGet(groupId: {})", groupId);
+    public ResponseEntity<Organisationtree> servicesV1OrganisationtreeChildrenGet(String organisationCode, Integer groupId) {
+        logger.debug("Enter servicesOrganisationtreeChildrenGet(organisationCode: {}, groupId: {})", organisationCode, groupId);
+
+        validateExactlyOneQueryParameterSet(organisationCode, groupId);
+
         try {
-            List<Organisation> organisations = organisationTreeService.findChildrenByGroupId(groupId);
+            List<Organisation> organisations;
+            if (organisationCode != null) {
+                organisations = organisationTreeService.findChildrenByOrganisationCode(organisationCode);
 
-            if(organisations.isEmpty()) {
-                throw new ResourceNotFoundException("Organisation tree with group id %s not found.".formatted(groupId));
+                if(organisations.isEmpty()) {
+                    throw new ResourceNotFoundException("Organisation tree with organisation code %s not found.".formatted(organisationCode));
+                }
+
+                return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTree(organisations, organisations.getFirst().getGroupId()));
+
+            } else {
+                organisations = organisationTreeService.findChildrenByGroupId(groupId);
+
+                if(organisations.isEmpty()) {
+                    throw new ResourceNotFoundException("Organisation tree with group id %s not found.".formatted(groupId));
+                }
+
+                return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTree(organisations, groupId.longValue()));
             }
-
-            return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTree(organisations, groupId.longValue()));
         } finally {
-            logger.debug("Done servicesOrganisationtreeChildrenGet(groupID: {})", groupId);
+            logger.debug("Done servicesOrganisationtreeChildrenGet(organisationCode: {}, groupId: {})", organisationCode, groupId);
         }
     }
 
@@ -74,15 +89,7 @@ public class OrganisationTreeController implements OrganisationTreeApi  {
     public ResponseEntity<Organisationtree> servicesOrganisationtreeGet(String organisationCode, Integer groupId) {
         logger.info("Reading organisation tree by query parameter: {}.", organisationCode);
 
-        if(organisationCode != null && groupId != null) {
-            logger.info("organisationCode and groupId is mutually exclusive. Returning 400.");
-            throw new BadRequestException("organisationCode and groupId is mutually exclusive.");
-        }
-
-        if(organisationCode == null && groupId == null) {
-            logger.info("Either organisationCode or groupId must be set.");
-            throw new BadRequestException("Either organisationCode or groupId must be set.");
-        }
+        validateExactlyOneQueryParameterSet(organisationCode, groupId);
 
         if(organisationCode != null) {
             return servicesOrganisationtreeCodeGet(organisationCode);
@@ -98,8 +105,20 @@ public class OrganisationTreeController implements OrganisationTreeApi  {
     public ResponseEntity<Organisationtree> servicesV1OrganisationTreeForApiKeyPost(OrganisationTreeForApiKey organisationTreeForApiKey) {
         logger.info("Reading organisation tree for api key.");
 
-        var organisations = organisationTreeService.findOrganisations(organisationTreeForApiKey.getApiKeyType(), organisationTreeForApiKey.getApiKey()).orElseThrow(() -> new ResourceNotFoundException("Request does not identify an organisation."));;
+        var organisations = organisationTreeService.findOrganisations(organisationTreeForApiKey.getApiKeyType(), organisationTreeForApiKey.getApiKey()).orElseThrow(() -> new ResourceNotFoundException("Request does not identify an organisation."));
 
         return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTree(organisations));
+    }
+
+    private void validateExactlyOneQueryParameterSet(String organisationCode, Integer groupId) {
+        if(organisationCode != null && groupId != null) {
+            logger.info("organisationCode and groupId is mutually exclusive. Returning 400.");
+            throw new BadRequestException("organisationCode and groupId is mutually exclusive.");
+        }
+
+        if(organisationCode == null && groupId == null) {
+            logger.info("Either organisationCode or groupId must be set.");
+            throw new BadRequestException("Either organisationCode or groupId must be set.");
+        }
     }
 }

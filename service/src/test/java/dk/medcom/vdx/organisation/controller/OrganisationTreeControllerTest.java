@@ -28,6 +28,106 @@ public class OrganisationTreeControllerTest {
     }
 
     @Test
+    public void testOrganisationTreeChildrenGetByCode() {
+        var child = createOrganisation("child", 13, 12, null, "child_code");
+        var childOne = createOrganisation("childOne", 12, 11, null, null);
+        var childTwo = createOrganisation("childtwo", 14, 11, null, null);
+        var parent = createOrganisation("parent", 11, 10, 20, "parent_code");
+        var superParent = createOrganisation("superParent", 10, null, null, "super_parent_code");
+
+        var organisationList = Arrays.asList(superParent, parent, childOne, childTwo, child);
+
+        Mockito.when(organisationTreeService.findChildrenByOrganisationCode("super_parent_code")).thenReturn(organisationList);
+
+        var resultEntity = organisationTreeController.servicesV1OrganisationtreeChildrenGet("super_parent_code", null);
+        assertNotNull(resultEntity);
+
+        var result = resultEntity.getBody();
+        assertNotNull(result);
+        assertEquals(superParent.getGroupId(), result.getGroupId().longValue(), 0);
+        assertEquals(superParent.getOrganisationId(), result.getCode());
+        assertEquals(1, result.getChildren().size());
+
+        var children = result.getChildren();
+        assertEquals(parent.getGroupId(), children.getFirst().getGroupId().longValue(), 0);
+        assertEquals(parent.getOrganisationId(), children.getFirst().getCode());
+        assertEquals(2, children.getFirst().getChildren().size());
+
+        children = children.getFirst().getChildren();
+        assertEquals(childOne.getGroupId(), children.getFirst().getGroupId().longValue(), 0);
+        assertEquals(childOne.getGroupId().toString(), children.getFirst().getCode());
+        assertEquals(1, children.getFirst().getChildren().size());
+
+        assertEquals(childTwo.getGroupId(), children.getLast().getGroupId().longValue(), 0);
+        assertEquals(childTwo.getGroupId().toString(), children.getLast().getCode());
+        assertEquals(0, children.getLast().getChildren().size());
+
+        children = children.getFirst().getChildren();
+        assertEquals(child.getGroupId(), children.getFirst().getGroupId().longValue(), 0);
+        assertEquals(child.getOrganisationId(), children.getFirst().getCode());
+        assertEquals(0, children.getFirst().getChildren().size());
+
+        Mockito.verify(organisationTreeService).findChildrenByOrganisationCode("super_parent_code");
+        Mockito.verifyNoMoreInteractions(organisationTreeService);
+    }
+
+    @Test
+    public void testOrganisationTreeChildrenGetByGroupId() {
+        var child = createOrganisation("child", 13, 12, null, "child_code");
+        var childOne = createOrganisation("childOne", 12, 11, null, null);
+        var childTwo = createOrganisation("childtwo", 14, 11, null, null);
+        var parent = createOrganisation("parent", 11, 10, 20, "parent_code");
+        var superParent = createOrganisation("superParent", 10, null, null, "super_parent_code");
+
+        var organisationList = Arrays.asList(superParent, parent, childOne, childTwo, child);
+
+        Mockito.when(organisationTreeService.findChildrenByGroupId(10)).thenReturn(organisationList);
+
+        var resultEntity = organisationTreeController.servicesV1OrganisationtreeChildrenGet(null, 10);
+        assertNotNull(resultEntity);
+
+        var result = resultEntity.getBody();
+        assertNotNull(result);
+        assertEquals(superParent.getGroupId(), result.getGroupId().longValue(), 0);
+        assertEquals(superParent.getOrganisationId(), result.getCode());
+        assertEquals(1, result.getChildren().size());
+
+        var children = result.getChildren();
+        assertEquals(parent.getGroupId(), children.getFirst().getGroupId().longValue(), 0);
+        assertEquals(parent.getOrganisationId(), children.getFirst().getCode());
+        assertEquals(2, children.getFirst().getChildren().size());
+
+        children = children.getFirst().getChildren();
+        assertEquals(childOne.getGroupId(), children.getFirst().getGroupId().longValue(), 0);
+        assertEquals(childOne.getGroupId().toString(), children.getFirst().getCode());
+        assertEquals(1, children.getFirst().getChildren().size());
+
+        assertEquals(childTwo.getGroupId(), children.getLast().getGroupId().longValue(), 0);
+        assertEquals(childTwo.getGroupId().toString(), children.getLast().getCode());
+        assertEquals(0, children.getLast().getChildren().size());
+
+        children = children.getFirst().getChildren();
+        assertEquals(child.getGroupId(), children.getFirst().getGroupId().longValue(), 0);
+        assertEquals(child.getOrganisationId(), children.getFirst().getCode());
+        assertEquals(0, children.getFirst().getChildren().size());
+
+        Mockito.verify(organisationTreeService).findChildrenByGroupId(10);
+        Mockito.verifyNoMoreInteractions(organisationTreeService);
+    }
+
+    @Test
+    public void testOrganisationTreeChildrenGetNoCodeOrGroupId() {
+        var exception = assertThrows(BadRequestException.class, () -> organisationTreeController.servicesV1OrganisationtreeChildrenGet(null, null));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getHttpStatus());
+    }
+
+    @Test
+    public void testOrganisationTreeChildrenGetBothCodeAndGroupId() {
+        var exception = assertThrows(BadRequestException.class, () -> organisationTreeController.servicesV1OrganisationtreeChildrenGet("code", 1));
+        assertEquals(HttpStatus.BAD_REQUEST, exception.getHttpStatus());
+    }
+
+    @Test
     public void testGetOrganisationTree() {
         var input = "child";
 
@@ -49,13 +149,13 @@ public class OrganisationTreeControllerTest {
         assertEquals(superParent.getGroupId().toString(), result.getCode());
         assertEquals(1, result.getChildren().size());
 
-        var treeChild = result.getChildren().get(0);
+        var treeChild = result.getChildren().getFirst();
         assertEquals(parent.getOrganisationName(), treeChild.getName());
         assertEquals(parent.getOrganisationId(), treeChild.getCode());
         assertEquals(20, treeChild.getPoolSize().intValue());
         assertEquals(2, treeChild.getChildren().size());
 
-        var childOneTree = treeChild.getChildren().get(0);
+        var childOneTree = treeChild.getChildren().getFirst();
         assertEquals(childOne.getOrganisationName(), childOneTree.getName());
         assertEquals(childOne.getGroupId().toString(), childOneTree.getCode());
         assertEquals(0, childOneTree.getPoolSize().intValue());
@@ -67,7 +167,7 @@ public class OrganisationTreeControllerTest {
         assertEquals(0, childTwoTree.getPoolSize().intValue());
         assertEquals(0, childTwoTree.getChildren().size());
 
-        treeChild = childOneTree.getChildren().get(0);
+        treeChild = childOneTree.getChildren().getFirst();
         assertEquals(child.getOrganisationName(), treeChild.getName());
         assertEquals(child.getOrganisationId(), treeChild.getCode());
         assertEquals(0, treeChild.getPoolSize().intValue());
@@ -78,6 +178,13 @@ public class OrganisationTreeControllerTest {
     public void testOrganisationNotFound() {
         var input = "not_found";
         Mockito.when(organisationTreeService.findOrganisations(input)).thenReturn(Optional.empty());
+        organisationTreeController.servicesOrganisationtreeCodeGet(input);
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void testOrganisationByApiKeyNotFound() {
+        var input = "not_found";
+        Mockito.when(organisationTreeService.findOrganisations("history", input)).thenReturn(Optional.empty());
         organisationTreeController.servicesOrganisationtreeCodeGet(input);
     }
 
@@ -103,13 +210,13 @@ public class OrganisationTreeControllerTest {
         assertEquals(superParent.getGroupId().toString(), result.getCode());
         assertEquals(1, result.getChildren().size());
 
-        var treeChild = result.getChildren().get(0);
+        var treeChild = result.getChildren().getFirst();
         assertEquals(parent.getOrganisationName(), treeChild.getName());
         assertEquals(parent.getOrganisationId(), treeChild.getCode());
         assertEquals(20, treeChild.getPoolSize().intValue());
         assertEquals(2, treeChild.getChildren().size());
 
-        var childOneTree = treeChild.getChildren().get(0);
+        var childOneTree = treeChild.getChildren().getFirst();
         assertEquals(childOne.getOrganisationName(), childOneTree.getName());
         assertEquals(childOne.getGroupId().toString(), childOneTree.getCode());
         assertEquals(0, childOneTree.getPoolSize().intValue());
@@ -121,7 +228,7 @@ public class OrganisationTreeControllerTest {
         assertEquals(0, childTwoTree.getPoolSize().intValue());
         assertEquals(0, childTwoTree.getChildren().size());
 
-        treeChild = childOneTree.getChildren().get(0);
+        treeChild = childOneTree.getChildren().getFirst();
         assertEquals(child.getOrganisationName(), treeChild.getName());
         assertEquals(child.getOrganisationId(), treeChild.getCode());
         assertEquals(0, treeChild.getPoolSize().intValue());
@@ -147,19 +254,19 @@ public class OrganisationTreeControllerTest {
         assertEquals(superParent.getGroupId().toString(), result.getCode());
         assertEquals(1, result.getChildren().size());
 
-        var treeChild = result.getChildren().get(0);
+        var treeChild = result.getChildren().getFirst();
         assertEquals(parent.getOrganisationName(), treeChild.getName());
         assertEquals(parent.getOrganisationId(), treeChild.getCode());
         assertEquals(20, treeChild.getPoolSize().intValue());
         assertEquals(1, treeChild.getChildren().size());
 
-        var childOneTree = treeChild.getChildren().get(0);
+        var childOneTree = treeChild.getChildren().getFirst();
         assertEquals(childOne.getOrganisationName(), childOneTree.getName());
         assertEquals(childOne.getGroupId().toString(), childOneTree.getCode());
         assertEquals(0, childOneTree.getPoolSize().intValue());
         assertEquals(1, childOneTree.getChildren().size());
 
-        treeChild = childOneTree.getChildren().get(0);
+        treeChild = childOneTree.getChildren().getFirst();
         assertEquals(child.getOrganisationName(), treeChild.getName());
         assertEquals(child.getOrganisationId(), treeChild.getCode());
         assertEquals(0, treeChild.getPoolSize().intValue());
@@ -167,14 +274,6 @@ public class OrganisationTreeControllerTest {
 
         Mockito.verify(organisationTreeService).findOrganisations("child_code");
         Mockito.verifyNoMoreInteractions(organisationTreeService);
-    }
-
-
-    @Test(expected = ResourceNotFoundException.class)
-    public void testOrganisationByApiKeyNotFound() {
-        var input = "not_found";
-        Mockito.when(organisationTreeService.findOrganisations("history", input)).thenReturn(Optional.empty());
-        organisationTreeController.servicesOrganisationtreeCodeGet(input);
     }
 
     @Test
@@ -208,19 +307,19 @@ public class OrganisationTreeControllerTest {
         assertEquals(superParent.getGroupId().toString(), result.getCode());
         assertEquals(1, result.getChildren().size());
 
-        var treeChild = result.getChildren().get(0);
+        var treeChild = result.getChildren().getFirst();
         assertEquals(parent.getOrganisationName(), treeChild.getName());
         assertEquals(parent.getOrganisationId(), treeChild.getCode());
         assertEquals(20, treeChild.getPoolSize().intValue());
         assertEquals(1, treeChild.getChildren().size());
 
-        var childOneTree = treeChild.getChildren().get(0);
+        var childOneTree = treeChild.getChildren().getFirst();
         assertEquals(childOne.getOrganisationName(), childOneTree.getName());
         assertEquals(childOne.getGroupId().toString(), childOneTree.getCode());
         assertEquals(0, childOneTree.getPoolSize().intValue());
         assertEquals(1, childOneTree.getChildren().size());
 
-        treeChild = childOneTree.getChildren().get(0);
+        treeChild = childOneTree.getChildren().getFirst();
         assertEquals(child.getOrganisationName(), treeChild.getName());
         assertEquals(child.getOrganisationId(), treeChild.getCode());
         assertEquals(0, treeChild.getPoolSize().intValue());
