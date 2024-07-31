@@ -48,6 +48,8 @@ insert into entities_meetingroom_alias(uuid, relation_uuid, alias) values('04500
 insert into entities_meetingroom_alias(uuid, relation_uuid, alias) values('53c785c6-aaf7-4263-acd0-0f7ba371337f', 'de99982f-12c8-4dae-903e-3df3085a93b8', 'alias_one');
 insert into entities_meetingroom_alias(uuid, relation_uuid, alias) values('ad4171ba-d901-44fa-8301-2546aeef24b3', 'de99982f-12c8-4dae-903e-3df3085a93b8', 'alias_two');
 
+insert into entities_registeredclient(uuid, group_id, alias) values(uuid(), '123', 'AnotherAlias123');
+
 -- used for dk.medcom.vdx.organisation.integrationtest.OrganisationIT.testReadOrganisationTree_with_group_only
 INSERT INTO `groups` (`group_id`, `group_name`, `group_type`, `parent_id`, `created_time`, `created_by`, `updated_time`, `updated_by`, `deleted_time`, `deleted_by`) VALUES (22, 'VDX', '2', NULL, '2020-09-03 09:17:11', 'system', '0001-01-01 00:00:00', NULL, '0001-01-01 00:00:00', NULL);
 INSERT INTO `organisation` (`id`, `group_id`, `organisation_id`, `name`, `deleted_time`, `pool_size`, `sms_sender_name`, `allow_custom_uri_without_domain`, `sms_callback_url`) VALUES (NULL, '22', 'vdx', 'VDX', '0001-01-01 00:00:00', '4', 'VDX Video', '0', NULL);

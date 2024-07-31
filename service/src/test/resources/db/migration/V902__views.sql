@@ -160,59 +160,33 @@ where
     (`t1`.`deleted_time` = '0001-01-01')
 ;
 
--- view_entities_registeredclients
+--
+-- Table structure for table `entities_registeredclient`
+--
 
-CREATE TABLE `entities` (
-  `entity_id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `relation_id` bigint(20) NOT NULL,
-  `jsondata` longtext COLLATE utf8mb4_unicode_ci NOT NULL,
-  `blobdata` longblob,
-  `blob_updated_time` datetime DEFAULT NULL,
-  `type` varchar(20) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `provision_status` varchar(30) COLLATE utf8mb4_unicode_ci DEFAULT 'AWAITS_PROVISION',
-  `provision_status_description` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `provision_id` varchar(50) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `provision_timestamp` datetime DEFAULT NULL,
-  `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `created_by` varchar(250) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'system',
+CREATE TABLE IF NOT EXISTS `entities_registeredclient` (
+  `uuid` varchar(36) NOT NULL,
+  `group_id` bigint(20) NOT NULL,
+  `alias` varchar(250) NOT NULL,
+  `description` varchar(250) DEFAULT NULL,
+  `enable_sso` bit(1) DEFAULT b'0',
+  `owner_email_address` varchar(200) DEFAULT NULL,
+  `username` varchar(200) DEFAULT NULL,
+  `password` varchar(1000) DEFAULT NULL,
+  `last_use` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
+  `provision_status` varchar(30) DEFAULT 'AWAITS_PROVISION',
+  `provision_status_description` varchar(250) DEFAULT NULL,
+  `provision_id` varchar(50) DEFAULT NULL,
+  `provision_timestamp` datetime DEFAULT '0001-01-01 00:00:00',
+  `created_time` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_by` varchar(250) NOT NULL DEFAULT 'system',
   `updated_time` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
-  `updated_by` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
+  `updated_by` varchar(250) DEFAULT NULL,
   `deleted_time` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
-  `deleted_by` varchar(250) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  PRIMARY KEY (`entity_id`),
-  KEY `relationid_type_deletedtime` (`relation_id`,`type`,`deleted_time`),
-  KEY `idx_provisionstatus_type` (`provision_status`,`type`),
-  KEY `idx_provisionid_type_deletedtime` (`provision_id`,`type`,`deleted_time`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=23023 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
-;
-
-CREATE VIEW `view_entities_registeredclients` AS
-select
-    `entities`.`entity_id` AS `entity_id`,
-    `entities`.`relation_id` AS `relation_id`,
-    json_unquote(json_extract(`entities`.`jsondata`, '$.alias')) AS `alias`,
-    json_unquote(
-        json_extract(`entities`.`jsondata`, '$.description')
-    ) AS `description`,
-    json_unquote(json_extract(`entities`.`jsondata`, '$.username')) AS `username`,
-    `entities`.`jsondata` AS `jsondata`,
-    `entities`.`type` AS `type`,
-    `entities`.`provision_status` AS `provision_status`,
-    `entities`.`provision_status_description` AS `provision_status_description`,
-    `entities`.`provision_id` AS `provision_id`,
-    `entities`.`provision_timestamp` AS `provision_timestamp`,
-    `entities`.`created_time` AS `created_time`,
-    `entities`.`created_by` AS `created_by`,
-    `entities`.`updated_time` AS `updated_time`,
-    `entities`.`updated_by` AS `updated_by`
-from
-    `entities`
-where
-    (
-        (`entities`.`type` = 'registeredclient')
-        and (`entities`.`deleted_time` = '0001-01-01')
-    )
-;
+  `deleted_by` varchar(250) DEFAULT NULL,
+  PRIMARY KEY (`uuid`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 COLLATE=latin1_swedish_ci;
+COMMIT;
 
 --
 
