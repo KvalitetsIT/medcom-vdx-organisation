@@ -43,7 +43,7 @@ public class OrganisationViewsImpl implements OrganisationViews {
             if(result.size() > 1) {
                 logger.info("Found multiple rows for {}. Returning first row.", uri);
             }
-            return Optional.ofNullable(result.get(0));
+            return Optional.ofNullable(result.getFirst());
         }
     }
 
@@ -78,7 +78,7 @@ public class OrganisationViewsImpl implements OrganisationViews {
         var parameters = new HashMap<String, Object>();
         parameters.put("uri_with_domain", uri.toLowerCase());
 
-        String sql = "SELECT relation_id FROM view_entities_registeredclients WHERE LOWER(alias) = :uri_with_domain";
+        String sql = "SELECT group_id FROM entities_registeredclient WHERE LOWER(alias) = :uri_with_domain";
 
         try {
             Long result = template.queryForObject(sql, parameters, Long.class);

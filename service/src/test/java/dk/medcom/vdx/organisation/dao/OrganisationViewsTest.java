@@ -34,4 +34,19 @@ public class OrganisationViewsTest extends AbstractDaoTest {
 
         assertTrue(result.isEmpty());
     }
+
+    @Test
+    public void testGetGroupIdFromRegisteredClients() {
+        var result = organisationViews.getGroupIdFromRegisteredClients("anoTheRaLias123");
+
+        assertTrue(result.isPresent());
+        assertEquals(123L, result.get(), 0);
+    }
+
+    @Test
+    public void testGetNoGroupIdFromRegisteredClients() {
+        var result = organisationViews.getGroupIdFromRegisteredClients("notTheRight Alias123");
+
+        assertTrue(result.isEmpty());
+    }
 }
