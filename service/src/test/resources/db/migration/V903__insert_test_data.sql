@@ -25,7 +25,8 @@ INSERT INTO organisation (id, organisation_id, name, group_id, sms_sender_name, 
 INSERT INTO organisation (id, organisation_id, name, group_id) VALUES (6, 'another-test-org', 'company name another-test-org', 6);
 INSERT INTO organisation (id, organisation_id, name, pool_size, group_id, allow_custom_uri_without_domain) VALUES (7, 'pool-test-org', 'company name another-test-org', 10, 7, 1);
 
-insert into organisation(id, organisation_id, name, pool_size, group_id, sms_sender_name, sms_callback_url) values(10, 'parent', 'parent org', 20, 11, 'sms-sender', 'callback');
+insert into organisation(id, organisation_id, name, pool_size, group_id, sms_sender_name, sms_callback_url, device_webhook_endpoint, device_webhook_endpoint_key)
+    values(10, 'parent', 'parent org', 20, 11, 'sms-sender', 'callback', 'device-webhook-endpoint', 'device-webhook-endpoint-key');
 insert into organisation(id, organisation_id, name, group_id, history_api_key) values(11, 'child', 'child org', 13, '8adeac18-f061-4992-818b-8d4461ccfaa7');
 insert into organisation(id, organisation_id, name, group_id, history_api_key) values(12, 'medcom', 'This Is Medcom', 15, '23646a74-7737-4bab-a8a9-07f21471a14a');
 insert into organisation(id, organisation_id, name, group_id) values(13, 'æ/åø', 'This is with a slash', 16);

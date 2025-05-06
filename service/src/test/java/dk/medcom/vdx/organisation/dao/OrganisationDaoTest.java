@@ -6,9 +6,10 @@ import dk.medcom.vdx.organisation.dao.impl.OrganisationDaoImpl;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 
 import javax.sql.DataSource;
+
+import java.util.UUID;
 
 import static org.junit.Assert.*;
 
@@ -35,6 +36,8 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         assertNull(result.getSmsCallbackUrl());
         assertNull(result.getSmsSenderName());
         assertNull(result.getPoolSize());
+        assertNull(result.getDeviceWebhookEndpoint());
+        assertNull(result.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -50,6 +53,8 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         assertEquals("parent", result.getGroupName());
         assertEquals("sms-sender", result.getSmsSenderName());
         assertEquals("callback", result.getSmsCallbackUrl());
+        assertEquals("device-webhook-endpoint", result.getDeviceWebhookEndpoint());
+        assertEquals("device-webhook-endpoint-key", result.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -71,6 +76,8 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         assertNull(result.getSmsCallbackUrl());
         assertNull(result.getSmsSenderName());
         assertNull(result.getPoolSize());
+        assertNull(result.getDeviceWebhookEndpoint());
+        assertNull(result.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -86,6 +93,8 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         assertEquals("parent", result.getGroupName());
         assertEquals("sms-sender", result.getSmsSenderName());
         assertEquals("callback", result.getSmsCallbackUrl());
+        assertEquals("device-webhook-endpoint", result.getDeviceWebhookEndpoint());
+        assertEquals("device-webhook-endpoint-key", result.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -94,7 +103,7 @@ public class OrganisationDaoTest extends AbstractDaoTest {
 
         assertNotNull(result);
         assertEquals(1, result.size());
-        var organisation = result.get(0);
+        var organisation = result.getFirst();
         assertEquals(12L, organisation.getParentId().longValue());
         assertEquals(13L, organisation.getGroupId().longValue());
         assertNull(organisation.getPoolSize());
@@ -103,6 +112,8 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         assertEquals("child", organisation.getGroupName());
         assertNull(organisation.getSmsSenderName());
         assertNull(organisation.getSmsCallbackUrl());
+        assertNull(organisation.getDeviceWebhookEndpoint());
+        assertNull(organisation.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -136,6 +147,8 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         input.setSmsSenderName("sms name");
         input.setSmsCallbackUrl("sms callback");
         input.setGroupId(13L);
+        input.setDeviceWebhookEndpoint(UUID.randomUUID().toString());
+        input.setDeviceWebhookEndpointKey(UUID.randomUUID().toString());
 
 
         var id = organisationDao.insert(input);
@@ -150,6 +163,8 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         assertEquals(input.getPoolSize(), dbOrganisation.getPoolSize());
         assertEquals(input.getSmsSenderName(), dbOrganisation.getSmsSenderName());
         assertEquals(input.getSmsCallbackUrl(), dbOrganisation.getSmsCallbackUrl());
+        assertEquals(input.getDeviceWebhookEndpoint(), dbOrganisation.getDeviceWebhookEndpoint());
+        assertEquals(input.getDeviceWebhookEndpointKey(), dbOrganisation.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -165,6 +180,8 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         assertNull(result.getPoolSize());
         assertNull(result.getSmsSenderName());
         assertNull(result.getSmsCallbackUrl());
+        assertNull(result.getDeviceWebhookEndpoint());
+        assertNull(result.getDeviceWebhookEndpointKey());
     }
 
     @Test

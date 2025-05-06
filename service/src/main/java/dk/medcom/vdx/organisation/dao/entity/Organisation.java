@@ -9,6 +9,8 @@ public class Organisation {
     private String organisationName;
     private String smsSenderName;
     private String smsCallbackUrl;
+    private String deviceWebhookEndpoint;
+    private String deviceWebhookEndpointKey;
 
     public Long getGroupId() {
         return groupId;
@@ -72,5 +74,21 @@ public class Organisation {
 
     public void setSmsCallbackUrl(String smsCallbackUrl) {
         this.smsCallbackUrl = smsCallbackUrl;
+    }
+
+    public String getDeviceWebhookEndpoint() {
+        return deviceWebhookEndpoint;
+    }
+
+    public void setDeviceWebhookEndpoint(String deviceWebhookEndpoint) {
+        this.deviceWebhookEndpoint = deviceWebhookEndpoint;
+    }
+
+    public String getDeviceWebhookEndpointKey() {
+        return deviceWebhookEndpointKey;
+    }
+
+    public void setDeviceWebhookEndpointKey(String deviceWebhookEndpointKey) {
+        this.deviceWebhookEndpointKey = deviceWebhookEndpointKey;
     }
 }
