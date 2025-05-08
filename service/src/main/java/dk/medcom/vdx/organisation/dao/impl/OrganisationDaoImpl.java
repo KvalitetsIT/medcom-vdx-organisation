@@ -36,7 +36,9 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 "o.organisation_id, " +
                 "o.name organisation_name, " +
                 "o.sms_sender_name, " +
-                "o.sms_callback_url " +
+                "o.sms_callback_url, " +
+                "o.device_webhook_endpoint, " +
+                "o.device_webhook_endpoint_key " +
                 "from organisation o, groups g " +
                 "where o.organisation_id = :organisation_id" +
                 "  and g.group_id = o.group_id";
@@ -61,7 +63,9 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 "o.organisation_id, " +
                 "o.name organisation_name, " +
                 "o.sms_sender_name, " +
-                "o.sms_callback_url " +
+                "o.sms_callback_url, " +
+                "o.device_webhook_endpoint, " +
+                "o.device_webhook_endpoint_key " +
                 "from groups g left outer join (select * from organisation where deleted_time = '0001-01-01 00:00:00') o on g.group_id = o.group_id " +
                 "where g.group_id = :group_id " +
                 "and g.deleted_time = '0001-01-01 00:00:00'";
@@ -88,7 +92,9 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 "o.organisation_id, " +
                 "o.name organisation_name, " +
                 "o.sms_sender_name, " +
-                "o.sms_callback_url " +
+                "o.sms_callback_url, " +
+                "o.device_webhook_endpoint, " +
+                "o.device_webhook_endpoint_key " +
                 "from groups g left outer join (select * from organisation where deleted_time = '0001-01-01 00:00:00') o on g.group_id = o.group_id " +
                 "where g.parent_id = :group_id " +
                 "and g.deleted_time = '0001-01-01 00:00:00'";
@@ -102,8 +108,8 @@ public class OrganisationDaoImpl implements OrganisationDao {
 
     @Override
     public long insert(Organisation newOrganisation) {
-        var sql = "insert into organisation(group_id, organisation_id, name, pool_size, sms_sender_name, allow_custom_uri_without_domain, sms_callback_url)" +
-                " values(:group_id, :organisation_id, :name, :pool_size, :sms_sender_name, :allow_custom_uri_with_domain, :sms_callback_url)";
+        var sql = "insert into organisation(group_id, organisation_id, name, pool_size, sms_sender_name, allow_custom_uri_without_domain, sms_callback_url, device_webhook_endpoint, device_webhook_endpoint_key)" +
+                " values(:group_id, :organisation_id, :name, :pool_size, :sms_sender_name, :allow_custom_uri_with_domain, :sms_callback_url, :device_webhook_endpoint, :device_webhook_endpoint_key)";
 
         var parameters = new MapSqlParameterSource().
                 addValue("group_id", newOrganisation.getGroupId()).
@@ -112,7 +118,9 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 addValue("pool_size", newOrganisation.getPoolSize()).
                 addValue("sms_sender_name", newOrganisation.getSmsSenderName()).
                 addValue("allow_custom_uri_with_domain", 0).
-                addValue("sms_callback_url", newOrganisation.getSmsCallbackUrl());
+                addValue("sms_callback_url", newOrganisation.getSmsCallbackUrl()).
+                addValue("device_webhook_endpoint", newOrganisation.getDeviceWebhookEndpoint()).
+                addValue("device_webhook_endpoint_key", newOrganisation.getDeviceWebhookEndpointKey());
 
         var keyHolder = new GeneratedKeyHolder();
 
@@ -131,7 +139,9 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 "o.organisation_id, " +
                 "o.name organisation_name, " +
                 "o.sms_sender_name, " +
-                "o.sms_callback_url " +
+                "o.sms_callback_url, " +
+                "o.device_webhook_endpoint, " +
+                "o.device_webhook_endpoint_key " +
                 "from organisation o, groups g " +
                 "where o.history_api_key = :history_api_key" +
                 "  and g.group_id = o.group_id";

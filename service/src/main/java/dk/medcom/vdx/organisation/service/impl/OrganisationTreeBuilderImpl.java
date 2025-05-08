@@ -42,7 +42,7 @@ public class OrganisationTreeBuilderImpl implements OrganisationTreeBuilder {
 
     private Organisationtree merge(Organisationtree existingOrganisation, Organisationtree organisation) {
         if(existingOrganisation.getChildren() != null) {
-            existingOrganisation.getChildren().forEach(x -> organisation.addChildrenItem(x));
+            existingOrganisation.getChildren().forEach(organisation::addChildrenItem);
         }
 
         return organisation;
@@ -56,6 +56,8 @@ public class OrganisationTreeBuilderImpl implements OrganisationTreeBuilder {
         organisationTreeDto.setSmsCallbackUrl(organisation.getSmsCallbackUrl());
         organisationTreeDto.setSmsSenderName(organisation.getSmsSenderName());
         organisationTreeDto.setGroupId(organisation.getGroupId().intValue());
+        organisationTreeDto.setDeviceWebhookEndpoint(organisation.getDeviceWebhookEndpoint());
+        organisationTreeDto.setDeviceWebhookEndpointKey(organisation.getDeviceWebhookEndpointKey());
 
         return organisationTreeDto;
     }

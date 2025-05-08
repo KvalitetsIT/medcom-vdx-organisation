@@ -130,12 +130,16 @@ public class OrganisationIT extends AbstractIntegrationTest {
         assertEquals("child org", childOrganisation.getName());
         assertNull(childOrganisation.getSmsSenderName());
         assertNull(childOrganisation.getSmsCallbackUrl());
+        assertNull(childOrganisation.getDeviceWebhookEndpoint());
+        assertNull(childOrganisation.getDeviceWebhookEndpointKey());
 
         var parentOrganisation = response.getChildren().getFirst();
         assertEquals("parent", parentOrganisation.getCode());
         assertEquals("parent org", parentOrganisation.getName());
         assertEquals("sms-sender", parentOrganisation.getSmsSenderName());
         assertEquals("callback", parentOrganisation.getSmsCallbackUrl());
+        assertEquals("device-webhook-endpoint", parentOrganisation.getDeviceWebhookEndpoint());
+        assertEquals("device-webhook-endpoint-key", parentOrganisation.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -148,12 +152,16 @@ public class OrganisationIT extends AbstractIntegrationTest {
         assertEquals("child org", childOrganisation.getName());
         assertNull(childOrganisation.getSmsSenderName());
         assertNull(childOrganisation.getSmsCallbackUrl());
+        assertNull(childOrganisation.getDeviceWebhookEndpoint());
+        assertNull(childOrganisation.getDeviceWebhookEndpointKey());
 
         var parentOrganisation = response.getChildren().getFirst();
         assertEquals("parent", parentOrganisation.getCode());
         assertEquals("parent org", parentOrganisation.getName());
         assertEquals("sms-sender", parentOrganisation.getSmsSenderName());
         assertEquals("callback", parentOrganisation.getSmsCallbackUrl());
+        assertEquals("device-webhook-endpoint", parentOrganisation.getDeviceWebhookEndpoint());
+        assertEquals("device-webhook-endpoint-key", parentOrganisation.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -231,12 +239,16 @@ public class OrganisationIT extends AbstractIntegrationTest {
         assertEquals("child org", childOrganisation.getName());
         assertNull(childOrganisation.getSmsSenderName());
         assertNull(childOrganisation.getSmsCallbackUrl());
+        assertNull(childOrganisation.getDeviceWebhookEndpoint());
+        assertNull(childOrganisation.getDeviceWebhookEndpointKey());
 
         var parentOrganisation = response.getChildren().getFirst();
         assertEquals("parent", parentOrganisation.getCode());
         assertEquals("parent org", parentOrganisation.getName());
         assertEquals("sms-sender", parentOrganisation.getSmsSenderName());
         assertEquals("callback", parentOrganisation.getSmsCallbackUrl());
+        assertEquals("device-webhook-endpoint", parentOrganisation.getDeviceWebhookEndpoint());
+        assertEquals("device-webhook-endpoint-key", parentOrganisation.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -257,6 +269,8 @@ public class OrganisationIT extends AbstractIntegrationTest {
         assertEquals("This is with a slash", response.getName());
         assertNull(response.getSmsSenderName());
         assertTrue(response.getChildren().isEmpty());
+        assertNull(response.getDeviceWebhookEndpoint());
+        assertNull(response.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -277,6 +291,8 @@ public class OrganisationIT extends AbstractIntegrationTest {
         assertEquals("This is with a slash", response.getName());
         assertNull(response.getSmsSenderName());
         assertTrue(response.getChildren().isEmpty());
+        assertNull(response.getDeviceWebhookEndpoint());
+        assertNull(response.getDeviceWebhookEndpointKey());
     }
 
     @Test

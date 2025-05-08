@@ -433,6 +433,16 @@ components:
           format: int32
           description: Group id
           example: 4
+        deviceWebhookEndpoint:
+          type: string
+          maxLength: 100
+          example: http://webhook.endpoint/here
+          description: Endpoint of device webhook
+        deviceWebhookEndpointKey:
+          type: string
+          maxLength: 100
+          example: this-is-a-key
+          description: Endpoint key of device webhook for header
 
     organisation-tree-for-api-key:
       type: object
