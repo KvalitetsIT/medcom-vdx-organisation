@@ -10,6 +10,10 @@ tags:
     description: Read, search, create, and update operations for Organisations
   - name: Organisation Tree
     description: Search operations for the hierarchy of Organisations
+  - name: Organisation V2
+    description: Read, search, create, and update operations for Organisations
+  - name: Organisation Tree V2
+    description: Search operations for the hierarchy of Organisations
 
 servers:
   - url: '{protocol}://{environment}:{port}'
@@ -30,6 +34,8 @@ servers:
 paths:
   /services/v1/organisation-tree-for-api-key:
     post:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation Tree
       summary: Get organisation tree for a given api key
@@ -54,6 +60,8 @@ paths:
 
   /services/organisation:
     get:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation
       summary: Read organisation
@@ -75,6 +83,8 @@ paths:
                 $ref: '#/components/schemas/organisation'
 
     post:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation
       summary: Create organisation
@@ -107,6 +117,8 @@ paths:
 
   /services/organisation/{code}:
     get:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation
       summary: Read organisation
@@ -129,6 +141,8 @@ paths:
 
   /services/organisation/{parent_code}:
     post:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation
       summary: Create organisation
@@ -161,6 +175,8 @@ paths:
 
   /services/organisation/uri:
     post:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation
       summary: Get organisations by URIs
@@ -186,6 +202,8 @@ paths:
 
   /services/organisationtree:
     get:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation Tree
       summary: Get a specific part of the organisation tree
@@ -216,6 +234,8 @@ paths:
 
   /services/v1/organisationtree-children:
     get:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation Tree
       summary: Get organisation and all it's children.
@@ -246,6 +266,8 @@ paths:
 
   /services/organisationtree/{code}:
     get:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation Tree
       summary: Get a specific part of the organisation tree
@@ -265,7 +287,286 @@ paths:
               schema:
                 $ref: '#/components/schemas/organisationtree'
 
+  /services/v2/organisation-tree-for-api-key:
+    post:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation Tree V2
+      summary: Get organisation tree for a given api key
+      requestBody:
+        description: Organisation to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/organisation-tree-for-api-key'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisationtree'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+
+  /services/v2/organisation:
+    get:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation V2
+      summary: Read organisation
+      description: Read a single organisation
+      parameters:
+        - name: organisationCode
+          in: query
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation'
+
+    post:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation V2
+      summary: Create organisation
+      description: Create a single organisation with the option to create it in a parent organisation.
+      parameters:
+        - name: parent_code
+          in: query
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+      requestBody:
+        description: Organisation to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/organisation-create'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+
+  /services/v2/organisation/{code}:
+    get:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation V2
+      summary: Read organisation
+      description: Read a single organisation
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation'
+
+  /services/V2/organisation/{parent_code}:
+    post:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation V2
+      summary: Create organisation
+      description: Create a single organisation with the option to create it in a parent organisation.
+      parameters:
+        - name: parent_code
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+      requestBody:
+        description: Organisation to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/organisation-create'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+
+  /services/V2/organisation/uri:
+    post:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation V2
+      summary: Get organisations by URIs
+      description: GGet organisations identified by a meeting uri with domain
+      requestBody:
+        description: List of URI to find matching organisation for
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/organisation-uri-request'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation-uri'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+
+  /services/V2/organisationtree:
+    get:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation Tree V2
+      summary: Get a specific part of the organisation tree
+      description: Get a specific organisation tree (rooted at the specified code)
+      parameters:
+        - name: organisationCode
+          in: query
+          required: false
+          description: Organisation code to search for. Mutually exclusive with groupId.
+          schema:
+            type: string
+          example: 'organisation_a'
+        - name: groupId
+          in: query
+          required: false
+          description: Group id to search for. Mutually exclusive with organisationCode.
+          schema:
+            type: integer
+            format: int32
+          example: 14
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisationtree'
+
+  /services/v2/organisationtree-children:
+    get:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation Tree V2
+      summary: Get organisation and all it's children.
+      description: Get organisation and all it's children.
+      parameters:
+        - name: organisationCode
+          in: query
+          required: false
+          description: Organisation code to search for. Mutually exclusive with groupId.
+          schema:
+            type: string
+          example: 'organisation_a'
+        - name: groupId
+          in: query
+          required: false
+          description: Group id to search for. Mutually exclusive with organisationCode.
+          schema:
+            type: integer
+            format: int32
+          example: 14
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisationtree'
+
+  /services/v2/organisationtree/{code}:
+    get:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation Tree V2
+      summary: Get a specific part of the organisation tree
+      description: Get a specific organisation tree (rooted at the specified code)
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisationtree'
 components:
+  securitySchemes:
+    userContext:
+      type: apiKey
+      in: header
+      name: X-SESSIONDATA
+
+    keycloakOIDC:
+      type: oauth2
+      description: >-
+        OIDC security implemented by Keycloak. The token should contain a user role claim with at least one of the following values: <br>
+        * meeting-admin <br>
+        * meeting-user <br>
+        * meeting-planner <br>
+        * meeting-provisioner <br>
+        * meeting-provisioner-user <br> <br>
+        It is specified in the description of the endpoint which values grants access.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://<keycloak-url>/realms/<realm>/protocol/openid-connect/auth
+          tokenUrl: https://<keycloak-url>/realms/<realm>/protocol/openid-connect/token
+          scopes: { }
+        clientCredentials:
+          tokenUrl: https://<keycloak-url>/realms/<realm>/protocol/openid-connect/token
+          scopes: { }
+
   responses:
     '400':
       description: "Bad Request. This could be because: * One of the required parameters/properties are missing or is empty <br> * Length of input is exceeding maximum length <br> (See a possible detailed error message in the in the response.)"
