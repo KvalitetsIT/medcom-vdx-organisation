@@ -1,5 +1,6 @@
-package dk.medcom.vdx.organisation.integrationtest;
+package dk.medcom.vdx.organisation.integrationtest.v1;
 
+import dk.medcom.vdx.organisation.integrationtest.AbstractIntegrationTest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
