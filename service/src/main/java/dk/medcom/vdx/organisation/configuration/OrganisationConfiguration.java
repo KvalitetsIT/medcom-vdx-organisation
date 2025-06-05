@@ -10,6 +10,7 @@ import dk.medcom.vdx.organisation.dao.OrganisationViews;
 import dk.medcom.vdx.organisation.dao.impl.OrganisationDaoImpl;
 import dk.medcom.vdx.organisation.dao.impl.OrganisationViewsImpl;
 import dk.medcom.vdx.organisation.dao.jpa.OrganisationRepository;
+import dk.medcom.vdx.organisation.interceptor.OauthInterceptor;
 import dk.medcom.vdx.organisation.interceptor.UserSecurityInterceptor;
 import dk.medcom.vdx.organisation.service.OrganisationNameService;
 import dk.medcom.vdx.organisation.service.OrganisationService;
@@ -43,6 +44,7 @@ public class OrganisationConfiguration implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         logger.debug("Adding interceptors");
+        registry.addInterceptor(oauthInterceptor());
         registry.addInterceptor(userSecurityInterceptor());
     }
 
@@ -61,6 +63,12 @@ public class OrganisationConfiguration implements WebMvcConfigurer {
         bean.setOrder(0);
 
         return bean;
+    }
+
+    @Bean
+    public OauthInterceptor oauthInterceptor() {
+        logger.debug("Creating oauth interceptor");
+        return new OauthInterceptor();
     }
 
     @Bean

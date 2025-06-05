@@ -293,7 +293,10 @@ paths:
         - keycloakOIDC: [ ]
       tags:
         - Organisation Tree V2
-      summary: Get organisation tree for a given api key
+      summary: >-
+        Get organisation tree for a given api key <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
       requestBody:
         description: Organisation to create
         required: true
@@ -320,7 +323,10 @@ paths:
       tags:
         - Organisation V2
       summary: Read organisation
-      description: Read a single organisation
+      description: >-
+        Read a single organisation <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
       parameters:
         - name: organisationCode
           in: query
@@ -343,7 +349,10 @@ paths:
       tags:
         - Organisation V2
       summary: Create organisation
-      description: Create a single organisation with the option to create it in a parent organisation.
+      description: >-
+        Create a single organisation with the option to create it in a parent organisation. <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
       parameters:
         - name: parent_code
           in: query
@@ -377,7 +386,10 @@ paths:
       tags:
         - Organisation V2
       summary: Read organisation
-      description: Read a single organisation
+      description: >-
+        Read a single organisation <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
       parameters:
         - name: code
           in: path
@@ -394,14 +406,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/organisation'
 
-  /services/V2/organisation/{parent_code}:
+  /services/v2/organisation/{parent_code}:
     post:
       security:
         - keycloakOIDC: [ ]
       tags:
         - Organisation V2
       summary: Create organisation
-      description: Create a single organisation with the option to create it in a parent organisation.
+      description: >-
+        Create a single organisation with the option to create it in a parent organisation. <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
       parameters:
         - name: parent_code
           in: path
@@ -428,14 +443,17 @@ paths:
         '401':
           $ref: '#/components/responses/401'
 
-  /services/V2/organisation/uri:
+  /services/v2/organisation/uri:
     post:
       security:
         - keycloakOIDC: [ ]
       tags:
         - Organisation V2
       summary: Get organisations by URIs
-      description: GGet organisations identified by a meeting uri with domain
+      description: >-
+        Get organisations identified by a meeting uri with domain <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
       requestBody:
         description: List of URI to find matching organisation for
         required: true
@@ -455,14 +473,17 @@ paths:
         '403':
           $ref: '#/components/responses/403'
 
-  /services/V2/organisationtree:
+  /services/v2/organisationtree:
     get:
       security:
         - keycloakOIDC: [ ]
       tags:
         - Organisation Tree V2
       summary: Get a specific part of the organisation tree
-      description: Get a specific organisation tree (rooted at the specified code)
+      description: >-
+        Get a specific organisation tree (rooted at the specified code) <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
       parameters:
         - name: organisationCode
           in: query
@@ -494,7 +515,10 @@ paths:
       tags:
         - Organisation Tree V2
       summary: Get organisation and all it's children.
-      description: Get organisation and all it's children.
+      description: >-
+        Get organisation and all it's children. <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
       parameters:
         - name: organisationCode
           in: query
@@ -526,7 +550,10 @@ paths:
       tags:
         - Organisation Tree V2
       summary: Get a specific part of the organisation tree
-      description: Get a specific organisation tree (rooted at the specified code)
+      description: >-
+        Get a specific organisation tree (rooted at the specified code) <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
       parameters:
         - name: code
           in: path
