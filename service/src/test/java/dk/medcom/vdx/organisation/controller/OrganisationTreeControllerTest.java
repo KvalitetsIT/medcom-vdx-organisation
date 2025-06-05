@@ -2,6 +2,7 @@ package dk.medcom.vdx.organisation.controller;
 
 import dk.medcom.vdx.organisation.controller.exception.BadRequestException;
 import dk.medcom.vdx.organisation.controller.exception.ResourceNotFoundException;
+import dk.medcom.vdx.organisation.controller.v1.OrganisationTreeController;
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.service.OrganisationTreeService;
 import dk.medcom.vdx.organisation.service.impl.OrganisationTreeBuilderImpl;
