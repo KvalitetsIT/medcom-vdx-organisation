@@ -6,19 +6,28 @@ import org.junit.Before;
 import org.junit.Test;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
+import org.openapitools.client.JSON;
 import org.openapitools.client.api.OrganisationV2Api;
+import org.openapitools.client.model.BasicError;
+import org.openapitools.client.model.Organisation;
 import org.openapitools.client.model.OrganisationCreate;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
+import static org.junit.Assert.*;
 
 public class OrganisationV2IT extends AbstractIntegrationTest {
     private final String testOrg = "test-org";
     private final String company1 = "company 1";
     
+    private OrganisationV2Api organisationV2Api;
     private OrganisationV2Api organisationV2ApiNoHeader;
     private OrganisationV2Api organisationV2ApiInvalidJwt;
     private OrganisationV2Api organisationV2ApiNoRoleAtt;
@@ -26,6 +35,11 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     
     @Before
     public void setup() {
+        var apiClient = new ApiClient();
+        apiClient.setBasePath(getApiBasePath());
+        apiClient.addDefaultHeader("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl()));
+        organisationV2Api = new OrganisationV2Api(apiClient);
+        
         var apiClientNoHeader = new ApiClient();
         apiClientNoHeader.setBasePath(getApiBasePath());
         organisationV2ApiNoHeader = new OrganisationV2Api(apiClientNoHeader);
@@ -47,6 +61,57 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
 // ------ JWT errors -------
+
+    @Test
+    public void errorIfNoJwtToken_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(401, responseString.statusCode());
+    }
+
+    @Test
+    public void errorIfInvalidJwtToken_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
+                header("Authorization", "Bearer " + HeaderBuilder.getInvalidJwt()).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(401, responseString.statusCode());
+    }
+
+    @Test
+    public void errorIfNoRoleAttInToken_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
+                header("Authorization", "Bearer " + HeaderBuilder.getJwtNoRoleAtt(getKeycloakUrl())).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(401, responseString.statusCode());
+    }
+
+    @Test
+    public void errorIfNotAdmin_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
+                header("Authorization", "Bearer " + HeaderBuilder.getJwtNotAdmin(getKeycloakUrl())).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(403, responseString.statusCode());
+    }
 
     @Test
     public void errorIfNoJwtToken_servicesV2OrganisationCodeGet() {
@@ -167,7 +232,160 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNotAdmin.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
         assertEquals(403, expectedException.getCode());
     }
-    
+
+// -------- No JWT Errors -----------
+
+    @Test
+    public void testGetOrganisationSlashPath() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
+                header("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl())).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        var response = JSON.getGson().fromJson(responseString.body(), Organisation.class);
+
+        assertNotNull(response);
+        assertEquals("æ/åø", response.getCode());
+        assertEquals("This is with a slash", response.getName());
+        assertNull(response.getSmsSenderName());
+    }
+
+    @Test
+    public void testServicesV2OrganisationCodeGet() throws ApiException {
+        var result = organisationV2Api.servicesV2OrganisationCodeGet("test-org");
+
+        assertNotNull(result);
+        assertEquals("test-org", result.getCode());
+        assertEquals("company name test-org", result.getName());
+        assertEquals("MinAfsender", result.getSmsSenderName());
+        assertEquals("some_url", result.getSmsCallbackUrl());
+    }
+
+    @Test
+    public void testServicesV2OrganisationCodeGetNoSmsSenderName() throws ApiException {
+        var result = organisationV2Api.servicesV2OrganisationCodeGet("kvak");
+
+        assertNotNull(result);
+        assertEquals("kvak", result.getCode());
+        assertEquals("company name kvak", result.getName());
+        assertNull(result.getSmsSenderName());
+    }
+
+    @Test
+    public void testServicesV2OrganisationGet() throws ApiException {
+        var result = organisationV2Api.servicesV2OrganisationGet("test-org");
+
+        assertNotNull(result);
+        assertEquals("test-org", result.getCode());
+        assertEquals("company name test-org", result.getName());
+        assertEquals("MinAfsender", result.getSmsSenderName());
+        assertEquals("some_url", result.getSmsCallbackUrl());
+    }
+
+    @Test
+    public void testServicesV2OrganisationGetWithSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation?organisationCode=æ/åø")).
+                header("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl())).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        var response = JSON.getGson().fromJson(responseString.body(), Organisation.class);
+
+        assertNotNull(response);
+        assertEquals("æ/åø", response.getCode());
+        assertEquals("This is with a slash", response.getName());
+        assertNull(response.getSmsSenderName());
+    }
+
+    @Test
+    public void testServicesV2OrganisationParentCodePost() throws ApiException {
+        var input = "company 1";
+        var inputOrganisation = new OrganisationCreate();
+        inputOrganisation.setCode(UUID.randomUUID().toString());
+
+        var result = organisationV2Api.servicesV2OrganisationParentCodePost(input, inputOrganisation);
+        assertNotNull(result);
+
+        assertEquals(inputOrganisation.getCode(), result.getCode());
+        assertEquals(inputOrganisation.getCode(), result.getName());
+        assertNull(result.getSmsSenderName());
+        assertNull(result.getSmsCallbackUrl());
+        assertEquals(0, result.getPoolSize(), 0);
+    }
+
+    @Test
+    public void testServicesV2OrganisationParentCodePostAlreadyExists() {
+        var input = "from_template";
+
+        var inputOrganisation = new OrganisationCreate();
+        inputOrganisation.code("test-org");
+
+        var exception = assertThrows(ApiException.class, () -> organisationV2Api.servicesV2OrganisationParentCodePost(input, inputOrganisation));
+        assertNotNull(exception);
+        assertEquals(400, exception.getCode());
+        var error = JSON.getGson().fromJson(exception.getResponseBody(), BasicError.class);
+        assertEquals("Organisation test-org already exists.", error.getError());
+    }
+
+    @Test
+    public void testServicesV2OrganisationParentCodePostParentNotFound() {
+        var input = "i_dont_exist";
+        var inputOrganisation = new OrganisationCreate();
+        inputOrganisation.code("code");
+
+        var exception = assertThrows(ApiException.class, () -> organisationV2Api.servicesV2OrganisationParentCodePost(input, inputOrganisation));
+        assertNotNull(exception);
+        assertEquals(400, exception.getCode());
+        var error = JSON.getGson().fromJson(exception.getResponseBody(), BasicError.class);
+        assertEquals("Parent organisation i_dont_exist not found", error.getError());
+    }
+
+    @Test
+    public void testServicesV2OrganisationPost() throws ApiException {
+        var input = "æ/åø";
+        var inputOrganisation = new OrganisationCreate();
+        inputOrganisation.setCode(UUID.randomUUID().toString());
+
+        var result = organisationV2Api.servicesV2OrganisationPost(input, inputOrganisation);
+        assertNotNull(result);
+
+        assertEquals(inputOrganisation.getCode(), result.getCode());
+        assertEquals(inputOrganisation.getCode(), result.getName());
+        assertNull(result.getSmsSenderName());
+        assertNull(result.getSmsCallbackUrl());
+        assertEquals(0, result.getPoolSize(), 0);
+    }
+
+    @Test
+    public void testServicesV2OrganisationUriPostWhereStatusPROVISIONED_OK() throws ApiException {
+        var uris = List.of("1239@test.dk");
+
+        var result = organisationV2Api.servicesV2OrganisationUriPost(uris);
+
+        assertFalse(result.isEmpty());
+        assertEquals("pool-test-org", result.getFirst().getCode());
+        assertEquals("company name another-test-org", result.getFirst().getName());
+        assertEquals(Long.valueOf(7), result.getFirst().getGroupId());
+        assertEquals(uris.getFirst(), result.getFirst().getUri());
+    }
+
+    @Test
+    public void testServicesV2OrganisationUriPostWhereStatusNotPROVISIONED_OK() throws ApiException {
+        var uris = List.of("1230@test.dk");
+
+        var result = organisationV2Api.servicesV2OrganisationUriPost(uris);
+
+        assertTrue(result.isEmpty());
+    }
+
     private String randomString() {
         return UUID.randomUUID().toString();
     }
