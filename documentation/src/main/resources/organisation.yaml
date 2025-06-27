@@ -29,8 +29,8 @@ servers:
         default: localhost # Development
       port:
         enum:
-          - 8080
-        default: 8080
+          - "8080"
+        default: "8080"
 paths:
   /services/v1/organisation-tree-for-api-key:
     post:
@@ -88,7 +88,7 @@ paths:
       tags:
         - Organisation
       summary: Create organisation
-      description: Create a single organisation with the option to create it in a parent organisation.
+      description: Create a single organisation in a parent organisation.
       parameters:
         - name: parent_code
           in: query
@@ -146,7 +146,7 @@ paths:
       tags:
         - Organisation
       summary: Create organisation
-      description: Create a single organisation with the option to create it in a parent organisation.
+      description: Create a single organisation in a parent organisation.
       parameters:
         - name: parent_code
           in: path
@@ -350,7 +350,7 @@ paths:
         - Organisation V2
       summary: Create organisation
       description: >-
-        Create a single organisation with the option to create it in a parent organisation. <br>
+        Create a single organisation in a parent organisation. <br>
         The following values of the user role claim grants access: <br>
         * meeting-admin
       parameters:
@@ -414,7 +414,7 @@ paths:
         - Organisation V2
       summary: Create organisation
       description: >-
-        Create a single organisation with the option to create it in a parent organisation. <br>
+        Create a single organisation in a parent organisation. <br>
         The following values of the user role claim grants access: <br>
         * meeting-admin
       parameters:

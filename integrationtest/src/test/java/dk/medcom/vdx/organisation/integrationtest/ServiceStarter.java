@@ -47,7 +47,7 @@ public class ServiceStarter {
         System.setProperty("spring.security.oauth2.resourceserver.jwt.issuer-uri", keycloakUrl);
         //System.setProperty("logging.level.org.springframework.security", "TRACE");
 
-        System.setProperty("ALLOWED_ORIGINS", "*");
+        System.setProperty("ALLOWED_ORIGINS", "http://allowed:4100,http://allowed:4200");
 
         SpringApplication.run(Application.class);
     }
@@ -89,7 +89,7 @@ public class ServiceStarter {
                 .withEnv("mapping_role_meeting_planner", "meeting-planner")
                 .withEnv("mapping_role_admin", "meeting-admin")
 
-                .withEnv("ALLOWED_ORIGINS", "*")
+                .withEnv("ALLOWED_ORIGINS", "http://allowed:4100,http://allowed:4200")
 
                 .withEnv("spring.flyway.locations", "classpath:db/migration,filesystem:/app/sql")
 
