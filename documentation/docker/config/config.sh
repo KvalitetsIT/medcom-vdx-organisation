@@ -6,6 +6,8 @@ echo "Running set version"
 /kit/setVersion.sh
 echo "Running set servers"
 /kit/setServers.sh
+echo "Running set OAuth urls"
+/kit/setOAuthUrls.sh
 
 echo "Sets env URLS to list of versions"
 export URLS=$(cat /kit/env)
