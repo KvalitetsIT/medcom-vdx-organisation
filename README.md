@@ -21,22 +21,39 @@ and the service can be called through the Swagger UI.
 
 In the docker-compose setup is also an example on how to set custom endpoints for the Swagger documentation service.
 
+### Security V2
+All V2 endpoints uses OAuth2 as security protocol.
+The names of the claims are set through the environment variables:
+* userservice.token.attribute.organisation
+* userservice.token.attribute.email
+* userservice.token.attribute.userrole
+All of which should be present in the access token.
+
+The possible attribute values of userservice.token.attribute.userrole are as follows:
+* meeting-admin
+* meeting-user
+* meeting-planner
+* meeting-provisioner
+* meeting-provisioner-user
+
 ## Configuration
 
-| Environment variable                     | Description                                                                                          | Required |
-|------------------------------------------|------------------------------------------------------------------------------------------------------|----------|
-| JDBC_URL                                 | JDBC connection URL                                                                                  | Yes      |
-| JDBC_USER                                | JDBC user                                                                                            | Yes      |
-| JDBC_PASS                                | JDBC password                                                                                        | Yes      |
-| LOG_LEVEL                                | Log Level for applikation  log. Defaults to INFO.                                                    | No       |
-| LOG_LEVEL_FRAMEWORK                      | Log level for framework. Defaults to INFO.                                                           | No       |
-| CORRELATION_ID                           | HTTP header to take correlation id from. Used to correlate log messages. Defaults to "x-request-id". | No       |
-| sessiondata_headername                   | HTTP header containing session data.                                                                 | Yes      |
-| userservice_token_attribute_organisation | Attribute to read organisation from in sessiondata_header                                            | Yes      | 
-| userservice_token_attribute_email        | Attribute to read email from in sessiondata_header                                                   | Yes      |
-| userservice_token_attribute_userrole     | Attribute to read user role from in sessiondata_header                                               | Yes      | 
-| mapping_role_provisioner                 | Attribute value to map to meeting-provision role.                                                    | Yes      |
-| mapping_role_user                        | Attribute value to map to meeting-user role.                                                         | Yes      |
-| mapping_role_meeting_planner             | Attribute value to map to meeting-planner role.                                                      | Yes      |
-| mapping_role_admin                       | Attribute value to map to meeting-admin role.                                                        | Yes      |
- | ALLOWED_ORIGINS                          | Allowed CORS origins                                                                                 | Yes      |  
+| Environment variable                                  | Description                                                                                          | Required |
+|-------------------------------------------------------|------------------------------------------------------------------------------------------------------|----------|
+| JDBC_URL                                              | JDBC connection URL                                                                                  | Yes      |
+| JDBC_USER                                             | JDBC user                                                                                            | Yes      |
+| JDBC_PASS                                             | JDBC password                                                                                        | Yes      |
+| LOG_LEVEL                                             | Log Level for applikation  log. Defaults to INFO.                                                    | No       |
+| LOG_LEVEL_FRAMEWORK                                   | Log level for framework. Defaults to INFO.                                                           | No       |
+| CORRELATION_ID                                        | HTTP header to take correlation id from. Used to correlate log messages. Defaults to "x-request-id". | No       |
+| sessiondata_headername                                | HTTP header containing session data.                                                                 | Yes      |
+| userservice_token_attribute_organisation              | Attribute to read organisation from in sessiondata_header or access token                            | Yes      | 
+| userservice_token_attribute_email                     | Attribute to read email from in sessiondata_header or access token                                   | Yes      |
+| userservice_token_attribute_userrole                  | Attribute to read user role from in sessiondata_header or access token                               | Yes      | 
+| mapping_role_provisioner                              | Attribute value to map to meeting-provision role.                                                    | Yes      |
+| mapping_role_user                                     | Attribute value to map to meeting-user role.                                                         | Yes      |
+| mapping_role_meeting_planner                          | Attribute value to map to meeting-planner role.                                                      | Yes      |
+| mapping_role_admin                                    | Attribute value to map to meeting-admin role.                                                        | Yes      |
+| ALLOWED_ORIGINS                                       | Allowed CORS origins                                                                                 | Yes      |  
+| spring.security.oauth2.resourceserver.jwt.issuer-uri  | Keycloak path + /realms/<KEYCLOAK_REALM>                                                             | Yes      |
+| spring.security.oauth2.resourceserver.jwt.jwk-set-uri | Keycloak path + /realms/<KEYCLOAK_REALM>/protocol/openid-connect/certs                               | No       |
