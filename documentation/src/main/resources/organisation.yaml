@@ -315,6 +315,10 @@ paths:
           $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
 
   /services/v2/organisation:
     get:
@@ -334,7 +338,6 @@ paths:
           schema:
             type: string
           example: 'organisation_a'
-
       responses:
         '200':
           description: Ok
@@ -342,6 +345,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/organisation'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
 
     post:
       security:
@@ -378,6 +387,8 @@ paths:
           $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
 
   /services/v2/organisation/{code}:
     get:
@@ -397,7 +408,6 @@ paths:
           schema:
             type: string
           example: 'organisation_a'
-
       responses:
         '200':
           description: Ok
@@ -405,6 +415,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/organisation'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
 
   /services/v2/organisation/{parent_code}:
     post:
@@ -442,6 +458,8 @@ paths:
           $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
 
   /services/v2/organisation/uri:
     post:
@@ -468,6 +486,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/organisation-uri'
+        '400':
+          $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -507,6 +527,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/organisationtree'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
 
   /services/v2/organisationtree-children:
     get:
@@ -542,6 +570,14 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/organisationtree'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
 
   /services/v2/organisationtree/{code}:
     get:
@@ -568,6 +604,13 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/organisationtree'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+
 components:
   securitySchemes:
     userContext:
@@ -596,7 +639,7 @@ components:
 
   responses:
     '400':
-      description: "Bad Request. This could be because: * One of the required parameters/properties are missing or is empty <br> * Length of input is exceeding maximum length <br> (See a possible detailed error message in the in the response.)"
+      description: "Bad Request. This could be because: <br> * One of the required parameters/properties are missing or is empty <br> * Length of input is exceeding maximum length <br> * Both organisationCode and groupId are either both missing or set in query"
       content:
         application/json:
           schema:
@@ -615,12 +658,6 @@ components:
             $ref: '#/components/schemas/basic-error'
     '404':
       description: "Not Found. This could be because: <br> * The organisation requested has been deleted or has never existed"
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/basic-error'
-    '409':
-      description: "Conflict. This could be because: <br> * A uniqueness constraint on organisation code is being violated"
       content:
         application/json:
           schema:
