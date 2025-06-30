@@ -1,4 +1,4 @@
-package dk.medcom.vdx.organisation.controller;
+package dk.medcom.vdx.organisation.controller.v1;
 
 import dk.medcom.vdx.organisation.aspect.APISecurityAnnotation;
 import dk.medcom.vdx.organisation.context.UserRole;
@@ -38,7 +38,7 @@ public class OrganisationController implements OrganisationApi {
             produces = { "application/json" }
     )
     public ResponseEntity<Organisation> getOrganisationSlash(HttpServletRequest request){
-        var organisation = request.getServletPath().replaceFirst("/services/organisation/", "");;
+        var organisation = request.getServletPath().replaceFirst("/services/organisation/", "");
         logger.info("Reading organisation with slash. Translated to {}.", organisation);
 
         return servicesOrganisationCodeGet(organisation);

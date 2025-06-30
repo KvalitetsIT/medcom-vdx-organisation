@@ -11,6 +11,7 @@ public abstract class AbstractIntegrationTest {
 
     private static GenericContainer<?> organisationService;
     private static String apiBasePath;
+    private static String keycloakUrl;
 
     @AfterClass
     public static void afterClass() {
@@ -26,21 +27,25 @@ public abstract class AbstractIntegrationTest {
 
     private static void setup() {
         var runInDocker = Boolean.getBoolean("runInDocker");
-        logger.info("Running integration test in docker container: " + runInDocker);
+        logger.info("Running integration test in docker container: {}", runInDocker);
 
         ServiceStarter serviceStarter;
         serviceStarter = new ServiceStarter();
         if(runInDocker) {
             organisationService = serviceStarter.startServicesInDocker();
             apiBasePath = "http://" + organisationService.getHost() + ":" + organisationService.getMappedPort(8080);
-        }
-        else {
+        } else if (serviceStarter.isFirstStart()) {
             serviceStarter.startServices();
             apiBasePath = "http://localhost:8080";
         }
+        keycloakUrl = serviceStarter.getKeycloakUrl();
     }
 
-    String getApiBasePath() {
+    protected String getApiBasePath() {
         return apiBasePath;
+    }
+
+    protected String getKeycloakUrl() {
+        return keycloakUrl;
     }
 }
