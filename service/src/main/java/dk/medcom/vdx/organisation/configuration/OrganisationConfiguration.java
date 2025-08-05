@@ -9,7 +9,6 @@ import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import dk.medcom.vdx.organisation.dao.OrganisationViews;
 import dk.medcom.vdx.organisation.dao.impl.OrganisationDaoImpl;
 import dk.medcom.vdx.organisation.dao.impl.OrganisationViewsImpl;
-import dk.medcom.vdx.organisation.dao.jpa.OrganisationRepository;
 import dk.medcom.vdx.organisation.interceptor.OauthInterceptor;
 import dk.medcom.vdx.organisation.interceptor.UserSecurityInterceptor;
 import dk.medcom.vdx.organisation.service.OrganisationNameService;
@@ -98,10 +97,9 @@ public class OrganisationConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public OrganisationService organisationService(OrganisationRepository organisationRepository,
-                                                   OrganisationDao organisationDao,
+    public OrganisationService organisationService(OrganisationDao organisationDao,
                                                    GroupsDao groupsDao) {
-        return new OrganisationNameService(organisationRepository, organisationDao, groupsDao);
+        return new OrganisationNameService(organisationDao, groupsDao);
     }
 
     @Bean

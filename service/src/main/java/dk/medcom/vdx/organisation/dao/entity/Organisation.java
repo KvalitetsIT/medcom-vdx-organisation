@@ -8,7 +8,9 @@ public class Organisation {
     private String organisationId;
     private String organisationName;
     private String smsSenderName;
+    private boolean allowCustomUriWithoutDomain;
     private String smsCallbackUrl;
+    private String historyApiKey;
     private String deviceWebhookEndpoint;
     private String deviceWebhookEndpointKey;
 
@@ -90,5 +92,21 @@ public class Organisation {
 
     public void setDeviceWebhookEndpointKey(String deviceWebhookEndpointKey) {
         this.deviceWebhookEndpointKey = deviceWebhookEndpointKey;
+    }
+
+    public boolean isAllowCustomUriWithoutDomain() {
+        return allowCustomUriWithoutDomain;
+    }
+
+    public void setAllowCustomUriWithoutDomain(boolean allowCustomUriWithoutDomain) {
+        this.allowCustomUriWithoutDomain = allowCustomUriWithoutDomain;
+    }
+
+    public String getHistoryApiKey() {
+        return historyApiKey;
+    }
+
+    public void setHistoryApiKey(String historyApiKey) {
+        this.historyApiKey = historyApiKey;
     }
 }
