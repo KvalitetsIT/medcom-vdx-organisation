@@ -1,20 +1,48 @@
 package dk.medcom.vdx.organisation.controller.v2.mapper;
 
+import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.service.model.OrganisationCreate;
-import org.openapitools.model.Organisation;
+import dk.medcom.vdx.organisation.service.model.OrganisationUpdate;
+import org.openapitools.model.OrganisationResponse;
 
 public class OrganisationMapper {
 
-    public static Organisation internalToExternal(dk.medcom.vdx.organisation.dao.jpa.entity.Organisation input) {
-        return new Organisation()
-                .name(input.getName())
+    public static OrganisationResponse internalToExternal(Organisation input) {
+        return new OrganisationResponse()
+                .groupId(input.getGroupId().intValue())
                 .code(input.getOrganisationId())
+                .name(input.getOrganisationName())
+                .poolSize(input.getPoolSize() == null ? 0 : input.getPoolSize())
                 .smsSenderName(input.getSmsSenderName())
+                .allowCustomUriWithoutDomain(input.isAllowCustomUriWithoutDomain())
                 .smsCallbackUrl(input.getSmsCallbackUrl())
-                .poolSize(input.getPoolSize() == null ? 0 : input.getPoolSize());
+                .historyApiKey(input.getHistoryApiKey())
+                .deviceWebhookEndpoint(input.getDeviceWebhookEndpoint())
+                .deviceWebhookEndpointKey(input.getDeviceWebhookEndpointKey());
     }
 
     public static OrganisationCreate externalToInternal(org.openapitools.model.OrganisationCreate input, String parentCode) {
-        return new OrganisationCreate(input.getCode(), input.getName(), parentCode);
+        return new OrganisationCreate(
+                parentCode,
+                input.getCode(),
+                input.getName(),
+                input.getPoolSize(),
+                input.getSmsSenderName(),
+                input.getAllowCustomUriWithoutDomain(),
+                input.getSmsCallbackUrl(),
+                input.getHistoryApiKey(),
+                input.getDeviceWebhookEndpoint(),
+                input.getDeviceWebhookEndpointKey());
+    }
+
+    public static OrganisationUpdate externalToInternal(org.openapitools.model.OrganisationUpdate input) {
+        return new OrganisationUpdate(
+                input.getPoolSize(),
+                input.getSmsSenderName(),
+                input.getAllowCustomUriWithoutDomain(),
+                input.getSmsCallbackUrl(),
+                input.getHistoryApiKey(),
+                input.getDeviceWebhookEndpoint(),
+                input.getDeviceWebhookEndpointKey());
     }
 }

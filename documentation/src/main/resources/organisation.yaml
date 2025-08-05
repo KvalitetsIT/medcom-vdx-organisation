@@ -102,7 +102,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/organisation-create'
+              $ref: '#/components/schemas/organisation-create-basic'
       responses:
         '200':
           description: Ok
@@ -160,7 +160,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/organisation-create'
+              $ref: '#/components/schemas/organisation-create-basic'
       responses:
         '200':
           description: Ok
@@ -298,7 +298,6 @@ paths:
         The following values of the user role claim grants access: <br>
         * meeting-admin
       requestBody:
-        description: Organisation to create
         required: true
         content:
           application/json:
@@ -344,7 +343,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/organisation'
+                $ref: '#/components/schemas/organisation-response'
         '401':
           $ref: '#/components/responses/401'
         '403':
@@ -382,13 +381,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/organisation'
+                $ref: '#/components/schemas/organisation-response'
         '400':
           $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
           $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
 
   /services/v2/organisation/{code}:
     get:
@@ -414,13 +415,54 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/organisation'
+                $ref: '#/components/schemas/organisation-response'
         '401':
           $ref: '#/components/responses/401'
         '403':
           $ref: '#/components/responses/403'
         '404':
           $ref: '#/components/responses/404'
+    put:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation V2
+      summary: Update organisation
+      description: >-
+        Update an organisation. <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+      requestBody:
+        description: Updated organisation
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/organisation-update'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation-response'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
 
   /services/v2/organisation/{parent_code}:
     post:
@@ -453,13 +495,15 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/organisation'
+                $ref: '#/components/schemas/organisation-response'
         '400':
           $ref: '#/components/responses/400'
         '401':
           $ref: '#/components/responses/401'
         '403':
           $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
 
   /services/v2/organisation/uri:
     post:
@@ -662,6 +706,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/basic-error'
+    '500':
+      description: "Internal server error. This could be because: <br> * Something went wrong when creating organisation in database."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/basic-error'
 
   schemas:
     organisation-uri-request:
@@ -710,11 +760,6 @@ components:
         - name
         - poolSize
       properties:
-#        parentCode:
-#          description: The code that uniquely identifies the parent organisation
-#          type: string
-#          maxLength: 100
-#          example: level_one_org
         code:
           description: The code that uniquely identifies an organisation
           type: string
@@ -740,6 +785,22 @@ components:
           example: http://callback.api/%reference%?status=%status%
           description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
 
+    organisation-create-basic:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          description: The code that uniquely identifies an organisation
+          type: string
+          maxLength: 250
+          example: organisation_a
+        name:
+          description: The name of the organisation
+          type: string
+          maxLength: 100
+          example: Organisation with the full name A
+
     organisation-create:
       type: object
       required:
@@ -755,6 +816,131 @@ components:
           type: string
           maxLength: 100
           example: Organisation with the full name A
+        poolSize:
+          description: The meeting room pool size for the organisation.
+          type: integer
+          format: int32
+          example: 200
+        smsSenderName:
+          type: string
+          maxLength: 11
+          example: Min Organisation
+        allowCustomUriWithoutDomain:
+          description: Whether or not it is allowed to have custom uri without domain in organisation. Defaults to false.
+          type: boolean
+          example: true
+          default: false
+        smsCallbackUrl:
+          type: string
+          maxLength: 100
+          example: http://callback.api/%reference%?status=%status%
+          description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
+        historyApiKey:
+          type: string
+          maxLength: 36
+          description: Api key for calls to history service
+        deviceWebhookEndpoint:
+          type: string
+          maxLength: 100
+          example: http://webhook.endpoint/here
+          description: Endpoint of device webhook
+        deviceWebhookEndpointKey:
+          type: string
+          maxLength: 100
+          example: this-is-a-key
+          description: Endpoint key of device webhook for header
+
+    organisation-update:
+      type: object
+      properties:
+        poolSize:
+          description: The meeting room pool size for the organisation.
+          type: integer
+          format: int32
+          example: 200
+        smsSenderName:
+          type: string
+          maxLength: 11
+          example: Min Organisation
+        allowCustomUriWithoutDomain:
+          description: Whether or not it is allowed to have custom uri without domain in organisation. Defaults to false.
+          type: boolean
+          example: true
+          default: false
+        smsCallbackUrl:
+          type: string
+          maxLength: 100
+          example: http://callback.api/%reference%?status=%status%
+          description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
+        historyApiKey:
+          type: string
+          maxLength: 36
+          description: Api key for calls to history service
+        deviceWebhookEndpoint:
+          type: string
+          maxLength: 100
+          example: http://webhook.endpoint/here
+          description: Endpoint of device webhook
+        deviceWebhookEndpointKey:
+          type: string
+          maxLength: 100
+          example: this-is-a-key
+          description: Endpoint key of device webhook for header
+
+    organisation-response:
+      type: object
+      required:
+        - groupId
+        - code
+        - poolSize
+      properties:
+        groupId:
+          type: integer
+          format: int32
+          description: Group id
+          example: 4
+        code:
+          description: The code that uniquely identifies an organisation
+          type: string
+          maxLength: 250
+          example: organisation_a
+        name:
+          description: The name of the organisation
+          type: string
+          maxLength: 100
+          example: Organisation with the full name A
+        poolSize:
+          description: The meeting room pool size for the organisation
+          type: integer
+          format: int32
+          example: 200
+        smsSenderName:
+          type: string
+          maxLength: 11
+          example: Min Organisation
+        allowCustomUriWithoutDomain:
+          description: Whether or not it is allowed to have custom uri without domain in organisation.
+          type: boolean
+          example: true
+        smsCallbackUrl:
+          type: string
+          maxLength: 100
+          example: http://callback.api/%reference%?status=%status%
+          description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
+        historyApiKey:
+          type: string
+          maxLength: 36
+          description: Api key for calls to history service
+        deviceWebhookEndpoint:
+          type: string
+          maxLength: 100
+          example: http://webhook.endpoint/here
+          description: Endpoint of device webhook
+        deviceWebhookEndpointKey:
+          type: string
+          maxLength: 100
+          example: this-is-a-key
+          description: Endpoint key of device webhook for header
 
     organisationtree:
       type: object
