@@ -10,7 +10,7 @@ import dk.medcom.vdx.organisation.service.exception.InvalidDataException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.openapitools.api.OrganisationApi;
 import org.openapitools.model.Organisation;
-import org.openapitools.model.OrganisationCreate;
+import org.openapitools.model.OrganisationCreateBasic;
 import org.openapitools.model.OrganisationUriInner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,14 +47,14 @@ public class OrganisationController implements OrganisationApi {
     @Override
     @APISecurityAnnotation({ UserRole.ADMIN })
     public ResponseEntity<Organisation> servicesOrganisationCodeGet(String code) {
-        logger.debug("Entry of /services/organisation.get code: " + code);
+        logger.debug("Entry of /services/organisation.get code: {}", code);
 
         var optionalOrganisation = organisationService.getOrganisationById(code);
 
         var organisation = optionalOrganisation.orElseThrow(() -> new ResourceNotFoundException("OrganisationId", code));
 
         var response = new Organisation();
-        response.setName(organisation.getName());
+        response.setName(organisation.getOrganisationName());
         response.setCode(organisation.getOrganisationId());
         response.setSmsSenderName(organisation.getSmsSenderName());
         response.setSmsCallbackUrl(organisation.getSmsCallbackUrl());
@@ -67,21 +67,21 @@ public class OrganisationController implements OrganisationApi {
     @Override
     @APISecurityAnnotation({ UserRole.ADMIN })
     public ResponseEntity<Organisation> servicesOrganisationGet(String code) {
-        logger.debug("Entry of /services/organisation.get with query parameter: " + code);
+        logger.debug("Entry of /services/organisation.get with query parameter: {}", code);
 
         return servicesOrganisationCodeGet(code);
     }
 
     @Override
     @APISecurityAnnotation({ UserRole.ADMIN })
-    public ResponseEntity<Organisation> servicesOrganisationParentCodePost(String parentCode, OrganisationCreate organisationCreate) {
-        logger.debug("Entry of /services/organisation.post code: " + organisationCreate.getCode());
+    public ResponseEntity<Organisation> servicesOrganisationParentCodePost(String parentCode, OrganisationCreateBasic organisationCreate) {
+        logger.debug("Entry of /services/organisation.post code: {}", organisationCreate.getCode());
 
         try {
-            var organisation = organisationService.createOrganisation(new dk.medcom.vdx.organisation.service.model.OrganisationCreate(organisationCreate.getCode(), organisationCreate.getName(), parentCode));
+            var organisation = organisationService.createOrganisationBasic(new dk.medcom.vdx.organisation.service.model.OrganisationCreateBasic(organisationCreate.getCode(), organisationCreate.getName(), parentCode));
             return ResponseEntity.ok(new Organisation()
                     .code(organisation.getOrganisationId())
-                    .name(organisation.getName())
+                    .name(organisation.getOrganisationName())
                     .poolSize(organisation.getPoolSize() == null ? 0 : organisation.getPoolSize())
                     .smsCallbackUrl(organisation.getSmsCallbackUrl())
                     .smsSenderName(organisation.getSmsSenderName()));
@@ -94,8 +94,8 @@ public class OrganisationController implements OrganisationApi {
 
     @Override
     @APISecurityAnnotation({ UserRole.ADMIN })
-    public ResponseEntity<Organisation> servicesOrganisationPost(String parentCode, OrganisationCreate organisationCreate) {
-        logger.debug("Entry of /services/organisation.post by query parameter code: " + organisationCreate.getCode());
+    public ResponseEntity<Organisation> servicesOrganisationPost(String parentCode, OrganisationCreateBasic organisationCreate) {
+        logger.debug("Entry of /services/organisation.post by query parameter code: {}", organisationCreate.getCode());
 
         return servicesOrganisationParentCodePost(parentCode, organisationCreate);
     }
@@ -109,10 +109,10 @@ public class OrganisationController implements OrganisationApi {
             consumes = { "application/json" }
     )
     public ResponseEntity<List<OrganisationUriInner>> servicesOrganisationUriPost(List<String> requestBody) {
-        logger.debug("Entry of /services/organisation/uri.post count: " + requestBody.size());
+        logger.debug("Entry of /services/organisation/uri.post count: {}", requestBody.size());
 
         Set<OrganisationUriInner> resource = organisationByUriService.getOrganisationByUriWithDomain(requestBody);
-        logger.debug("Exit of /services/organisation/uri.post return count: " + resource.size());
+        logger.debug("Exit of /services/organisation/uri.post return count: {}", resource.size());
         return ResponseEntity.ok(resource.stream().toList());
     }
 }

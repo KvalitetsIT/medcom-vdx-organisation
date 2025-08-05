@@ -337,7 +337,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
     public void testCreateOrganisationAlreadyExists() {
         var input = "from_template";
 
-        var inputOrganisation = new OrganisationCreate();
+        var inputOrganisation = new OrganisationCreateBasic();
         inputOrganisation.code("test-org");
 
         var exception = assertThrows(ApiException.class, () -> organisationApi.servicesOrganisationParentCodePost(input, inputOrganisation));
@@ -350,7 +350,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
     @Test
     public void testCreateOrganisation() throws ApiException {
         var input = "company 1";
-        var inputOrganisation = new OrganisationCreate();
+        var inputOrganisation = new OrganisationCreateBasic();
         inputOrganisation.setCode(UUID.randomUUID().toString());
 
         var result = organisationApi.servicesOrganisationParentCodePost(input, inputOrganisation);
@@ -366,7 +366,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
     @Test
     public void testCreateOrganisationParentInQuery() throws ApiException {
         var input = "æ/åø";
-        var inputOrganisation = new OrganisationCreate();
+        var inputOrganisation = new OrganisationCreateBasic();
         inputOrganisation.setCode(UUID.randomUUID().toString());
 
         var result = organisationApi.servicesOrganisationPost(input, inputOrganisation);
@@ -382,7 +382,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
     @Test
     public void testCreateOrganisationParentNotFound() {
         var input = "i_dont_exist";
-        var inputOrganisation = new OrganisationCreate();
+        var inputOrganisation = new OrganisationCreateBasic();
         inputOrganisation.code("code");
 
         var exception = assertThrows(ApiException.class, () -> organisationApi.servicesOrganisationParentCodePost(input, inputOrganisation));

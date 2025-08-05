@@ -8,9 +8,7 @@ import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.JSON;
 import org.openapitools.client.api.OrganisationV2Api;
-import org.openapitools.client.model.BasicError;
-import org.openapitools.client.model.Organisation;
-import org.openapitools.client.model.OrganisationCreate;
+import org.openapitools.client.model.*;
 
 import java.io.IOException;
 import java.net.URI;
@@ -138,6 +136,30 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
+    public void errorIfNoJwtToken_servicesV2OrganisationCodePut() {
+        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoHeader.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
+        assertEquals(401, expectedException.getCode());
+    }
+
+    @Test
+    public void errorIfInvalidJwtToken_servicesV2OrganisationCodePut() {
+        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiInvalidJwt.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
+        assertEquals(401, expectedException.getCode());
+    }
+
+    @Test
+    public void errorIfNoRoleAttInToken_servicesV2OrganisationCodePut() {
+        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
+        assertEquals(401, expectedException.getCode());
+    }
+
+    @Test
+    public void errorIfNotAdmin_servicesV2OrganisationCodePut() {
+        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNotAdmin.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
+        assertEquals(403, expectedException.getCode());
+    }
+
+    @Test
     public void errorIfNoJwtToken_servicesV2OrganisationGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoHeader.servicesV2OrganisationGet(testOrg));
         assertEquals(401, expectedException.getCode());
@@ -246,7 +268,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
 
         var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        var response = JSON.getGson().fromJson(responseString.body(), Organisation.class);
+        var response = JSON.getGson().fromJson(responseString.body(), OrganisationResponse.class);
 
         assertNotNull(response);
         assertEquals("æ/åø", response.getCode());
@@ -256,13 +278,19 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
 
     @Test
     public void testServicesV2OrganisationCodeGet() throws ApiException {
-        var result = organisationV2Api.servicesV2OrganisationCodeGet("test-org");
+        var result = organisationV2Api.servicesV2OrganisationCodeGet(testOrg);
 
         assertNotNull(result);
-        assertEquals("test-org", result.getCode());
+        assertEquals(5, result.getGroupId(), 0);
+        assertEquals(testOrg, result.getCode());
         assertEquals("company name test-org", result.getName());
+        assertEquals(0, result.getPoolSize(), 0);
         assertEquals("MinAfsender", result.getSmsSenderName());
+        assertEquals(Boolean.FALSE, result.getAllowCustomUriWithoutDomain());
         assertEquals("some_url", result.getSmsCallbackUrl());
+        assertNull(result.getHistoryApiKey());
+        assertNull(result.getDeviceWebhookEndpoint());
+        assertNull(result.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -276,14 +304,80 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationGet() throws ApiException {
-        var result = organisationV2Api.servicesV2OrganisationGet("test-org");
+    public void testServicesV2OrganisationCodePut() throws ApiException {
+        var input = new OrganisationUpdate()
+                .poolSize(123)
+                .smsCallbackUrl(randomString())
+                .allowCustomUriWithoutDomain(true)
+                .smsSenderName(randomString().substring(0, 10))
+                .historyApiKey(randomString())
+                .deviceWebhookEndpoint(randomString())
+                .deviceWebhookEndpointKey(randomString());
+
+        var result = organisationV2Api.servicesV2OrganisationCodePut("company 2", input);
 
         assertNotNull(result);
-        assertEquals("test-org", result.getCode());
+        assertEquals(2, result.getGroupId(), 0);
+        assertEquals("company 2", result.getCode());
+        assertEquals("company name 2", result.getName());
+        assertEquals(input.getPoolSize(), result.getPoolSize());
+        assertEquals(input.getSmsCallbackUrl(), result.getSmsCallbackUrl());
+        assertEquals(input.getAllowCustomUriWithoutDomain(), result.getAllowCustomUriWithoutDomain());
+        assertEquals(input.getSmsSenderName(), result.getSmsSenderName());
+        assertEquals(input.getHistoryApiKey(), result.getHistoryApiKey());
+        assertEquals(input.getDeviceWebhookEndpoint(), result.getDeviceWebhookEndpoint());
+        assertEquals(input.getDeviceWebhookEndpointKey(), result.getDeviceWebhookEndpointKey());
+    }
+
+    @Test
+    public void testServicesV2OrganisationCodePutNoValuesSet() throws ApiException {
+        var input = new OrganisationUpdate();
+
+        var result = organisationV2Api.servicesV2OrganisationCodePut("company 2", input);
+
+        assertNotNull(result);
+        assertEquals(2, result.getGroupId(), 0);
+        assertEquals("company 2", result.getCode());
+        assertEquals("company name 2", result.getName());
+        assertEquals(0, result.getPoolSize(), 0);
+        assertNull(result.getSmsCallbackUrl());
+        assertNotNull(result.getAllowCustomUriWithoutDomain());
+        assertFalse(result.getAllowCustomUriWithoutDomain());
+        assertNull(result.getSmsSenderName());
+        assertNull(result.getHistoryApiKey());
+        assertNull(result.getDeviceWebhookEndpoint());
+        assertNull(result.getDeviceWebhookEndpointKey());
+    }
+
+    @Test
+    public void testServicesV2OrganisationGet() throws ApiException {
+        var result = organisationV2Api.servicesV2OrganisationGet(testOrg);
+
+        assertNotNull(result);
+        assertEquals(5, result.getGroupId(), 0);
+        assertEquals(testOrg, result.getCode());
         assertEquals("company name test-org", result.getName());
+        assertEquals(0, result.getPoolSize(), 0);
         assertEquals("MinAfsender", result.getSmsSenderName());
+        assertEquals(Boolean.FALSE, result.getAllowCustomUriWithoutDomain());
         assertEquals("some_url", result.getSmsCallbackUrl());
+        assertNull(result.getHistoryApiKey());
+        assertNull(result.getDeviceWebhookEndpoint());
+        assertNull(result.getDeviceWebhookEndpointKey());
+    }
+
+    @Test
+    public void testServicesV2OrganisationGetWebhookNotNull() throws ApiException {
+        var result = organisationV2Api.servicesV2OrganisationGet("parent");
+
+        assertNotNull(result);
+        assertEquals("parent", result.getCode());
+        assertEquals("parent org", result.getName());
+        assertEquals(20, result.getPoolSize(), 0);
+        assertEquals("sms-sender", result.getSmsSenderName());
+        assertEquals("callback", result.getSmsCallbackUrl());
+        assertEquals("device-webhook-endpoint", result.getDeviceWebhookEndpoint());
+        assertEquals("device-webhook-endpoint-key", result.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -297,7 +391,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
 
         var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        var response = JSON.getGson().fromJson(responseString.body(), Organisation.class);
+        var response = JSON.getGson().fromJson(responseString.body(), OrganisationResponse.class);
 
         assertNotNull(response);
         assertEquals("æ/åø", response.getCode());
@@ -307,11 +401,10 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
 
     @Test
     public void testServicesV2OrganisationParentCodePost() throws ApiException {
-        var input = "company 1";
         var inputOrganisation = new OrganisationCreate();
         inputOrganisation.setCode(UUID.randomUUID().toString());
 
-        var result = organisationV2Api.servicesV2OrganisationParentCodePost(input, inputOrganisation);
+        var result = organisationV2Api.servicesV2OrganisationParentCodePost(company1, inputOrganisation);
         assertNotNull(result);
 
         assertEquals(inputOrganisation.getCode(), result.getCode());
@@ -326,7 +419,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
         var input = "from_template";
 
         var inputOrganisation = new OrganisationCreate();
-        inputOrganisation.code("test-org");
+        inputOrganisation.code(testOrg);
 
         var exception = assertThrows(ApiException.class, () -> organisationV2Api.servicesV2OrganisationParentCodePost(input, inputOrganisation));
         assertNotNull(exception);
@@ -349,7 +442,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationPost() throws ApiException {
+    public void testServicesV2OrganisationPostOnlyRequiredValues() throws ApiException {
         var input = "æ/åø";
         var inputOrganisation = new OrganisationCreate();
         inputOrganisation.setCode(UUID.randomUUID().toString());
@@ -362,6 +455,39 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
         assertNull(result.getSmsSenderName());
         assertNull(result.getSmsCallbackUrl());
         assertEquals(0, result.getPoolSize(), 0);
+        assertEquals(Boolean.FALSE, result.getAllowCustomUriWithoutDomain());
+        assertNull(result.getHistoryApiKey());
+        assertNull(result.getDeviceWebhookEndpoint());
+        assertNull(result.getDeviceWebhookEndpointKey());
+    }
+
+    @Test
+    public void testServicesV2OrganisationPostAllValues() throws ApiException {
+        var input = "æ/åø";
+
+        var inputOrganisation = new OrganisationCreate()
+                .code(randomString())
+                .name(randomString())
+                .poolSize(321)
+                .smsSenderName(randomString().substring(0, 10))
+                .allowCustomUriWithoutDomain(true)
+                .smsCallbackUrl(randomString())
+                .historyApiKey(randomString())
+                .deviceWebhookEndpoint(randomString())
+                .deviceWebhookEndpointKey(randomString());
+
+        var result = organisationV2Api.servicesV2OrganisationPost(input, inputOrganisation);
+        assertNotNull(result);
+
+        assertEquals(inputOrganisation.getCode(), result.getCode());
+        assertEquals(inputOrganisation.getName(), result.getName());
+        assertEquals(inputOrganisation.getSmsSenderName(), result.getSmsSenderName());
+        assertEquals(inputOrganisation.getSmsCallbackUrl(), result.getSmsCallbackUrl());
+        assertEquals(inputOrganisation.getPoolSize(), result.getPoolSize());
+        assertEquals(inputOrganisation.getAllowCustomUriWithoutDomain(), result.getAllowCustomUriWithoutDomain());
+        assertEquals(inputOrganisation.getHistoryApiKey(), result.getHistoryApiKey());
+        assertEquals(inputOrganisation.getDeviceWebhookEndpoint(), result.getDeviceWebhookEndpoint());
+        assertEquals(inputOrganisation.getDeviceWebhookEndpointKey(), result.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -421,6 +547,24 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     private OrganisationCreate randomOrganisationCreate() {
         return new OrganisationCreate()
                 .code(randomString())
-                .name(randomString());
+                .name(randomString())
+                .poolSize(321)
+                .smsCallbackUrl(randomString())
+                .allowCustomUriWithoutDomain(true)
+                .smsSenderName(randomString().substring(0, 10))
+                .historyApiKey(randomString())
+                .deviceWebhookEndpoint(randomString())
+                .deviceWebhookEndpointKey(randomString());
+    }
+
+    private OrganisationUpdate randomOrganisationUpdate() {
+        return new OrganisationUpdate()
+                .poolSize(123)
+                .smsCallbackUrl(randomString())
+                .allowCustomUriWithoutDomain(true)
+                .smsSenderName(randomString().substring(0, 10))
+                .historyApiKey(randomString())
+                .deviceWebhookEndpoint(randomString())
+                .deviceWebhookEndpointKey(randomString());
     }
 }

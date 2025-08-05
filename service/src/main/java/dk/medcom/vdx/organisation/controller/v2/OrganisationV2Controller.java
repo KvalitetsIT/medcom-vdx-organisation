@@ -1,17 +1,18 @@
 package dk.medcom.vdx.organisation.controller.v2;
 
 import dk.medcom.vdx.organisation.controller.exception.BadRequestException;
+import dk.medcom.vdx.organisation.controller.exception.InternalServerErrorException;
 import dk.medcom.vdx.organisation.controller.exception.ResourceNotFoundV2Exception;
 import dk.medcom.vdx.organisation.controller.v2.mapper.OrganisationMapper;
 import dk.medcom.vdx.organisation.interceptor.Oauth;
 import dk.medcom.vdx.organisation.service.OrganisationByUriService;
 import dk.medcom.vdx.organisation.service.OrganisationService;
+import dk.medcom.vdx.organisation.service.exception.DaoException;
 import dk.medcom.vdx.organisation.service.exception.InvalidDataException;
+import dk.medcom.vdx.organisation.service.exception.OrganisationNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.openapitools.api.OrganisationV2Api;
-import org.openapitools.model.Organisation;
-import org.openapitools.model.OrganisationCreate;
-import org.openapitools.model.OrganisationUriInner;
+import org.openapitools.model.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
@@ -40,7 +41,7 @@ public class OrganisationV2Controller implements OrganisationV2Api {
     @RequestMapping(method = RequestMethod.GET, value = "/services/v2/organisation/**",
             produces = { "application/json" }
     )
-    public ResponseEntity<Organisation> getOrganisationSlash(HttpServletRequest request){
+    public ResponseEntity<OrganisationResponse> getOrganisationSlash(HttpServletRequest request){
         var organisation = request.getServletPath().replaceFirst("/services/v2/organisation/", "");
         logger.debug("Reading organisation with slash. Translated to {}.", organisation);
 
@@ -50,7 +51,7 @@ public class OrganisationV2Controller implements OrganisationV2Api {
     @Oauth
     @Override
     @PreAuthorize(adminRoleAtt)
-    public ResponseEntity<Organisation> servicesV2OrganisationCodeGet(String code) {
+    public ResponseEntity<OrganisationResponse> servicesV2OrganisationCodeGet(String code) {
         logger.debug("Enter GET organisation from code in path.");
         var organisation = organisationService.getOrganisationById(code).orElseThrow(() -> new ResourceNotFoundV2Exception("Organisation with id: %s not found".formatted(code)));
 
@@ -60,7 +61,24 @@ public class OrganisationV2Controller implements OrganisationV2Api {
     @Oauth
     @Override
     @PreAuthorize(adminRoleAtt)
-    public ResponseEntity<Organisation> servicesV2OrganisationGet(String organisationCode) {
+    public ResponseEntity<OrganisationResponse> servicesV2OrganisationCodePut(String code, OrganisationUpdate organisationUpdate) {
+        logger.debug("Enter PUT organisation.");
+        try {
+            var res = organisationService.updateOrganisation(code, OrganisationMapper.externalToInternal(organisationUpdate));
+            return ResponseEntity.ok(OrganisationMapper.internalToExternal(res));
+        } catch (OrganisationNotFoundException e) {
+            logger.warn("Organisation not found when updating", e);
+            throw new ResourceNotFoundV2Exception(e.getMessage());
+        } catch (DaoException e) {
+            logger.warn("Error during update of organisation", e);
+            throw new InternalServerErrorException(e.getMessage());
+        }
+    }
+
+    @Oauth
+    @Override
+    @PreAuthorize(adminRoleAtt)
+    public ResponseEntity<OrganisationResponse> servicesV2OrganisationGet(String organisationCode) {
         logger.debug("Enter GET organisation from code in query.");
         return servicesV2OrganisationCodeGet(organisationCode);
     }
@@ -68,7 +86,7 @@ public class OrganisationV2Controller implements OrganisationV2Api {
     @Oauth
     @Override
     @PreAuthorize(adminRoleAtt)
-    public ResponseEntity<Organisation> servicesV2OrganisationParentCodePost(String parentCode, OrganisationCreate organisationCreate) {
+    public ResponseEntity<OrganisationResponse> servicesV2OrganisationParentCodePost(String parentCode, OrganisationCreate organisationCreate) {
         logger.debug("Enter POST organisation where parent code in path.");
         try {
             var organisation = organisationService.createOrganisation(OrganisationMapper.externalToInternal(organisationCreate, parentCode));
@@ -77,13 +95,16 @@ public class OrganisationV2Controller implements OrganisationV2Api {
         catch(InvalidDataException e) {
             logger.warn("Error during creation of organisation", e);
             throw new BadRequestException(e.getMessage());
+        } catch (DaoException e) {
+            logger.warn("Error during creation of organisation", e);
+            throw new InternalServerErrorException(e.getMessage());
         }
     }
 
     @Oauth
     @Override
     @PreAuthorize(adminRoleAtt)
-    public ResponseEntity<Organisation> servicesV2OrganisationPost(String parentCode, OrganisationCreate organisationCreate) {
+    public ResponseEntity<OrganisationResponse> servicesV2OrganisationPost(String parentCode, OrganisationCreate organisationCreate) {
         logger.debug("Enter POST organisation where parent code in query.");
         return servicesV2OrganisationParentCodePost(parentCode, organisationCreate);
     }
