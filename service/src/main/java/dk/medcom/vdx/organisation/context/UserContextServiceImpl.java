@@ -1,9 +1,7 @@
 package dk.medcom.vdx.organisation.context;
 
-import org.springframework.beans.factory.annotation.Autowired;
-
 public class UserContextServiceImpl implements UserContextService {
-	private UserContextFactory userContextFactory;
+	private final UserContextFactory userContextFactory;
 	
 	private UserContext userContext;
 
@@ -17,4 +15,11 @@ public class UserContextServiceImpl implements UserContextService {
 		}
 		return userContext;
 	}
+
+	@Override
+	public void setUserContext(UserContext userContext) {
+        if (this.userContext == null) {
+            this.userContext = userContext;
+        }
+    }
 }
