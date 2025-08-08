@@ -293,7 +293,8 @@ paths:
         - keycloakOIDC: [ ]
       tags:
         - Organisation Tree V2
-      summary: >-
+      summary: Get organisation tree for a given api key
+      description: >-
         Get organisation tree for a given api key <br>
         The following values of the user role claim grants access: <br>
         * meeting-admin
