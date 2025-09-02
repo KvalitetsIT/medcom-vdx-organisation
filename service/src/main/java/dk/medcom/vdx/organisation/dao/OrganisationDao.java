@@ -14,5 +14,7 @@ public interface OrganisationDao {
 
     long insert(Organisation newOrganisation);
 
+    boolean update(Organisation organisation);
+
     Organisation findOrganisationByHistoryApiKey(String historyApiKey);
 }
