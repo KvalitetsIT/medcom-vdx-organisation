@@ -1,4 +1,4 @@
-package dk.medcom.vdx.organisation.controller;
+package dk.medcom.vdx.organisation.controller.v1;
 
 import dk.medcom.vdx.organisation.controller.exception.BadRequestException;
 import dk.medcom.vdx.organisation.controller.exception.ResourceNotFoundException;

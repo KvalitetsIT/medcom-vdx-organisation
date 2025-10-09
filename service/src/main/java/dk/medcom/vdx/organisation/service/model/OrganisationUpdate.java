@@ -1,9 +1,6 @@
 package dk.medcom.vdx.organisation.service.model;
 
-public record OrganisationCreate(String parentOrganisation,
-                                 String organisationCode,
-                                 String name,
-                                 Integer poolSize,
+public record OrganisationUpdate(Integer poolSize,
                                  String smsSenderName,
                                  boolean allowCustomUriWithoutDomain,
                                  String smsCallbackUrl,
