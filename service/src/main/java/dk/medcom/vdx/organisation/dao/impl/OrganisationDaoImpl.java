@@ -36,7 +36,9 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 "o.organisation_id, " +
                 "o.name organisation_name, " +
                 "o.sms_sender_name, " +
+                "o.allow_custom_uri_without_domain, " +
                 "o.sms_callback_url, " +
+                "o.history_api_key, " +
                 "o.device_webhook_endpoint, " +
                 "o.device_webhook_endpoint_key " +
                 "from organisation o, groups g " +
@@ -108,8 +110,8 @@ public class OrganisationDaoImpl implements OrganisationDao {
 
     @Override
     public long insert(Organisation newOrganisation) {
-        var sql = "insert into organisation(group_id, organisation_id, name, pool_size, sms_sender_name, allow_custom_uri_without_domain, sms_callback_url, device_webhook_endpoint, device_webhook_endpoint_key)" +
-                " values(:group_id, :organisation_id, :name, :pool_size, :sms_sender_name, :allow_custom_uri_with_domain, :sms_callback_url, :device_webhook_endpoint, :device_webhook_endpoint_key)";
+        var sql = "insert into organisation(group_id, organisation_id, name, pool_size, sms_sender_name, allow_custom_uri_without_domain, sms_callback_url, history_api_key, device_webhook_endpoint, device_webhook_endpoint_key)" +
+                " values(:group_id, :organisation_id, :name, :pool_size, :sms_sender_name, :allow_custom_uri_with_domain, :sms_callback_url, :history_api_key, :device_webhook_endpoint, :device_webhook_endpoint_key)";
 
         var parameters = new MapSqlParameterSource().
                 addValue("group_id", newOrganisation.getGroupId()).
@@ -117,8 +119,9 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 addValue("name", newOrganisation.getOrganisationName()).
                 addValue("pool_size", newOrganisation.getPoolSize()).
                 addValue("sms_sender_name", newOrganisation.getSmsSenderName()).
-                addValue("allow_custom_uri_with_domain", 0).
+                addValue("allow_custom_uri_with_domain", newOrganisation.isAllowCustomUriWithoutDomain()).
                 addValue("sms_callback_url", newOrganisation.getSmsCallbackUrl()).
+                addValue("history_api_key", newOrganisation.getHistoryApiKey()).
                 addValue("device_webhook_endpoint", newOrganisation.getDeviceWebhookEndpoint()).
                 addValue("device_webhook_endpoint_key", newOrganisation.getDeviceWebhookEndpointKey());
 
@@ -127,6 +130,33 @@ public class OrganisationDaoImpl implements OrganisationDao {
         template.update(sql, parameters, keyHolder);
 
         return keyHolder.getKey().longValue();
+    }
+
+    @Override
+    public boolean update(Organisation organisation) {
+        logger.debug("Updating organisation.");
+
+        var sql = "update organisation set " +
+                "       pool_size = :pool_size, " +
+                "       sms_sender_name = :sms_sender_name, " +
+                "       allow_custom_uri_without_domain = :allow_custom_uri_without_domain, " +
+                "       sms_callback_url = :sms_callback_url, " +
+                "       history_api_key = :history_api_key, " +
+                "       device_webhook_endpoint = :device_webhook_endpoint, " +
+                "       device_webhook_endpoint_key = :device_webhook_endpoint_key " +
+                "   where organisation_id = :organisation_id";
+
+        var parameters = new MapSqlParameterSource()
+                .addValue("organisation_id", organisation.getOrganisationId())
+                .addValue("pool_size", organisation.getPoolSize())
+                .addValue("sms_sender_name", organisation.getSmsSenderName())
+                .addValue("allow_custom_uri_without_domain", organisation.isAllowCustomUriWithoutDomain())
+                .addValue("sms_callback_url", organisation.getSmsCallbackUrl())
+                .addValue("history_api_key", organisation.getHistoryApiKey())
+                .addValue("device_webhook_endpoint", organisation.getDeviceWebhookEndpoint())
+                .addValue("device_webhook_endpoint_key", organisation.getDeviceWebhookEndpointKey());
+
+        return template.update(sql, parameters) > 0;
     }
 
     @Override

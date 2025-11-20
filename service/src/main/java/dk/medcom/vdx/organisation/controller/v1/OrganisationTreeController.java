@@ -1,4 +1,4 @@
-package dk.medcom.vdx.organisation.controller;
+package dk.medcom.vdx.organisation.controller.v1;
 
 import dk.medcom.vdx.organisation.aspect.APISecurityAnnotation;
 import dk.medcom.vdx.organisation.context.UserRole;

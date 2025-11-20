@@ -4,8 +4,8 @@ import dk.medcom.vdx.organisation.context.UserContextService;
 import dk.medcom.vdx.organisation.context.UserRole;
 import dk.medcom.vdx.organisation.controller.exception.PermissionDeniedException;
 import dk.medcom.vdx.organisation.controller.exception.UnauthorizedException;
-import dk.medcom.vdx.organisation.dao.jpa.OrganisationRepository;
-import dk.medcom.vdx.organisation.dao.jpa.entity.Organisation;
+import dk.medcom.vdx.organisation.dao.OrganisationDao;
+import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.slf4j.Logger;
@@ -15,13 +15,13 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 public class UserSecurityInterceptor implements HandlerInterceptor {
 	
-	private static Logger logger = LoggerFactory.getLogger(UserSecurityInterceptor.class);
+	private static final Logger logger = LoggerFactory.getLogger(UserSecurityInterceptor.class);
 	
 	@Autowired
 	private UserContextService userService;
 	
 	@Autowired
-	private OrganisationRepository organisationRepository;
+	private OrganisationDao organisationDao;
 
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -37,9 +37,9 @@ public class UserSecurityInterceptor implements HandlerInterceptor {
 		String userOrganisationId = userContext.getUserOrganisation();
 		Organisation organisation = null;
 		if ((userOrganisationId != null) && (!userOrganisationId.isEmpty())) {
-			organisation = organisationRepository.findByOrganisationId(userOrganisationId);
+			organisation = organisationDao.findOrganisation(userOrganisationId);
 			if (organisation == null) {
-				logger.debug("organisation is not found using findByOrganisationId(userOrganisationId). userOrganisationId: " + userOrganisationId );
+                logger.debug("organisation is not found using findByOrganisationId(userOrganisationId). userOrganisationId: {}", userOrganisationId);
 				throw new PermissionDeniedException();
 			}			
 		}
@@ -53,7 +53,7 @@ public class UserSecurityInterceptor implements HandlerInterceptor {
 				
 		if (!userService.getUserContext().hasOnlyRole(UserRole.PROVISIONER)) {
 			if ((userEmail == null ) || (userEmail.isEmpty()) || (userOrganisationId == null) || (userOrganisationId.isEmpty())) {
-				logger.debug("Email or user are not valid: userEmail: " + userEmail + ", userOrganisationId = " + userOrganisationId);
+                logger.debug("Email or user are not valid: userEmail: {}, userOrganisationId = {}", userEmail, userOrganisationId);
 				throw new UnauthorizedException();
 			}
 		}
@@ -64,7 +64,7 @@ public class UserSecurityInterceptor implements HandlerInterceptor {
 		}
 		logger.info("User information: organisation: {}, email: {}, roles: {}", organisationId, userEmail, userService.getUserContext().getUserRoles());
 
-		logger.debug("Exit of preHandle method: Usermail: " + userEmail + " UserRole: " + userService.getUserContext().getUserRoles() + " Organisation: " + organisation);
+        logger.debug("Exit of preHandle method: Usermail: {} UserRole: {} Organisation: {}", userEmail, userService.getUserContext().getUserRoles(), organisation);
 		return true;
 	}
 }
