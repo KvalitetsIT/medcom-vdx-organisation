@@ -2,19 +2,19 @@ package dk.medcom.vdx.organisation.service;
 
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.service.impl.OrganisationTreeBuilderImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OrganisationTreeBuilderTest {
     private OrganisationTreeBuilder organisationTreeBuilder;
 
-    @Before
+    @BeforeEach
     public void setup() {
         organisationTreeBuilder = new OrganisationTreeBuilderImpl();
     }

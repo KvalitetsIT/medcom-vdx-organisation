@@ -1,9 +1,8 @@
 package dk.medcom.vdx.organisation.integrationtest.v1;
 
 import dk.medcom.vdx.organisation.integrationtest.AbstractIntegrationTest;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.JSON;
@@ -21,9 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OrganisationIT extends AbstractIntegrationTest {
     private OrganisationApi organisationApi;
@@ -34,7 +31,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
     private static final String SESSION_MEETING_USER = "ewogICAiVXNlckF0dHJpYnV0ZXMiOnsKICAgICAgImRrOm1lZGNvbTp2aWRlbzpyb2xlIjpbCiAgICAgICAgICJtZWV0aW5nLXVzZXIiCiAgICAgIF0sCiAgICAgICJkazptZWRjb206b3JnYW5pc2F0aW9uX2lkIjpbCiAgICAgICAgICJtZWRjb20iCiAgICAgIF0sCiAgICAgICJkazptZWRjb206ZW1haWwiOlsKICAgICAgICAgImVtYWlsQGRvbWFpbi5jb20iCiAgICAgIF0KICAgfQp9Cgo=";
     private OrganisationApi unauthorizedOrganisationApi;
 
-    @Before
+    @BeforeEach
     public void setupApiClient() {
         var apiClient = new ApiClient()
                 .setBasePath(getApiBasePath())
@@ -61,11 +58,11 @@ public class OrganisationIT extends AbstractIntegrationTest {
         var organisations = organisationApi.servicesOrganisationUriPost(uris);
 
         // Then
-        Assert.assertFalse(organisations.isEmpty());
-        Assert.assertEquals("pool-test-org", organisations.getFirst().getCode());
-        Assert.assertEquals("company name another-test-org", organisations.getFirst().getName());
-        Assert.assertEquals(Long.valueOf(7), organisations.getFirst().getGroupId());
-        Assert.assertEquals(uris.getFirst(), organisations.getFirst().getUri());
+        assertFalse(organisations.isEmpty());
+        assertEquals("pool-test-org", organisations.getFirst().getCode());
+        assertEquals("company name another-test-org", organisations.getFirst().getName());
+        assertEquals(Long.valueOf(7), organisations.getFirst().getGroupId());
+        assertEquals(uris.getFirst(), organisations.getFirst().getUri());
     }
 
     @Test
@@ -78,7 +75,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
         var organisations = organisationApi.servicesOrganisationUriPost(uris);
 
         // Then
-        Assert.assertTrue(organisations.isEmpty());
+        assertTrue(organisations.isEmpty());
     }
 
     @Test
@@ -397,28 +394,28 @@ public class OrganisationIT extends AbstractIntegrationTest {
         var response = organisationTreeApi.servicesOrganisationtreeCodeGet("child");
 
         assertNotNull(response);
-        Assert.assertEquals("super_parent", response.getName());
-        Assert.assertEquals(0, response.getPoolSize().intValue());
-        Assert.assertEquals("10", response.getCode());
-        Assert.assertEquals(1, response.getChildren().size());
+        assertEquals("super_parent", response.getName());
+        assertEquals(0, response.getPoolSize().intValue());
+        assertEquals("10", response.getCode());
+        assertEquals(1, response.getChildren().size());
 
         var child = response.getChildren().getFirst();
-        Assert.assertEquals("parent", child.getCode());
-        Assert.assertEquals(20, child.getPoolSize().intValue());
-        Assert.assertEquals("parent org", child.getName());
-        Assert.assertEquals(1, child.getChildren().size());
+        assertEquals("parent", child.getCode());
+        assertEquals(20, child.getPoolSize().intValue());
+        assertEquals("parent org", child.getName());
+        assertEquals(1, child.getChildren().size());
 
         child = child.getChildren().getFirst();
-        Assert.assertEquals("child_one", child.getName());
-        Assert.assertEquals(0, child.getPoolSize().intValue());
-        Assert.assertEquals("12", child.getCode());
-        Assert.assertEquals(1, child.getChildren().size());
+        assertEquals("child_one", child.getName());
+        assertEquals(0, child.getPoolSize().intValue());
+        assertEquals("12", child.getCode());
+        assertEquals(1, child.getChildren().size());
 
         child = child.getChildren().getFirst();
-        Assert.assertEquals("child", child.getCode());
-        Assert.assertEquals(0, child.getPoolSize().intValue());
-        Assert.assertEquals("child org", child.getName());
-        Assert.assertEquals(0, child.getChildren().size());
+        assertEquals("child", child.getCode());
+        assertEquals(0, child.getPoolSize().intValue());
+        assertEquals("child org", child.getName());
+        assertEquals(0, child.getChildren().size());
     }
 
     @Test
@@ -426,33 +423,33 @@ public class OrganisationIT extends AbstractIntegrationTest {
         var response = organisationTreeApi.servicesOrganisationtreeCodeGet("medcom_test_2");
 
         assertNotNull(response);
-        Assert.assertEquals("VDX", response.getName());
-        Assert.assertEquals(4, response.getPoolSize().intValue());
-        Assert.assertEquals("vdx", response.getCode());
-        Assert.assertEquals(1, response.getChildren().size());
+        assertEquals("VDX", response.getName());
+        assertEquals(4, response.getPoolSize().intValue());
+        assertEquals("vdx", response.getCode());
+        assertEquals(1, response.getChildren().size());
 
         var child = response.getChildren().getFirst();
-        Assert.assertEquals("21", child.getCode());
-        Assert.assertEquals(0, child.getPoolSize().intValue());
-        Assert.assertEquals("Offentlige organisationer", child.getName());
-        Assert.assertEquals(1, child.getChildren().size());
+        assertEquals("21", child.getCode());
+        assertEquals(0, child.getPoolSize().intValue());
+        assertEquals("Offentlige organisationer", child.getName());
+        assertEquals(1, child.getChildren().size());
 
         child = child.getChildren().getFirst();
-        Assert.assertEquals("medcom1", child.getCode());
-        Assert.assertEquals(4, child.getPoolSize().intValue());
-        Assert.assertEquals("Medcom", child.getName());
-        Assert.assertEquals(1, child.getChildren().size());
+        assertEquals("medcom1", child.getCode());
+        assertEquals(4, child.getPoolSize().intValue());
+        assertEquals("Medcom", child.getName());
+        assertEquals(1, child.getChildren().size());
 
         child = child.getChildren().getFirst();
-        Assert.assertEquals("Test Gruppe 1", child.getName());
-        Assert.assertEquals(0, child.getPoolSize().intValue());
-        Assert.assertEquals("42", child.getCode());
-        Assert.assertEquals(1, child.getChildren().size());
+        assertEquals("Test Gruppe 1", child.getName());
+        assertEquals(0, child.getPoolSize().intValue());
+        assertEquals("42", child.getCode());
+        assertEquals(1, child.getChildren().size());
 
         child = child.getChildren().getFirst();
-        Assert.assertEquals("medcom_test_2", child.getCode());
-        Assert.assertEquals(0, child.getPoolSize().intValue());
-        Assert.assertEquals("MedCom Test 2", child.getName());
-        Assert.assertEquals(0, child.getChildren().size());
+        assertEquals("medcom_test_2", child.getCode());
+        assertEquals(0, child.getPoolSize().intValue());
+        assertEquals("MedCom Test 2", child.getName());
+        assertEquals(0, child.getChildren().size());
     }
 }

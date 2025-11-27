@@ -2,8 +2,8 @@ package dk.medcom.vdx.organisation.integrationtest.v2;
 
 import dk.medcom.vdx.organisation.integrationtest.AbstractIntegrationTest;
 import dk.medcom.vdx.organisation.integrationtest.v2.helper.HeaderBuilder;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.JSON;
@@ -19,9 +19,9 @@ import java.net.http.HttpResponse;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class OrganisationV2IT extends AbstractIntegrationTest {
+class OrganisationV2IT extends AbstractIntegrationTest {
     private final String testOrg = "test-org";
     private final String company1 = "company 1";
     
@@ -31,8 +31,8 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     private OrganisationV2Api organisationV2ApiNoRoleAtt;
     private OrganisationV2Api organisationV2ApiNotAdmin;
     
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         var apiClient = new ApiClient();
         apiClient.setBasePath(getApiBasePath());
         apiClient.addDefaultHeader("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl()));
@@ -61,7 +61,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
 // ------ JWT errors -------
 
     @Test
-    public void errorIfNoJwtToken_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
+    void errorIfNoJwtToken_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
                 GET().
                 build();
@@ -73,7 +73,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void errorIfInvalidJwtToken_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
+    void errorIfInvalidJwtToken_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
                 header("Authorization", "Bearer " + HeaderBuilder.getInvalidJwt()).
                 GET().
@@ -86,7 +86,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void errorIfNoRoleAttInToken_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
+    void errorIfNoRoleAttInToken_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
                 header("Authorization", "Bearer " + HeaderBuilder.getJwtNoRoleAtt(getKeycloakUrl())).
                 GET().
@@ -99,7 +99,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void errorIfNotAdmin_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
+    void errorIfNotAdmin_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
                 header("Authorization", "Bearer " + HeaderBuilder.getJwtNotAdmin(getKeycloakUrl())).
                 GET().
@@ -112,145 +112,145 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void errorIfNoJwtToken_servicesV2OrganisationCodeGet() {
+    void errorIfNoJwtToken_servicesV2OrganisationCodeGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoHeader.servicesV2OrganisationCodeGet(testOrg));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfInvalidJwtToken_servicesV2OrganisationCodeGet() {
+    void errorIfInvalidJwtToken_servicesV2OrganisationCodeGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiInvalidJwt.servicesV2OrganisationCodeGet(testOrg));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoRoleAttInToken_servicesV2OrganisationCodeGet() {
+    void errorIfNoRoleAttInToken_servicesV2OrganisationCodeGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationCodeGet(testOrg));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNotAdmin_servicesV2OrganisationCodeGet() {
+    void errorIfNotAdmin_servicesV2OrganisationCodeGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNotAdmin.servicesV2OrganisationCodeGet(testOrg));
         assertEquals(403, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoJwtToken_servicesV2OrganisationCodePut() {
+    void errorIfNoJwtToken_servicesV2OrganisationCodePut() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoHeader.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfInvalidJwtToken_servicesV2OrganisationCodePut() {
+    void errorIfInvalidJwtToken_servicesV2OrganisationCodePut() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiInvalidJwt.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoRoleAttInToken_servicesV2OrganisationCodePut() {
+    void errorIfNoRoleAttInToken_servicesV2OrganisationCodePut() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNotAdmin_servicesV2OrganisationCodePut() {
+    void errorIfNotAdmin_servicesV2OrganisationCodePut() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNotAdmin.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
         assertEquals(403, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoJwtToken_servicesV2OrganisationGet() {
+    void errorIfNoJwtToken_servicesV2OrganisationGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoHeader.servicesV2OrganisationGet(testOrg));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfInvalidJwtToken_servicesV2OrganisationGet() {
+    void errorIfInvalidJwtToken_servicesV2OrganisationGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiInvalidJwt.servicesV2OrganisationGet(testOrg));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoRoleAttInToken_servicesV2OrganisationGet() {
+    void errorIfNoRoleAttInToken_servicesV2OrganisationGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationGet(testOrg));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNotAdmin_servicesV2OrganisationGet() {
+    void errorIfNotAdmin_servicesV2OrganisationGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNotAdmin.servicesV2OrganisationGet(testOrg));
         assertEquals(403, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoJwtToken_servicesV2OrganisationParentCodePost() {
+    void errorIfNoJwtToken_servicesV2OrganisationParentCodePost() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoHeader.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfInvalidJwtToken_servicesV2OrganisationParentCodePost() {
+    void errorIfInvalidJwtToken_servicesV2OrganisationParentCodePost() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiInvalidJwt.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoRoleAttInToken_servicesV2OrganisationParentCodePost() {
+    void errorIfNoRoleAttInToken_servicesV2OrganisationParentCodePost() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNotAdmin_servicesV2OrganisationParentCodePost() {
+    void errorIfNotAdmin_servicesV2OrganisationParentCodePost() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNotAdmin.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
         assertEquals(403, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoJwtToken_servicesV2OrganisationPost() {
+    void errorIfNoJwtToken_servicesV2OrganisationPost() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoHeader.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfInvalidJwtToken_servicesV2OrganisationPost() {
+    void errorIfInvalidJwtToken_servicesV2OrganisationPost() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiInvalidJwt.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoRoleAttInToken_servicesV2OrganisationPost() {
+    void errorIfNoRoleAttInToken_servicesV2OrganisationPost() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNotAdmin_servicesV2OrganisationPost() {
+    void errorIfNotAdmin_servicesV2OrganisationPost() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNotAdmin.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
         assertEquals(403, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoJwtToken_servicesV2OrganisationUriPost() {
+    void errorIfNoJwtToken_servicesV2OrganisationUriPost() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoHeader.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfInvalidJwtToken_servicesV2OrganisationUriPost() {
+    void errorIfInvalidJwtToken_servicesV2OrganisationUriPost() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiInvalidJwt.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoRoleAttInToken_servicesV2OrganisationUriPost() {
+    void errorIfNoRoleAttInToken_servicesV2OrganisationUriPost() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNotAdmin_servicesV2OrganisationUriPost() {
+    void errorIfNotAdmin_servicesV2OrganisationUriPost() {
         var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNotAdmin.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
         assertEquals(403, expectedException.getCode());
     }
@@ -258,7 +258,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
 // -------- No JWT Errors -----------
 
     @Test
-    public void testGetOrganisationSlashPath() throws URISyntaxException, IOException, InterruptedException {
+    void testGetOrganisationSlashPath() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
                 header("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl())).
                 GET().
@@ -277,7 +277,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationCodeGet() throws ApiException {
+    void testServicesV2OrganisationCodeGet() throws ApiException {
         var result = organisationV2Api.servicesV2OrganisationCodeGet(testOrg);
 
         assertNotNull(result);
@@ -294,7 +294,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationCodeGetNoSmsSenderName() throws ApiException {
+    void testServicesV2OrganisationCodeGetNoSmsSenderName() throws ApiException {
         var result = organisationV2Api.servicesV2OrganisationCodeGet("kvak");
 
         assertNotNull(result);
@@ -304,7 +304,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationCodePut() throws ApiException {
+    void testServicesV2OrganisationCodePut() throws ApiException {
         var input = new OrganisationUpdate()
                 .poolSize(123)
                 .smsCallbackUrl(randomString())
@@ -330,7 +330,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationCodePutNoValuesSet() throws ApiException {
+    void testServicesV2OrganisationCodePutNoValuesSet() throws ApiException {
         var input = new OrganisationUpdate();
 
         var result = organisationV2Api.servicesV2OrganisationCodePut("company 2", input);
@@ -350,7 +350,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationGet() throws ApiException {
+    void testServicesV2OrganisationGet() throws ApiException {
         var result = organisationV2Api.servicesV2OrganisationGet(testOrg);
 
         assertNotNull(result);
@@ -367,7 +367,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationGetWebhookNotNull() throws ApiException {
+    void testServicesV2OrganisationGetWebhookNotNull() throws ApiException {
         var result = organisationV2Api.servicesV2OrganisationGet("parent");
 
         assertNotNull(result);
@@ -381,7 +381,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationGetWithSlash() throws URISyntaxException, IOException, InterruptedException {
+    void testServicesV2OrganisationGetWithSlash() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation?organisationCode=æ/åø")).
                 header("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl())).
                 GET().
@@ -400,7 +400,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationParentCodePost() throws ApiException {
+    void testServicesV2OrganisationParentCodePost() throws ApiException {
         var inputOrganisation = new OrganisationCreate();
         inputOrganisation.setCode(UUID.randomUUID().toString());
 
@@ -415,7 +415,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationParentCodePostAlreadyExists() {
+    void testServicesV2OrganisationParentCodePostAlreadyExists() {
         var input = "from_template";
 
         var inputOrganisation = new OrganisationCreate();
@@ -429,7 +429,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationParentCodePostParentNotFound() {
+    void testServicesV2OrganisationParentCodePostParentNotFound() {
         var input = "i_dont_exist";
         var inputOrganisation = new OrganisationCreate();
         inputOrganisation.code("code");
@@ -442,7 +442,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationPostOnlyRequiredValues() throws ApiException {
+    void testServicesV2OrganisationPostOnlyRequiredValues() throws ApiException {
         var input = "æ/åø";
         var inputOrganisation = new OrganisationCreate();
         inputOrganisation.setCode(UUID.randomUUID().toString());
@@ -462,7 +462,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationPostAllValues() throws ApiException {
+    void testServicesV2OrganisationPostAllValues() throws ApiException {
         var input = "æ/åø";
 
         var inputOrganisation = new OrganisationCreate()
@@ -491,7 +491,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationUriPostWhereStatusPROVISIONED_OK() throws ApiException {
+    void testServicesV2OrganisationUriPostWhereStatusPROVISIONED_OK() throws ApiException {
         var uris = List.of("1239@test.dk");
 
         var result = organisationV2Api.servicesV2OrganisationUriPost(uris);
@@ -504,7 +504,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationUriPostWhereStatusNotPROVISIONED_OK() throws ApiException {
+    void testServicesV2OrganisationUriPostWhereStatusNotPROVISIONED_OK() throws ApiException {
         var uris = List.of("1230@test.dk");
 
         var result = organisationV2Api.servicesV2OrganisationUriPost(uris);
@@ -515,7 +515,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
 // --------- CORS ----------
 
     @Test
-    public void testCorsAllowed() throws IOException, InterruptedException {
+    void testCorsAllowed() throws IOException, InterruptedException {
         var request = HttpRequest.newBuilder(URI.create(String.format("%s/services/v2/organisation", getApiBasePath())))
                 .method("OPTIONS", HttpRequest.BodyPublishers.noBody())
                 .header("Origin", "http://allowed:4100")
@@ -528,7 +528,7 @@ public class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testCorsDenied() throws IOException, InterruptedException {
+    void testCorsDenied() throws IOException, InterruptedException {
         var request = HttpRequest.newBuilder(URI.create(String.format("%s/services/v2/organisation", getApiBasePath())))
                 .method("OPTIONS", HttpRequest.BodyPublishers.noBody())
                 .header("Origin", "http://denied:4200")

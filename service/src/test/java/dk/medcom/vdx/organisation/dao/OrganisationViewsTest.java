@@ -2,21 +2,21 @@ package dk.medcom.vdx.organisation.dao;
 
 
 import dk.medcom.vdx.organisation.dao.impl.OrganisationViewsImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class OrganisationViewsTest extends AbstractDaoTest {
     @Autowired
     private DataSource dataSource;
     private OrganisationViews organisationViews;
 
-    @Before
+    @BeforeEach
     public void setup() {
         organisationViews = new OrganisationViewsImpl(dataSource);
     }

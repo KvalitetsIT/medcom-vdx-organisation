@@ -6,7 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.SpringApplication;
 import org.testcontainers.containers.BindMode;
 import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.MariaDBContainer;
+import org.testcontainers.mariadb.MariaDBContainer;
 import org.testcontainers.containers.Network;
 import org.testcontainers.containers.output.Slf4jLogConsumer;
 import org.testcontainers.containers.wait.strategy.Wait;
@@ -111,7 +111,7 @@ public class ServiceStarter {
 
     private void setupDatabaseContainer() {
         // Database server
-        var mariadb = new MariaDBContainer<>("mariadb:10.6")
+        var mariadb = new MariaDBContainer("mariadb:10.6")
                 .withDatabaseName("hellodb")
                 .withUsername("hellouser")
                 .withPassword("secret1234")

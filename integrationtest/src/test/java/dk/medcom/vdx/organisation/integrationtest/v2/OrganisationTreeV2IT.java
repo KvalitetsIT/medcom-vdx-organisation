@@ -2,8 +2,8 @@ package dk.medcom.vdx.organisation.integrationtest.v2;
 
 import dk.medcom.vdx.organisation.integrationtest.AbstractIntegrationTest;
 import dk.medcom.vdx.organisation.integrationtest.v2.helper.HeaderBuilder;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
 import org.openapitools.client.JSON;
@@ -20,9 +20,9 @@ import java.net.http.HttpResponse;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
-public class OrganisationTreeV2IT extends AbstractIntegrationTest {
+class OrganisationTreeV2IT extends AbstractIntegrationTest {
     private final String childOrg = "child";
 
     private OrganisationTreeV2Api organisationTreeV2Api;
@@ -31,8 +31,8 @@ public class OrganisationTreeV2IT extends AbstractIntegrationTest {
     private OrganisationTreeV2Api organisationTreeV2ApiNoRoleAtt;
     private OrganisationTreeV2Api organisationTreeV2ApiNotAdmin;
 
-    @Before
-    public void setup() {
+    @BeforeEach
+    void setup() {
         var apiClient = new ApiClient();
         apiClient.setBasePath(getApiBasePath());
         apiClient.addDefaultHeader("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl()));
@@ -61,7 +61,7 @@ public class OrganisationTreeV2IT extends AbstractIntegrationTest {
 // ------ JWT errors -------
 
     @Test
-    public void errorIfNoJwtToken_getOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
+    void errorIfNoJwtToken_getOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisationtree/æ/åø")).
                 GET().
                 build();
@@ -73,7 +73,7 @@ public class OrganisationTreeV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void errorIfInvalidJwtToken_getOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
+    void errorIfInvalidJwtToken_getOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisationtree/æ/åø")).
                 header("Authorization", "Bearer " + HeaderBuilder.getInvalidJwt()).
                 GET().
@@ -86,7 +86,7 @@ public class OrganisationTreeV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void errorIfNoRoleAttInToken_getOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
+    void errorIfNoRoleAttInToken_getOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisationtree/æ/åø")).
                 header("Authorization", "Bearer " + HeaderBuilder.getJwtNoRoleAtt(getKeycloakUrl())).
                 GET().
@@ -99,7 +99,7 @@ public class OrganisationTreeV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void errorIfNotAdmin_getOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
+    void errorIfNotAdmin_getOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisationtree/æ/åø")).
                 header("Authorization", "Bearer " + HeaderBuilder.getJwtNotAdmin(getKeycloakUrl())).
                 GET().
@@ -112,97 +112,97 @@ public class OrganisationTreeV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void errorIfNoJwtToken_servicesV2OrganisationTreeForApiKeyPost() {
+    void errorIfNoJwtToken_servicesV2OrganisationTreeForApiKeyPost() {
         var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNoHeader.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfInvalidJwtToken_servicesV2OrganisationTreeForApiKeyPost() {
+    void errorIfInvalidJwtToken_servicesV2OrganisationTreeForApiKeyPost() {
         var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiInvalidJwt.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoRoleAttInToken_servicesV2OrganisationTreeForApiKeyPost() {
+    void errorIfNoRoleAttInToken_servicesV2OrganisationTreeForApiKeyPost() {
         var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNotAdmin_servicesV2OrganisationTreeForApiKeyPost() {
+    void errorIfNotAdmin_servicesV2OrganisationTreeForApiKeyPost() {
         var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNotAdmin.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
         assertEquals(403, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoJwtToken_servicesV2OrganisationtreeChildrenGet() {
+    void errorIfNoJwtToken_servicesV2OrganisationtreeChildrenGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNoHeader.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfInvalidJwtToken_servicesV2OrganisationtreeChildrenGet() {
+    void errorIfInvalidJwtToken_servicesV2OrganisationtreeChildrenGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiInvalidJwt.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoRoleAttInToken_servicesV2OrganisationtreeChildrenGet() {
+    void errorIfNoRoleAttInToken_servicesV2OrganisationtreeChildrenGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNotAdmin_servicesV2OrganisationtreeChildrenGet() {
+    void errorIfNotAdmin_servicesV2OrganisationtreeChildrenGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNotAdmin.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
         assertEquals(403, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoJwtToken_servicesV2OrganisationtreeCodeGet() {
+    void errorIfNoJwtToken_servicesV2OrganisationtreeCodeGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNoHeader.servicesV2OrganisationtreeCodeGet(childOrg));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfInvalidJwtToken_servicesV2OrganisationtreeCodeGet() {
+    void errorIfInvalidJwtToken_servicesV2OrganisationtreeCodeGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiInvalidJwt.servicesV2OrganisationtreeCodeGet(childOrg));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoRoleAttInToken_servicesV2OrganisationtreeCodeGet() {
+    void errorIfNoRoleAttInToken_servicesV2OrganisationtreeCodeGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationtreeCodeGet(childOrg));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNotAdmin_servicesV2OrganisationtreeCodeGet() {
+    void errorIfNotAdmin_servicesV2OrganisationtreeCodeGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNotAdmin.servicesV2OrganisationtreeCodeGet(childOrg));
         assertEquals(403, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoJwtToken_servicesV2OrganisationtreeGet() {
+    void errorIfNoJwtToken_servicesV2OrganisationtreeGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNoHeader.servicesV2OrganisationtreeGet(childOrg, 13));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfInvalidJwtToken_servicesV2OrganisationtreeGet() {
+    void errorIfInvalidJwtToken_servicesV2OrganisationtreeGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiInvalidJwt.servicesV2OrganisationtreeGet(childOrg, 13));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNoRoleAttInToken_servicesV2OrganisationtreeGet() {
+    void errorIfNoRoleAttInToken_servicesV2OrganisationtreeGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationtreeGet(childOrg, 13));
         assertEquals(401, expectedException.getCode());
     }
 
     @Test
-    public void errorIfNotAdmin_servicesV2OrganisationtreeGet() {
+    void errorIfNotAdmin_servicesV2OrganisationtreeGet() {
         var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNotAdmin.servicesV2OrganisationtreeGet(childOrg, 13));
         assertEquals(403, expectedException.getCode());
     }
@@ -210,7 +210,7 @@ public class OrganisationTreeV2IT extends AbstractIntegrationTest {
 // ----------- No JWT errors -----------
 
     @Test
-    public void testGetOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
+    void testGetOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisationtree/æ/åø")).
                 header("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl())).
                 GET().
@@ -232,7 +232,7 @@ public class OrganisationTreeV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationTreeForApiKeyPost() throws ApiException {
+    void testServicesV2OrganisationTreeForApiKeyPost() throws ApiException {
         var response = organisationTreeV2Api.servicesV2OrganisationTreeForApiKeyPost(historyApiKey());
         assertNotNull(response);
 
@@ -254,7 +254,7 @@ public class OrganisationTreeV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationtreeChildrenGetByGroupId() throws ApiException {
+    void testServicesV2OrganisationtreeChildrenGetByGroupId() throws ApiException {
         var response = organisationTreeV2Api.servicesV2OrganisationtreeChildrenGet(null, 10);
         assertNotNull(response);
 
@@ -278,14 +278,14 @@ public class OrganisationTreeV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationtreeChildrenGetByGroupIdNotFound() {
+    void testServicesV2OrganisationtreeChildrenGetByGroupIdNotFound() {
         var exception = assertThrows(ApiException.class, () -> organisationTreeV2Api.servicesV2OrganisationtreeChildrenGet(null, 123));
         assertNotNull(exception);
         assertEquals(404, exception.getCode());
     }
 
     @Test
-    public void testServicesV2OrganisationtreeChildrenGetByOrganisationCode() throws ApiException {
+    void testServicesV2OrganisationtreeChildrenGetByOrganisationCode() throws ApiException {
         var response = organisationTreeV2Api.servicesV2OrganisationtreeChildrenGet("parent", null);
         assertNotNull(response);
 
@@ -305,14 +305,14 @@ public class OrganisationTreeV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationtreeChildrenGetByOrganisationCodeNotFound() {
+    void testServicesV2OrganisationtreeChildrenGetByOrganisationCodeNotFound() {
         var exception = assertThrows(ApiException.class, () -> organisationTreeV2Api.servicesV2OrganisationtreeChildrenGet(UUID.randomUUID().toString(), null));
         assertNotNull(exception);
         assertEquals(404, exception.getCode());
     }
 
     @Test
-    public void testServicesV2OrganisationtreeCodeGet() throws ApiException {
+    void testServicesV2OrganisationtreeCodeGet() throws ApiException {
         var response = organisationTreeV2Api.servicesV2OrganisationtreeCodeGet("child");
 
         assertNotNull(response);
@@ -357,7 +357,7 @@ public class OrganisationTreeV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationtreeCodeGet_with_group_only() throws ApiException {
+    void testServicesV2OrganisationtreeCodeGet_with_group_only() throws ApiException {
         var response = organisationTreeV2Api.servicesV2OrganisationtreeCodeGet("medcom_test_2");
 
         assertNotNull(response);
@@ -392,7 +392,7 @@ public class OrganisationTreeV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationtreeGetByGroupId() throws ApiException {
+    void testServicesV2OrganisationtreeGetByGroupId() throws ApiException {
         var response = organisationTreeV2Api.servicesV2OrganisationtreeGet(null, 13);
         assertNotNull(response);
 
@@ -414,14 +414,14 @@ public class OrganisationTreeV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    public void testServicesV2OrganisationtreeGetByGroupIdNotFound() {
+    void testServicesV2OrganisationtreeGetByGroupIdNotFound() {
         var exception = assertThrows(ApiException.class, () -> organisationTreeV2Api.servicesV2OrganisationtreeGet(null, 123));
         assertNotNull(exception);
         assertEquals(404, exception.getCode());
     }
 
     @Test
-    public void testServicesV2OrganisationtreeGetWithSlashQueryParameter() throws URISyntaxException, IOException, InterruptedException {
+    void testServicesV2OrganisationtreeGetWithSlashQueryParameter() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisationtree?organisationCode=æ/åø")).
                 header("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl())).
                 GET().

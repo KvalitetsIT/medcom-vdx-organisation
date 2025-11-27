@@ -1,7 +1,7 @@
 package dk.medcom.vdx.organisation.dao;
 
 import dk.medcom.vdx.organisation.dao.entity.Groups;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;

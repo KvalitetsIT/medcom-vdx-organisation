@@ -6,8 +6,8 @@ import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.service.OrganisationTreeBuilder;
 import dk.medcom.vdx.organisation.service.OrganisationTreeService;
 import jakarta.servlet.http.HttpServletRequest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.openapitools.model.OrganisationTreeForApiKey;
 import org.openapitools.model.Organisationtree;
@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OrganisationTreeV2ControllerTest {
 
@@ -25,7 +25,7 @@ public class OrganisationTreeV2ControllerTest {
     private OrganisationTreeService organisationTreeService;
     private OrganisationTreeBuilder organisationTreeBuilder;
 
-    @Before
+    @BeforeEach
     public void setup() {
         organisationTreeService = Mockito.mock(OrganisationTreeService.class);
         organisationTreeBuilder = Mockito.mock(OrganisationTreeBuilder.class);

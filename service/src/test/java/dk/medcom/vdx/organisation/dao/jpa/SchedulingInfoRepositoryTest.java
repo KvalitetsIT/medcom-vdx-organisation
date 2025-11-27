@@ -4,13 +4,12 @@ import dk.medcom.vdx.organisation.dao.AbstractDaoTest;
 import dk.medcom.vdx.organisation.dao.jpa.entity.ProvisionStatus;
 import dk.medcom.vdx.organisation.dao.jpa.entity.SchedulingInfo;
 import jakarta.annotation.Resource;
-import org.junit.Assert;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class SchedulingInfoRepositoryTest extends AbstractDaoTest {
 
@@ -28,8 +27,8 @@ public class SchedulingInfoRepositoryTest extends AbstractDaoTest {
 
         //Then
         assertFalse(result.isEmpty());
-        SchedulingInfo schedulingInfo = result.get(0);
-        assertEquals(uris.get(0), schedulingInfo.getUriWithDomain());
+        SchedulingInfo schedulingInfo = result.getFirst();
+        assertEquals(uris.getFirst(), schedulingInfo.getUriWithDomain());
         assertNotNull(schedulingInfo.getOrganisation());
         assertNotNull(schedulingInfo.getOrganisation().getId());
         assertNotNull(schedulingInfo.getOrganisation().getName());

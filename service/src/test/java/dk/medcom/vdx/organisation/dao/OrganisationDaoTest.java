@@ -3,22 +3,22 @@ package dk.medcom.vdx.organisation.dao;
 
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.dao.impl.OrganisationDaoImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
 
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OrganisationDaoTest extends AbstractDaoTest {
     @Autowired
     private DataSource dataSource;
     private OrganisationDaoImpl organisationDao;
 
-    @Before
+    @BeforeEach
     public void setup() {
         organisationDao = new OrganisationDaoImpl(dataSource);
     }

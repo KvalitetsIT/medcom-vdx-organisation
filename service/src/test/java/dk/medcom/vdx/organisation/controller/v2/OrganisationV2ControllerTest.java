@@ -10,8 +10,8 @@ import dk.medcom.vdx.organisation.service.exception.DaoException;
 import dk.medcom.vdx.organisation.service.exception.InvalidDataException;
 import dk.medcom.vdx.organisation.service.exception.OrganisationNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.openapitools.model.OrganisationCreate;
 import org.openapitools.model.OrganisationResponse;
@@ -23,7 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OrganisationV2ControllerTest {
     private OrganisationV2Controller organisationV2Controller;
@@ -31,7 +31,7 @@ public class OrganisationV2ControllerTest {
     private OrganisationService organisationService;
     private OrganisationByUriService organisationByUriService;
 
-    @Before
+    @BeforeEach
     public void setup() {
         organisationService = Mockito.mock(OrganisationService.class);
         organisationByUriService = Mockito.mock(OrganisationByUriService.class);

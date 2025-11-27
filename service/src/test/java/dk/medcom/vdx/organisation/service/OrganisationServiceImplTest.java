@@ -9,8 +9,8 @@ import dk.medcom.vdx.organisation.service.exception.OrganisationNotFoundExceptio
 import dk.medcom.vdx.organisation.service.model.OrganisationCreateBasic;
 import dk.medcom.vdx.organisation.service.model.OrganisationCreate;
 import dk.medcom.vdx.organisation.service.model.OrganisationUpdate;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.UUID;
@@ -23,7 +23,7 @@ public class OrganisationServiceImplTest {
     private OrganisationDao organisationDao;
     private GroupsDao groupsDao;
 
-    @Before
+    @BeforeEach
     public void setup() {
         organisationDao = Mockito.mock(OrganisationDao.class);
         groupsDao = Mockito.mock(GroupsDao.class);
