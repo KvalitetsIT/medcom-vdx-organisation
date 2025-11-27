@@ -1,4 +1,4 @@
-FROM swaggerapi/swagger-ui:v4.12.0
+FROM swaggerapi/swagger-ui:v5.22.0
 
 # Definer bruger- og gruppe-id
 ARG USER_ID=1000
@@ -13,6 +13,7 @@ COPY /maven/*.yaml /usr/share/nginx/html/
 COPY /versions /kit/versions
 COPY /config/setVersion.sh /kit/setVersion.sh
 COPY /config/setServers.sh /kit/setServers.sh
+COPY /config/setOAuthUrls.sh /kit/setOAuthUrls.sh
 COPY /config/config.sh /config.sh
 
 COPY /maven/runningVersion.json /kit/runningVersion.json
@@ -23,6 +24,7 @@ RUN apk update && \
     chmod +x /usr/bin/yq && \
     chmod +x /kit/setVersion.sh && \
     chmod +x /kit/setServers.sh && \
+    chmod +x /kit/setOAuthUrls.sh && \
     chmod +x /config.sh && \
     chown -R ${USER_ID}:${GROUP_ID} /kit /usr/share/nginx/html
 

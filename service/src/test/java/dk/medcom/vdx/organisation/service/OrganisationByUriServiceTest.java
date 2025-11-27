@@ -5,9 +5,8 @@ import dk.medcom.vdx.organisation.dao.jpa.SchedulingInfoRepository;
 import dk.medcom.vdx.organisation.dao.jpa.entity.Organisation;
 import dk.medcom.vdx.organisation.dao.jpa.entity.SchedulingInfo;
 import dk.medcom.vdx.organisation.dao.entity.ViewGroups;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.openapitools.model.OrganisationUriInner;
 
@@ -15,12 +14,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class OrganisationByUriServiceTest {
     private OrganisationByUriService uut;
     private SchedulingInfoRepository schedulingInfoRepositoryMock;
     private OrganisationViews organisationViewsMock;
 
-    @Before
+    @BeforeEach
     public void setup(){
         schedulingInfoRepositoryMock = Mockito.mock(SchedulingInfoRepository.class);
         organisationViewsMock = Mockito.mock(OrganisationViews.class);
@@ -47,9 +48,9 @@ public class OrganisationByUriServiceTest {
         List<OrganisationUriInner> result = new ArrayList<>(uut.getOrganisationByUriWithDomain(uris));
 
         //Then
-        Assert.assertEquals(1, result.size());
-        Assert.assertEquals(uri, result.get(0).getUri());
-        Assert.assertEquals(groupName, result.get(0).getGroupName());
+        assertEquals(1, result.size());
+        assertEquals(uri, result.getFirst().getUri());
+        assertEquals(groupName, result.getFirst().getGroupName());
         Mockito.verify(organisationViewsMock, Mockito.never()).getGroupIdFromLongLivedMeetingRooms(Mockito.any());
     }
 
@@ -83,13 +84,13 @@ public class OrganisationByUriServiceTest {
         List<OrganisationUriInner> result = new ArrayList<>(uut.getOrganisationByUriWithDomain(uris));
 
         //Then
-        Assert.assertEquals(2, result.size());
+        assertEquals(2, result.size());
         var result1 = result.stream().filter(x -> x.getUri().equals(uri1)).findFirst().get();
         var result2 = result.stream().filter(x -> x.getUri().equals(uri2)).findFirst().get();
 
-        Assert.assertEquals(uri1, result1.getUri());
-        Assert.assertEquals(groupName1, result1.getGroupName());
-        Assert.assertEquals(uri2, result2.getUri());
-        Assert.assertEquals(groupName2, result2.getGroupName());
+        assertEquals(uri1, result1.getUri());
+        assertEquals(groupName1, result1.getGroupName());
+        assertEquals(uri2, result2.getUri());
+        assertEquals(groupName2, result2.getGroupName());
     }
 }

@@ -3,22 +3,22 @@ package dk.medcom.vdx.organisation.service;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.service.impl.OrganisationTreeServiceImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
 
 public class OrganisationTreeServiceTest {
     private OrganisationTreeService organisationTreeService;
     private OrganisationDao organisationDao;
 
-    @Before
+    @BeforeEach
     public void setup() {
         organisationDao = Mockito.mock(OrganisationDao.class);
         organisationTreeService = new OrganisationTreeServiceImpl(organisationDao);

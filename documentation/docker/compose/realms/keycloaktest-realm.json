@@ -1,0 +1,177 @@
+{
+  "realm": "keycloaktest",
+  "enabled": true,
+  "roles": {
+    "client": {
+      "all-role-att": [],
+      "no-role-att": [],
+      "not-admin": []
+    }
+  },
+  "users": [
+    {
+      "username": "service-account-all-role-att",
+      "enabled": true,
+      "serviceAccountClientId": "all-role-att",
+      "realmRoles": [
+        "default-roles-keycloaktest"
+      ]
+    },
+    {
+      "username": "service-account-no-role-att",
+      "enabled": true,
+      "serviceAccountClientId": "no-role-att",
+      "realmRoles": [
+        "default-roles-keycloaktest"
+      ]
+    },
+    {
+      "username": "service-account-not-admin",
+      "enabled": true,
+      "serviceAccountClientId": "not-admin",
+      "realmRoles": [
+        "default-roles-keycloaktest"
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "clientId": "all-role-att",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "all-role-att-pass",
+      "redirectUris": [
+        "http://localhost/*"
+      ],
+      "serviceAccountsEnabled": true,
+      "protocolMappers": [
+        {
+          "name": "user_roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "claim.value": "[\"meeting-user\",\"meeting-admin\",\"meeting-provisioner\",\"meeting-provisioner-user\",\"meeting-planner\"]",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "lightweight.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "dk:medcom:video:role",
+            "jsonType.label": "JSON",
+            "access.tokenResponse.claim": "false"
+          }
+        }
+      ],
+      "defaultClientScopes": [
+        "clientscope"
+      ],
+      "optionalClientScopes": []
+    },
+    {
+      "clientId": "no-role-att",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "no-role-att-pass",
+      "redirectUris": [
+        "http://localhost/*"
+      ],
+      "serviceAccountsEnabled": true,
+      "defaultClientScopes": [
+        "clientscope"
+      ],
+      "optionalClientScopes": []
+    },
+    {
+      "clientId": "not-admin",
+      "enabled": true,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "not-admin-pass",
+      "redirectUris": [
+        "http://localhost/*"
+      ],
+      "serviceAccountsEnabled": true,
+      "protocolMappers": [
+        {
+          "name": "user_roles",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "claim.value": "[\"meeting-user\",\"meeting-provisioner\",\"meeting-provisioner-user\",\"meeting-planner\"]",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "lightweight.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "dk:medcom:video:role",
+            "jsonType.label": "JSON",
+            "access.tokenResponse.claim": "false"
+          }
+        }
+      ],
+      "defaultClientScopes": [
+        "clientscope"
+      ],
+      "optionalClientScopes": []
+    }
+  ],
+  "clientScopes": [
+    {
+      "name": "clientscope",
+      "description": "",
+      "protocol": "openid-connect",
+      "attributes": {
+        "include.in.token.scope": "false",
+        "display.on.consent.screen": "false",
+        "gui.order": "",
+        "consent.screen.text": "asdf"
+      },
+      "protocolMappers": [
+        {
+          "name": "organisation:id",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "claim.value": "company 1",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "lightweight.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "dk:medcom:organisation_id",
+            "jsonType.label": "String",
+            "access.tokenResponse.claim": "false"
+          }
+        },
+        {
+          "name": "email:value",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-hardcoded-claim-mapper",
+          "consentRequired": false,
+          "config": {
+            "introspection.token.claim": "true",
+            "claim.value": "email@domain.com",
+            "userinfo.token.claim": "true",
+            "id.token.claim": "true",
+            "lightweight.claim": "false",
+            "access.token.claim": "true",
+            "claim.name": "dk:medcom:email",
+            "jsonType.label": "String",
+            "access.tokenResponse.claim": "false"
+          }
+        }
+      ]
+    }
+  ],
+  "defaultDefaultClientScopes": [
+    "role_list",
+    "roles",
+    "web-origins",
+    "acr",
+    "basic",
+    "clientscope"
+  ],
+  "keycloakVersion": "26.0.0"
+}
