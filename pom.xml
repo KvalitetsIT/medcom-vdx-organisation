@@ -29,7 +29,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.7</version>
+		<version>3.5.8</version>
 	</parent>
 	<groupId>dk.medcom.vdx.organisation</groupId>
 	<artifactId>medcom-vdx-organisation</artifactId>
@@ -83,20 +83,20 @@
 			<dependency>
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-core</artifactId>
-				<version>11.17.1</version>
+				<version>11.20.2</version>
 			</dependency>
 
 			<dependency>
 				<groupId>org.flywaydb</groupId>
 				<artifactId>flyway-mysql</artifactId>
-				<version>11.17.1</version>
+				<version>11.20.2</version>
 			</dependency>
 
 			<!-- Logging -->
 			<dependency>
 				<groupId>net.logstash.logback</groupId>
 				<artifactId>logstash-logback-encoder</artifactId>
-				<version>8.1</version>
+				<version>9.0</version>
 			</dependency>
 
 			<!-- Actuator and prometheus -->
@@ -117,14 +117,14 @@
 			<dependency>
 				<groupId>org.openapitools</groupId>
 				<artifactId>jackson-databind-nullable</artifactId>
-				<version>0.2.8</version>
+				<version>0.2.9</version>
 			</dependency>
 
 			<!-- Swagger annotations -->
 			<dependency>
 				<groupId>io.swagger.core.v3</groupId>
 				<artifactId>swagger-annotations</artifactId>
-				<version>2.2.40</version>
+				<version>2.2.42</version>
 			</dependency>
 
 			<dependency>
@@ -134,6 +134,18 @@
 			</dependency>
 
 			<!-- Test dependencies - test containers -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers</artifactId>
+                <version>2.0.3</version>
+            </dependency>
+
+            <dependency>
+                <groupId>commons-io</groupId>
+                <artifactId>commons-io</artifactId>
+                <version>2.21.0</version>
+            </dependency>
+
 			<dependency>
 				<groupId>org.testcontainers</groupId>
 				<artifactId>testcontainers-mockserver</artifactId>
@@ -183,7 +195,7 @@
 			<dependency>
 				<groupId>com.squareup.okhttp3</groupId>
 				<artifactId>okhttp</artifactId>
-				<version>4.12.0</version>
+				<version>5.3.2</version>
 				<scope>test</scope>
 			</dependency>
 
