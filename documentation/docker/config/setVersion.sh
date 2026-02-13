@@ -19,7 +19,7 @@ if (echo "$GIT_BRANCH" | grep -Eq ^v[0-9]*\\.[0-9]*\\.[0-9]*$); then
 else
   echo "Is dev version"
 
-  url="${BASE_URL}/${GIT_BRANCH}.yaml"
+  url="${BASE_URL}/${GIT_BRANCH}-${DOC_VERSION}.yaml"
 
   cat /kit/env | jq --arg u $url '. += [{"name": "Dev", "url": $u }] | sort_by(.name)' > /kit/env.tmp
   updateFile /kit/env
@@ -30,14 +30,16 @@ echo "Creating file with version and path"
    IFS=$'\n'
    for version in $(cat kit/versions)
    do
-     url="${BASE_URL}/${version}.yaml"
+     if (echo "$version" | grep -Eq '^v2\.'); then
+       url="${BASE_URL}/${version}-${DOC_VERSION}.yaml"
+     else
+       url="${BASE_URL}/${version}.yaml"
+     fi
 
      cat /kit/env | jq --arg n $version --arg u $url '. += [{"name": $n, "url": $u}]' > /kit/env.tmp
      updateFile /kit/env
    done
 )
-
-
 
 echo "Updates version in doc file"
 for file in $DOC_FILES

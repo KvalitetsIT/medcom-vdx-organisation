@@ -10,7 +10,7 @@ else
     for i in $(echo $SERVER_URLS | jq -r '. | keys | .[]'); do
 
        yq w -i $file 'servers[+].url' $(echo $SERVER_URLS | jq -r ".[$i].url")
-       yq w -i $file "servers[$i].description" $(echo $SERVER_URLS | jq -r ".[$i].name")
+       yq w -i $file "servers[$i].description" "$(echo $SERVER_URLS | jq -r ".[$i].name")"
 
     done
 
