@@ -2,16 +2,16 @@ package dk.medcom.vdx.organisation.dao;
 
 import dk.medcom.vdx.organisation.configuration.TestConfiguration;
 import dk.medcom.vdx.organisation.configuration.DatabaseConfiguration;
-import org.junit.BeforeClass;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.transaction.annotation.Transactional;
-import org.testcontainers.containers.MariaDBContainer;
+import org.testcontainers.mariadb.MariaDBContainer;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+@ExtendWith(SpringExtension.class)
 @PropertySource("test.properties")
 @ContextConfiguration(
         classes = { TestConfiguration.class, DatabaseConfiguration.class},
@@ -20,7 +20,7 @@ import org.testcontainers.containers.MariaDBContainer;
 abstract public class AbstractDaoTest {
     private static Object initialized = null;
 
-    @BeforeClass
+    @BeforeAll
     public static void setupMariadbJdbcUrl() {
         if (initialized == null) {
             var username = "hellouser";

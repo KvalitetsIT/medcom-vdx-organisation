@@ -1,0 +1,778 @@
+openapi: 3.0.0
+info:
+  title: VDX Organisation
+  description: API description for VDX Organisation.
+  version: "0.0.4"
+  contact:
+    email: development@kvalitetitsit.dk
+tags:
+  - name: Organisation V2
+    description: Read, search, create, and update operations for Organisations
+  - name: Organisation Tree V2
+    description: Search operations for the hierarchy of Organisations
+
+servers:
+  - url: '{protocol}://{environment}:{port}'
+    variables:
+      protocol:
+        enum:
+          - http
+          - https
+        default: http
+      environment:
+        enum:
+          - localhost # Docker-compose setup
+        default: localhost # Development
+      port:
+        enum:
+          - "8080"
+        default: "8080"
+paths:
+  /services/v2/organisation-tree-for-api-key:
+    post:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation Tree V2
+      summary: Get organisation tree for a given api key
+      description: >-
+        Get organisation tree for a given api key <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/organisation-tree-for-api-key'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisationtree'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+
+  /services/v2/organisation:
+    get:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation V2
+      summary: Read organisation
+      description: >-
+        Read a single organisation <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
+      parameters:
+        - name: organisationCode
+          in: query
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation-response'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+
+    post:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation V2
+      summary: Create organisation
+      description: >-
+        Create a single organisation in a parent organisation. <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
+      parameters:
+        - name: parent_code
+          in: query
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+      requestBody:
+        description: Organisation to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/organisation-create'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation-response'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+
+  /services/v2/organisation/{code}:
+    get:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation V2
+      summary: Read organisation
+      description: >-
+        Read a single organisation <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation-response'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+    put:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation V2
+      summary: Update organisation
+      description: >-
+        Update an organisation. <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+      requestBody:
+        description: Updated organisation
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/organisation-update'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation-response'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '500':
+          $ref: '#/components/responses/500'
+
+  /services/v2/organisation/{parent_code}:
+    post:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation V2
+      summary: Create organisation
+      description: >-
+        Create a single organisation in a parent organisation. <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
+      parameters:
+        - name: parent_code
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+      requestBody:
+        description: Organisation to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/organisation-create'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation-response'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+
+  /services/v2/organisation/uri:
+    post:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation V2
+      summary: Get organisations by URIs
+      description: >-
+        Get organisations identified by a meeting uri with domain <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
+      requestBody:
+        description: List of URI to find matching organisation for
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/organisation-uri-request'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation-uri'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+
+  /services/v2/organisationtree:
+    get:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation Tree V2
+      summary: Get a specific part of the organisation tree
+      description: >-
+        Get a specific organisation tree (rooted at the specified code) <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
+      parameters:
+        - name: organisationCode
+          in: query
+          required: false
+          description: Organisation code to search for. Mutually exclusive with groupId.
+          schema:
+            type: string
+          example: 'organisation_a'
+        - name: groupId
+          in: query
+          required: false
+          description: Group id to search for. Mutually exclusive with organisationCode.
+          schema:
+            type: integer
+            format: int32
+          example: 14
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisationtree'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+
+  /services/v2/organisationtree-children:
+    get:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation Tree V2
+      summary: Get organisation and all it's children.
+      description: >-
+        Get organisation and all it's children. <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
+      parameters:
+        - name: organisationCode
+          in: query
+          required: false
+          description: Organisation code to search for. Mutually exclusive with groupId.
+          schema:
+            type: string
+          example: 'organisation_a'
+        - name: groupId
+          in: query
+          required: false
+          description: Group id to search for. Mutually exclusive with organisationCode.
+          schema:
+            type: integer
+            format: int32
+          example: 14
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisationtree'
+        '400':
+          $ref: '#/components/responses/400'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+
+  /services/v2/organisationtree/{code}:
+    get:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation Tree V2
+      summary: Get a specific part of the organisation tree
+      description: >-
+        Get a specific organisation tree (rooted at the specified code) <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisationtree'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+
+components:
+  securitySchemes:
+    userContext:
+      type: apiKey
+      in: header
+      name: X-SESSIONDATA
+
+    keycloakOIDC:
+      type: oauth2
+      description: >-
+        OIDC security implemented by Keycloak. The token should contain a user role claim with at least one of the following values: <br>
+        * meeting-admin <br>
+        * meeting-user <br>
+        * meeting-planner <br>
+        * meeting-provisioner <br>
+        * meeting-provisioner-user <br> <br>
+        It is specified in the description of the endpoint which values grants access.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://<keycloak-url>/realms/<realm>/protocol/openid-connect/auth
+          tokenUrl: https://<keycloak-url>/realms/<realm>/protocol/openid-connect/token
+          scopes: { }
+        clientCredentials:
+          tokenUrl: https://<keycloak-url>/realms/<realm>/protocol/openid-connect/token
+          scopes: { }
+
+  responses:
+    '400':
+      description: "Bad Request. This could be because: <br> * One of the required parameters/properties are missing or is empty <br> * Length of input is exceeding maximum length <br> * Both organisationCode and groupId are either both missing or set in query"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/basic-error'
+    '401':
+      description: "Unauthorized. This could be because: <br> * The calling system has not been properly authenticated."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/basic-error'
+    '403':
+      description: "Forbidden. This could be because: <br> * The requested information does not belong the organisation of the user <br> * The calling user does not have the required roles"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/basic-error'
+    '404':
+      description: "Not Found. This could be because: <br> * The organisation requested has been deleted or has never existed"
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/basic-error'
+    '500':
+      description: "Internal server error. This could be because: <br> * Something went wrong when creating organisation in database."
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/basic-error'
+
+  schemas:
+    organisation-uri-request:
+      type: array
+      items:
+        type: string
+        example: '1234@rooms.vconf.dk'
+
+    organisation-uri:
+      type: array
+      items:
+        type: object
+        properties:
+          code:
+            description: The code that uniquely identifies an organisation
+            type: string
+            maxLength: 250
+            example: organisation_a
+          name:
+            description: The name of the organisation
+            type: string
+            maxLength: 100
+            example: Organisation with the full name A
+          groupId:
+            description: The ID of the group this organisation is part of
+            type: integer
+            format: int64
+            example: 23
+          uri:
+            description: URI for whits result
+            type: string
+            example: '1234@rooms.vconf.dk'
+          booked:
+            description: Is this meeting booked
+            type: boolean
+            example: true
+          groupName:
+            description: Group Name
+            type: string
+            maxLength: 250
+
+    organisation:
+      type: object
+      required:
+        - code
+        - name
+        - poolSize
+      properties:
+        code:
+          description: The code that uniquely identifies an organisation
+          type: string
+          maxLength: 250
+          example: organisation_a
+        name:
+          description: The name of the organisation
+          type: string
+          maxLength: 100
+          example: Organisation with the full name A
+        poolSize:
+          description: The meeting room pool size for the organisation
+          type: integer
+          format: int32
+          example: 200
+        smsSenderName:
+          type: string
+          maxLength: 11
+          example: Min Organisation
+        smsCallbackUrl:
+          type: string
+          maxLength: 100
+          example: http://callback.api/%reference%?status=%status%
+          description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
+
+    organisation-create-basic:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          description: The code that uniquely identifies an organisation
+          type: string
+          maxLength: 250
+          example: organisation_a
+        name:
+          description: The name of the organisation
+          type: string
+          maxLength: 100
+          example: Organisation with the full name A
+
+    organisation-create:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          description: The code that uniquely identifies an organisation
+          type: string
+          maxLength: 250
+          example: organisation_a
+        name:
+          description: The name of the organisation
+          type: string
+          maxLength: 100
+          example: Organisation with the full name A
+        poolSize:
+          description: The meeting room pool size for the organisation.
+          type: integer
+          format: int32
+          example: 200
+        smsSenderName:
+          type: string
+          maxLength: 11
+          example: Min Organisation
+        allowCustomUriWithoutDomain:
+          description: Whether or not it is allowed to have custom uri without domain in organisation. Defaults to false.
+          type: boolean
+          example: true
+          default: false
+        smsCallbackUrl:
+          type: string
+          maxLength: 100
+          example: http://callback.api/%reference%?status=%status%
+          description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
+        historyApiKey:
+          type: string
+          maxLength: 36
+          description: Api key for calls to history service
+        deviceWebhookEndpoint:
+          type: string
+          maxLength: 100
+          example: http://webhook.endpoint/here
+          description: Endpoint of device webhook
+        deviceWebhookEndpointKey:
+          type: string
+          maxLength: 100
+          example: this-is-a-key
+          description: Endpoint key of device webhook for header
+
+    organisation-update:
+      type: object
+      properties:
+        poolSize:
+          description: The meeting room pool size for the organisation.
+          type: integer
+          format: int32
+          example: 200
+        smsSenderName:
+          type: string
+          maxLength: 11
+          example: Min Organisation
+        allowCustomUriWithoutDomain:
+          description: Whether or not it is allowed to have custom uri without domain in organisation. Defaults to false.
+          type: boolean
+          example: true
+          default: false
+        smsCallbackUrl:
+          type: string
+          maxLength: 100
+          example: http://callback.api/%reference%?status=%status%
+          description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
+        historyApiKey:
+          type: string
+          maxLength: 36
+          description: Api key for calls to history service
+        deviceWebhookEndpoint:
+          type: string
+          maxLength: 100
+          example: http://webhook.endpoint/here
+          description: Endpoint of device webhook
+        deviceWebhookEndpointKey:
+          type: string
+          maxLength: 100
+          example: this-is-a-key
+          description: Endpoint key of device webhook for header
+
+    organisation-response:
+      type: object
+      required:
+        - groupId
+        - code
+        - poolSize
+      properties:
+        groupId:
+          type: integer
+          format: int32
+          description: Group id
+          example: 4
+        code:
+          description: The code that uniquely identifies an organisation
+          type: string
+          maxLength: 250
+          example: organisation_a
+        name:
+          description: The name of the organisation
+          type: string
+          maxLength: 100
+          example: Organisation with the full name A
+        poolSize:
+          description: The meeting room pool size for the organisation
+          type: integer
+          format: int32
+          example: 200
+        smsSenderName:
+          type: string
+          maxLength: 11
+          example: Min Organisation
+        allowCustomUriWithoutDomain:
+          description: Whether or not it is allowed to have custom uri without domain in organisation.
+          type: boolean
+          example: true
+        smsCallbackUrl:
+          type: string
+          maxLength: 100
+          example: http://callback.api/%reference%?status=%status%
+          description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
+        historyApiKey:
+          type: string
+          maxLength: 36
+          description: Api key for calls to history service
+        deviceWebhookEndpoint:
+          type: string
+          maxLength: 100
+          example: http://webhook.endpoint/here
+          description: Endpoint of device webhook
+        deviceWebhookEndpointKey:
+          type: string
+          maxLength: 100
+          example: this-is-a-key
+          description: Endpoint key of device webhook for header
+
+    organisationtree:
+      type: object
+      required:
+        - code
+        - name
+        - poolSize
+        - children
+      properties:
+        code:
+          description: The code that uniquely identifies an organisation
+          type: string
+          maxLength: 250
+          example: organisation_a
+        name:
+          description: The name of the organisation
+          type: string
+          maxLength: 100
+          example: Organisation with the full name A
+        poolSize:
+          description: The meeting room pool size for the organisation
+          type: integer
+          format: int32
+          example: 200
+        children:
+          description: The suborganisations of this organisation
+          type: array
+          items:
+            $ref: '#/components/schemas/organisationtree'
+        smsSenderName:
+          type: string
+          maxLength: 11
+          example: Min Organisation
+        smsCallbackUrl:
+          type: string
+          maxLength: 100
+          example: http://callback.api/%reference%?status=%status%
+          description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
+        groupId:
+          type: integer
+          format: int32
+          description: Group id
+          example: 4
+        deviceWebhookEndpoint:
+          type: string
+          maxLength: 100
+          example: http://webhook.endpoint/here
+          description: Endpoint of device webhook
+        deviceWebhookEndpointKey:
+          type: string
+          maxLength: 100
+          example: this-is-a-key
+          description: Endpoint key of device webhook for header
+
+    organisation-tree-for-api-key:
+      type: object
+      required:
+        - api_key
+        - api_key_type
+      properties:
+        api_key:
+          type: string
+          description: API key
+          minLength: 1
+        api_key_type:
+          type: string
+          description: Type of API key.
+
+    basic-error:
+      type: object
+      required:
+        - error
+        - path
+        - status
+        - status_text
+        - timestamp
+      properties:
+        error:
+          description: Error message.
+          type: string
+        path:
+          description: Path
+          type: string
+        status:
+          description: HTTP status code
+          type: integer
+        status_text:
+          description: HTTP status text
+          type: string
+        timestamp:
+          description: Time of error
+          type: string
+          format: date-time

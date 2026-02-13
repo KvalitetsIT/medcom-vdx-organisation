@@ -25,11 +25,13 @@ servers:
         default: localhost # Development
       port:
         enum:
-          - 8080
-        default: 8080
+          - "8080"
+        default: "8080"
 paths:
   /services/v1/organisation-tree-for-api-key:
     post:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation Tree
       summary: Get organisation tree for a given api key
@@ -54,6 +56,8 @@ paths:
 
   /services/organisation:
     get:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation
       summary: Read organisation
@@ -75,10 +79,12 @@ paths:
                 $ref: '#/components/schemas/organisation'
 
     post:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation
       summary: Create organisation
-      description: Create a single organisation with the option to create it in a parent organisation.
+      description: Create a single organisation in a parent organisation.
       parameters:
         - name: parent_code
           in: query
@@ -92,7 +98,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/organisation-create'
+              $ref: '#/components/schemas/organisation-create-basic'
       responses:
         '200':
           description: Ok
@@ -107,6 +113,8 @@ paths:
 
   /services/organisation/{code}:
     get:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation
       summary: Read organisation
@@ -129,10 +137,12 @@ paths:
 
   /services/organisation/{parent_code}:
     post:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation
       summary: Create organisation
-      description: Create a single organisation with the option to create it in a parent organisation.
+      description: Create a single organisation in a parent organisation.
       parameters:
         - name: parent_code
           in: path
@@ -146,7 +156,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/organisation-create'
+              $ref: '#/components/schemas/organisation-create-basic'
       responses:
         '200':
           description: Ok
@@ -161,6 +171,8 @@ paths:
 
   /services/organisation/uri:
     post:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation
       summary: Get organisations by URIs
@@ -186,6 +198,8 @@ paths:
 
   /services/organisationtree:
     get:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation Tree
       summary: Get a specific part of the organisation tree
@@ -216,6 +230,8 @@ paths:
 
   /services/v1/organisationtree-children:
     get:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation Tree
       summary: Get organisation and all it's children.
@@ -246,6 +262,8 @@ paths:
 
   /services/organisationtree/{code}:
     get:
+      security:
+        - userContext: [ ]
       tags:
         - Organisation Tree
       summary: Get a specific part of the organisation tree
@@ -266,9 +284,34 @@ paths:
                 $ref: '#/components/schemas/organisationtree'
 
 components:
+  securitySchemes:
+    userContext:
+      type: apiKey
+      in: header
+      name: X-SESSIONDATA
+
+    keycloakOIDC:
+      type: oauth2
+      description: >-
+        OIDC security implemented by Keycloak. The token should contain a user role claim with at least one of the following values: <br>
+        * meeting-admin <br>
+        * meeting-user <br>
+        * meeting-planner <br>
+        * meeting-provisioner <br>
+        * meeting-provisioner-user <br> <br>
+        It is specified in the description of the endpoint which values grants access.
+      flows:
+        authorizationCode:
+          authorizationUrl: https://<keycloak-url>/realms/<realm>/protocol/openid-connect/auth
+          tokenUrl: https://<keycloak-url>/realms/<realm>/protocol/openid-connect/token
+          scopes: { }
+        clientCredentials:
+          tokenUrl: https://<keycloak-url>/realms/<realm>/protocol/openid-connect/token
+          scopes: { }
+
   responses:
     '400':
-      description: "Bad Request. This could be because: * One of the required parameters/properties are missing or is empty <br> * Length of input is exceeding maximum length <br> (See a possible detailed error message in the in the response.)"
+      description: "Bad Request. This could be because: <br> * One of the required parameters/properties are missing or is empty <br> * Length of input is exceeding maximum length <br> * Both organisationCode and groupId are either both missing or set in query"
       content:
         application/json:
           schema:
@@ -291,8 +334,8 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/basic-error'
-    '409':
-      description: "Conflict. This could be because: <br> * A uniqueness constraint on organisation code is being violated"
+    '500':
+      description: "Internal server error. This could be because: <br> * Something went wrong when creating organisation in database."
       content:
         application/json:
           schema:
@@ -345,11 +388,6 @@ components:
         - name
         - poolSize
       properties:
-#        parentCode:
-#          description: The code that uniquely identifies the parent organisation
-#          type: string
-#          maxLength: 100
-#          example: level_one_org
         code:
           description: The code that uniquely identifies an organisation
           type: string
@@ -375,6 +413,22 @@ components:
           example: http://callback.api/%reference%?status=%status%
           description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
 
+    organisation-create-basic:
+      type: object
+      required:
+        - code
+      properties:
+        code:
+          description: The code that uniquely identifies an organisation
+          type: string
+          maxLength: 250
+          example: organisation_a
+        name:
+          description: The name of the organisation
+          type: string
+          maxLength: 100
+          example: Organisation with the full name A
+
     organisation-create:
       type: object
       required:
@@ -390,6 +444,131 @@ components:
           type: string
           maxLength: 100
           example: Organisation with the full name A
+        poolSize:
+          description: The meeting room pool size for the organisation.
+          type: integer
+          format: int32
+          example: 200
+        smsSenderName:
+          type: string
+          maxLength: 11
+          example: Min Organisation
+        allowCustomUriWithoutDomain:
+          description: Whether or not it is allowed to have custom uri without domain in organisation. Defaults to false.
+          type: boolean
+          example: true
+          default: false
+        smsCallbackUrl:
+          type: string
+          maxLength: 100
+          example: http://callback.api/%reference%?status=%status%
+          description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
+        historyApiKey:
+          type: string
+          maxLength: 36
+          description: Api key for calls to history service
+        deviceWebhookEndpoint:
+          type: string
+          maxLength: 100
+          example: http://webhook.endpoint/here
+          description: Endpoint of device webhook
+        deviceWebhookEndpointKey:
+          type: string
+          maxLength: 100
+          example: this-is-a-key
+          description: Endpoint key of device webhook for header
+
+    organisation-update:
+      type: object
+      properties:
+        poolSize:
+          description: The meeting room pool size for the organisation.
+          type: integer
+          format: int32
+          example: 200
+        smsSenderName:
+          type: string
+          maxLength: 11
+          example: Min Organisation
+        allowCustomUriWithoutDomain:
+          description: Whether or not it is allowed to have custom uri without domain in organisation. Defaults to false.
+          type: boolean
+          example: true
+          default: false
+        smsCallbackUrl:
+          type: string
+          maxLength: 100
+          example: http://callback.api/%reference%?status=%status%
+          description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
+        historyApiKey:
+          type: string
+          maxLength: 36
+          description: Api key for calls to history service
+        deviceWebhookEndpoint:
+          type: string
+          maxLength: 100
+          example: http://webhook.endpoint/here
+          description: Endpoint of device webhook
+        deviceWebhookEndpointKey:
+          type: string
+          maxLength: 100
+          example: this-is-a-key
+          description: Endpoint key of device webhook for header
+
+    organisation-response:
+      type: object
+      required:
+        - groupId
+        - code
+        - poolSize
+      properties:
+        groupId:
+          type: integer
+          format: int32
+          description: Group id
+          example: 4
+        code:
+          description: The code that uniquely identifies an organisation
+          type: string
+          maxLength: 250
+          example: organisation_a
+        name:
+          description: The name of the organisation
+          type: string
+          maxLength: 100
+          example: Organisation with the full name A
+        poolSize:
+          description: The meeting room pool size for the organisation
+          type: integer
+          format: int32
+          example: 200
+        smsSenderName:
+          type: string
+          maxLength: 11
+          example: Min Organisation
+        allowCustomUriWithoutDomain:
+          description: Whether or not it is allowed to have custom uri without domain in organisation.
+          type: boolean
+          example: true
+        smsCallbackUrl:
+          type: string
+          maxLength: 100
+          example: http://callback.api/%reference%?status=%status%
+          description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
+        historyApiKey:
+          type: string
+          maxLength: 36
+          description: Api key for calls to history service
+        deviceWebhookEndpoint:
+          type: string
+          maxLength: 100
+          example: http://webhook.endpoint/here
+          description: Endpoint of device webhook
+        deviceWebhookEndpointKey:
+          type: string
+          maxLength: 100
+          example: this-is-a-key
+          description: Endpoint key of device webhook for header
 
     organisationtree:
       type: object
