@@ -7,4 +7,4 @@ if [ -z $TAG_NAME ]; then
   exit 1
 fi
 
-docker push $TAG_NAME
+docker push --platform linux/amd64 $TAG_NAME
