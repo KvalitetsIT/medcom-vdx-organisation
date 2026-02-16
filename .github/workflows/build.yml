@@ -52,6 +52,11 @@ jobs:
     - name: Tag service dev docker image
       run: ./build/docker-tag.sh ${{ env.DOCKER_SERVICE }}:latest ${{ env.DOCKER_SERVICE }}:dev
 
+    - name: Print
+      run:  |
+        docker image inspect kvalitetsit/medcom-vdx-organisation:dev
+        uname -a
+
     - name: Push service dev docker image
       run: ./build/docker-push.sh ${{ env.DOCKER_SERVICE }}:dev
 
