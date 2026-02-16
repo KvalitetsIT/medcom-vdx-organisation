@@ -50,7 +50,7 @@ jobs:
       run: ./build/build.sh
 
     - name: Tag service dev docker image
-      run: ./build/docker-tag.sh ${{ env.DOCKER_SERVICE }}:latest ${{ env.DOCKER_SERVICE }}:dev
+      run: ./build/docker-tag.sh ${{ env.DOCKER_SERVICE }}:latest ${{ env.DOCKER_SERVICE }}-test:dev
 
     - name: Print
       run:  |
