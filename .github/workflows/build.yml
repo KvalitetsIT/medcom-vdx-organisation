@@ -50,15 +50,10 @@ jobs:
       run: ./build/build.sh
 
     - name: Tag service dev docker image
-      run: ./build/docker-tag.sh ${{ env.DOCKER_SERVICE }}:latest ${{ env.DOCKER_SERVICE }}-test:dev
-
-    - name: Print
-      run:  |
-        docker image inspect kvalitetsit/medcom-vdx-organisation-test:dev
-        uname -a
+      run: ./build/docker-tag.sh ${{ env.DOCKER_SERVICE }}:latest ${{ env.DOCKER_SERVICE }}:dev
 
     - name: Push service dev docker image
-      run: ./build/docker-push.sh ${{ env.DOCKER_SERVICE }}-test:dev
+      run: ./build/docker-push.sh ${{ env.DOCKER_SERVICE }}:dev
 
     - name: Tag service git id docker image
       run: ./build/docker-tag.sh ${{ env.DOCKER_SERVICE }}:latest ${{ env.DOCKER_SERVICE }}:${{ github.sha }}
