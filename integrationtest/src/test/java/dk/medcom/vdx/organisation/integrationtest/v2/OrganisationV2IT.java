@@ -2,7 +2,6 @@ package dk.medcom.vdx.organisation.integrationtest.v2;
 
 import dk.medcom.vdx.organisation.integrationtest.AbstractIntegrationTest;
 import dk.medcom.vdx.organisation.integrationtest.v2.helper.HeaderBuilder;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
@@ -25,37 +24,37 @@ class OrganisationV2IT extends AbstractIntegrationTest {
     private final String testOrg = "test-org";
     private final String company1 = "company 1";
     
-    private OrganisationV2Api organisationV2Api;
-    private OrganisationV2Api organisationV2ApiNoHeader;
-    private OrganisationV2Api organisationV2ApiInvalidJwt;
-    private OrganisationV2Api organisationV2ApiNoRoleAtt;
-    private OrganisationV2Api organisationV2ApiNotAdmin;
-    
-    @BeforeEach
-    void setup() {
+    private final OrganisationV2Api organisationV2Api;
+    private final OrganisationV2Api organisationV2ApiNoHeader;
+    private final OrganisationV2Api organisationV2ApiNoRoleAtt;
+    private final OrganisationV2Api organisationV2ApiNotAdmin;
+    private final OrganisationV2Api organisationV2ApiExpiredJwt;
+    private final OrganisationV2Api organisationV2ApiInvalidIssuerJwt;
+    private final OrganisationV2Api organisationV2ApiTamperedJwt;
+    private final OrganisationV2Api organisationV2ApiMissingSignatureJwt;
+    private final OrganisationV2Api organisationV2ApiDifferentSignedJwt;
+
+    OrganisationV2IT() {
+        var keycloakUrl = getKeycloakUrl();
+
+        organisationV2Api = createClient(HeaderBuilder.getJwtAllRoleAtt(keycloakUrl));
+        organisationV2ApiNoHeader = createClient(null);
+        organisationV2ApiNoRoleAtt = createClient(HeaderBuilder.getJwtNoRoleAtt(keycloakUrl));
+        organisationV2ApiNotAdmin = createClient(HeaderBuilder.getJwtNotAdmin(keycloakUrl));
+        organisationV2ApiExpiredJwt = createClient(HeaderBuilder.getExpiredJwt(keycloakUrl));
+        organisationV2ApiInvalidIssuerJwt = createClient(HeaderBuilder.getInvalidIssuerJwt());
+        organisationV2ApiTamperedJwt = createClient(HeaderBuilder.getTamperedJwt(keycloakUrl));
+        organisationV2ApiMissingSignatureJwt = createClient(HeaderBuilder.getMissingSignatureJwt(keycloakUrl));
+        organisationV2ApiDifferentSignedJwt = createClient(HeaderBuilder.getDifferentSignedJwt(keycloakUrl));
+    }
+
+    private OrganisationV2Api createClient(String token) {
         var apiClient = new ApiClient();
         apiClient.setBasePath(getApiBasePath());
-        apiClient.addDefaultHeader("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl()));
-        organisationV2Api = new OrganisationV2Api(apiClient);
-        
-        var apiClientNoHeader = new ApiClient();
-        apiClientNoHeader.setBasePath(getApiBasePath());
-        organisationV2ApiNoHeader = new OrganisationV2Api(apiClientNoHeader);
-
-        var apiClientInvalidJwt = new ApiClient();
-        apiClientInvalidJwt.setBasePath(getApiBasePath());
-        apiClientInvalidJwt.addDefaultHeader("Authorization", "Bearer " + HeaderBuilder.getInvalidJwt());
-        organisationV2ApiInvalidJwt = new OrganisationV2Api(apiClientInvalidJwt);
-
-        var apiClientNoRoleAtt = new ApiClient();
-        apiClientNoRoleAtt.setBasePath(getApiBasePath());
-        apiClientNoRoleAtt.addDefaultHeader("Authorization", "Bearer " + HeaderBuilder.getJwtNoRoleAtt(getKeycloakUrl()));
-        organisationV2ApiNoRoleAtt = new OrganisationV2Api(apiClientNoRoleAtt);
-
-        var apiClientNotAdmin = new ApiClient();
-        apiClientNotAdmin.setBasePath(getApiBasePath());
-        apiClientNotAdmin.addDefaultHeader("Authorization", "Bearer " + HeaderBuilder.getJwtNotAdmin(getKeycloakUrl()));
-        organisationV2ApiNotAdmin = new OrganisationV2Api(apiClientNotAdmin);
+        if (token != null) {
+            apiClient.addDefaultHeader("Authorization", "Bearer " + token);
+        }
+        return new OrganisationV2Api(apiClient);
     }
 
 // ------ JWT errors -------
@@ -63,19 +62,6 @@ class OrganisationV2IT extends AbstractIntegrationTest {
     @Test
     void errorIfNoJwtToken_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
-                GET().
-                build();
-
-        var client = HttpClient.newHttpClient();
-        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(401, responseString.statusCode());
-    }
-
-    @Test
-    void errorIfInvalidJwtToken_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
-        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
-                header("Authorization", "Bearer " + HeaderBuilder.getInvalidJwt()).
                 GET().
                 build();
 
@@ -112,147 +98,308 @@ class OrganisationV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    void errorIfNoJwtToken_servicesV2OrganisationCodeGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoHeader.servicesV2OrganisationCodeGet(testOrg));
-        assertEquals(401, expectedException.getCode());
+    void errorIfExpiredJwtToken_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
+                header("Authorization", "Bearer " + HeaderBuilder.getExpiredJwt(getKeycloakUrl())).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(401, responseString.statusCode());
     }
 
     @Test
-    void errorIfInvalidJwtToken_servicesV2OrganisationCodeGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiInvalidJwt.servicesV2OrganisationCodeGet(testOrg));
-        assertEquals(401, expectedException.getCode());
+    void errorIfInvalidIssuerJwtToken_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
+                header("Authorization", "Bearer " + HeaderBuilder.getInvalidIssuerJwt()).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(401, responseString.statusCode());
+    }
+
+    @Test
+    void errorIfTamperedJwtToken_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
+                header("Authorization", "Bearer " + HeaderBuilder.getTamperedJwt(getKeycloakUrl())).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(401, responseString.statusCode());
+    }
+
+    @Test
+    void errorIfMissingSignatureJwtToken_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
+                header("Authorization", "Bearer " + HeaderBuilder.getMissingSignatureJwt(getKeycloakUrl())).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(401, responseString.statusCode());
+    }
+
+    @Test
+    void errorIfDifferentSignedJwtToken_getOrganisationSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
+                header("Authorization", "Bearer " + HeaderBuilder.getDifferentSignedJwt(getKeycloakUrl())).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(401, responseString.statusCode());
+    }
+
+    @Test
+    void errorIfNoJwtToken_servicesV2OrganisationCodeGet() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiNoHeader.servicesV2OrganisationCodeGet(testOrg));
     }
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationCodeGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationCodeGet(testOrg));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationCodeGet(testOrg));
     }
 
     @Test
     void errorIfNotAdmin_servicesV2OrganisationCodeGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNotAdmin.servicesV2OrganisationCodeGet(testOrg));
-        assertEquals(403, expectedException.getCode());
+        assertThrowsWithStatus(403, () -> organisationV2ApiNotAdmin.servicesV2OrganisationCodeGet(testOrg));
+    }
+
+    @Test
+    void errorIfExpiredJwtToken_servicesV2OrganisationCodeGet() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiExpiredJwt.servicesV2OrganisationCodeGet(testOrg));
+    }
+
+    @Test
+    void errorIfInvalidIssuerJwtToken_servicesV2OrganisationCodeGet() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiInvalidIssuerJwt.servicesV2OrganisationCodeGet(testOrg));
+    }
+
+    @Test
+    void errorIfTamperedJwtToken_servicesV2OrganisationCodeGet() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiTamperedJwt.servicesV2OrganisationCodeGet(testOrg));
+    }
+
+    @Test
+    void errorIfMissingSignatureJwtToken_servicesV2OrganisationCodeGet() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiMissingSignatureJwt.servicesV2OrganisationCodeGet(testOrg));
+    }
+
+    @Test
+    void errorIfDifferentSignedJwtToken_servicesV2OrganisationCodeGet() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiDifferentSignedJwt.servicesV2OrganisationCodeGet(testOrg));
     }
 
     @Test
     void errorIfNoJwtToken_servicesV2OrganisationCodePut() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoHeader.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
-        assertEquals(401, expectedException.getCode());
-    }
-
-    @Test
-    void errorIfInvalidJwtToken_servicesV2OrganisationCodePut() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiInvalidJwt.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationV2ApiNoHeader.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
     }
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationCodePut() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
     }
 
     @Test
     void errorIfNotAdmin_servicesV2OrganisationCodePut() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNotAdmin.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
-        assertEquals(403, expectedException.getCode());
+        assertThrowsWithStatus(403, () -> organisationV2ApiNotAdmin.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
+    }
+
+    @Test
+    void errorIfExpiredJwtToken_servicesV2OrganisationCodePut() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiExpiredJwt.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
+    }
+
+    @Test
+    void errorIfInvalidIssuerJwtToken_servicesV2OrganisationCodePut() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiInvalidIssuerJwt.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
+    }
+
+    @Test
+    void errorIfTamperedJwtToken_servicesV2OrganisationCodePut() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiTamperedJwt.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
+    }
+
+    @Test
+    void errorIfMissingSignatureJwtToken_servicesV2OrganisationCodePut() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiMissingSignatureJwt.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
+    }
+
+    @Test
+    void errorIfDifferentSignedJwtToken_servicesV2OrganisationCodePut() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiDifferentSignedJwt.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
     }
 
     @Test
     void errorIfNoJwtToken_servicesV2OrganisationGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoHeader.servicesV2OrganisationGet(testOrg));
-        assertEquals(401, expectedException.getCode());
-    }
-
-    @Test
-    void errorIfInvalidJwtToken_servicesV2OrganisationGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiInvalidJwt.servicesV2OrganisationGet(testOrg));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationV2ApiNoHeader.servicesV2OrganisationGet(testOrg));
     }
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationGet(testOrg));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationGet(testOrg));
     }
 
     @Test
     void errorIfNotAdmin_servicesV2OrganisationGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNotAdmin.servicesV2OrganisationGet(testOrg));
-        assertEquals(403, expectedException.getCode());
+        assertThrowsWithStatus(403, () -> organisationV2ApiNotAdmin.servicesV2OrganisationGet(testOrg));
+    }
+
+    @Test
+    void errorIfExpiredJwtToken_servicesV2OrganisationGet() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiExpiredJwt.servicesV2OrganisationGet(testOrg));
+    }
+
+    @Test
+    void errorIfInvalidIssuerJwtToken_servicesV2OrganisationGet() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiInvalidIssuerJwt.servicesV2OrganisationGet(testOrg));
+    }
+
+    @Test
+    void errorIfTamperedJwtToken_servicesV2OrganisationGet() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiTamperedJwt.servicesV2OrganisationGet(testOrg));
+    }
+
+    @Test
+    void errorIfMissingSignatureJwtToken_servicesV2OrganisationGet() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiMissingSignatureJwt.servicesV2OrganisationGet(testOrg));
+    }
+
+    @Test
+    void errorIfDifferentSignedJwtToken_servicesV2OrganisationGet() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiDifferentSignedJwt.servicesV2OrganisationGet(testOrg));
     }
 
     @Test
     void errorIfNoJwtToken_servicesV2OrganisationParentCodePost() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoHeader.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
-        assertEquals(401, expectedException.getCode());
-    }
-
-    @Test
-    void errorIfInvalidJwtToken_servicesV2OrganisationParentCodePost() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiInvalidJwt.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationV2ApiNoHeader.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
     }
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationParentCodePost() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
     }
 
     @Test
     void errorIfNotAdmin_servicesV2OrganisationParentCodePost() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNotAdmin.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
-        assertEquals(403, expectedException.getCode());
+        assertThrowsWithStatus(403, () -> organisationV2ApiNotAdmin.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
+    }
+
+    @Test
+    void errorIfExpiredJwtToken_servicesV2OrganisationParentCodePost() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiExpiredJwt.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
+    }
+
+    @Test
+    void errorIfInvalidIssuerJwtToken_servicesV2OrganisationParentCodePost() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiInvalidIssuerJwt.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
+    }
+
+    @Test
+    void errorIfTamperedJwtToken_servicesV2OrganisationParentCodePost() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiTamperedJwt.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
+    }
+
+    @Test
+    void errorIfMissingSignatureJwtToken_servicesV2OrganisationParentCodePost() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiMissingSignatureJwt.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
+    }
+
+    @Test
+    void errorIfDifferentSignedJwtToken_servicesV2OrganisationParentCodePost() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiDifferentSignedJwt.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
     }
 
     @Test
     void errorIfNoJwtToken_servicesV2OrganisationPost() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoHeader.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
-        assertEquals(401, expectedException.getCode());
-    }
-
-    @Test
-    void errorIfInvalidJwtToken_servicesV2OrganisationPost() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiInvalidJwt.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationV2ApiNoHeader.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
     }
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationPost() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
     }
 
     @Test
     void errorIfNotAdmin_servicesV2OrganisationPost() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNotAdmin.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
-        assertEquals(403, expectedException.getCode());
+        assertThrowsWithStatus(403, () -> organisationV2ApiNotAdmin.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
+    }
+
+    @Test
+    void errorIfExpiredJwtToken_servicesV2OrganisationPost() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiExpiredJwt.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
+    }
+
+    @Test
+    void errorIfInvalidIssuerJwtToken_servicesV2OrganisationPost() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiInvalidIssuerJwt.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
+    }
+
+    @Test
+    void errorIfTamperedJwtToken_servicesV2OrganisationPost() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiTamperedJwt.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
+    }
+
+    @Test
+    void errorIfMissingSignatureJwtToken_servicesV2OrganisationPost() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiMissingSignatureJwt.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
+    }
+
+    @Test
+    void errorIfDifferentSignedJwtToken_servicesV2OrganisationPost() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiDifferentSignedJwt.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
     }
 
     @Test
     void errorIfNoJwtToken_servicesV2OrganisationUriPost() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoHeader.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
-        assertEquals(401, expectedException.getCode());
-    }
-
-    @Test
-    void errorIfInvalidJwtToken_servicesV2OrganisationUriPost() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiInvalidJwt.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationV2ApiNoHeader.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
     }
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationUriPost() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
     }
 
     @Test
     void errorIfNotAdmin_servicesV2OrganisationUriPost() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationV2ApiNotAdmin.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
-        assertEquals(403, expectedException.getCode());
+        assertThrowsWithStatus(403, () -> organisationV2ApiNotAdmin.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
+    }
+
+    @Test
+    void errorIfExpiredJwtToken_servicesV2OrganisationUriPost() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiExpiredJwt.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
+    }
+
+    @Test
+    void errorIfInvalidIssuerJwtToken_servicesV2OrganisationUriPost() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiInvalidIssuerJwt.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
+    }
+
+    @Test
+    void errorIfTamperedJwtToken_servicesV2OrganisationUriPost() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiTamperedJwt.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
+    }
+
+    @Test
+    void errorIfMissingSignatureJwtToken_servicesV2OrganisationUriPost() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiMissingSignatureJwt.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
+    }
+
+    @Test
+    void errorIfDifferentSignedJwtToken_servicesV2OrganisationUriPost() {
+        assertThrowsWithStatus(401, () -> organisationV2ApiDifferentSignedJwt.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
     }
 
 // -------- No JWT Errors -----------

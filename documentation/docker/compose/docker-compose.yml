@@ -75,7 +75,8 @@ services:
   documentation-and-test:
     image: kvalitetsit/medcom-vdx-organisation-documentation:latest
     environment:
-      - BASE_URL=/test
+      - BASE_URL_V1=/test/v1
+      - BASE_URL_V2=/test/v2
       - 'SERVER_URLS=[{"url": "http://localhost:8080", "name": "VDX Organisation API"}]'
       - OAUTH_USE_PKCE=true
       - AUTH_URL=http://localhost:9000/auth/realms/keycloaktest/protocol/openid-connect/auth

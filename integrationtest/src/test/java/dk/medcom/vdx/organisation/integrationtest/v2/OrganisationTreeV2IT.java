@@ -2,7 +2,6 @@ package dk.medcom.vdx.organisation.integrationtest.v2;
 
 import dk.medcom.vdx.organisation.integrationtest.AbstractIntegrationTest;
 import dk.medcom.vdx.organisation.integrationtest.v2.helper.HeaderBuilder;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openapitools.client.ApiClient;
 import org.openapitools.client.ApiException;
@@ -25,37 +24,37 @@ import static org.junit.jupiter.api.Assertions.*;
 class OrganisationTreeV2IT extends AbstractIntegrationTest {
     private final String childOrg = "child";
 
-    private OrganisationTreeV2Api organisationTreeV2Api;
-    private OrganisationTreeV2Api organisationTreeV2ApiNoHeader;
-    private OrganisationTreeV2Api organisationTreeV2ApiInvalidJwt;
-    private OrganisationTreeV2Api organisationTreeV2ApiNoRoleAtt;
-    private OrganisationTreeV2Api organisationTreeV2ApiNotAdmin;
+    private final OrganisationTreeV2Api organisationTreeV2Api;
+    private final OrganisationTreeV2Api organisationTreeV2ApiNoHeader;
+    private final OrganisationTreeV2Api organisationTreeV2ApiNoRoleAtt;
+    private final OrganisationTreeV2Api organisationTreeV2ApiNotAdmin;
+    private final OrganisationTreeV2Api organisationTreeV2ApiExpiredJwt;
+    private final OrganisationTreeV2Api organisationTreeV2ApiInvalidIssuerJwt;
+    private final OrganisationTreeV2Api organisationTreeV2ApiTamperedJwt;
+    private final OrganisationTreeV2Api organisationTreeV2ApiMissingSignatureJwt;
+    private final OrganisationTreeV2Api organisationTreeV2ApiDifferentSignedJwt;
 
-    @BeforeEach
-    void setup() {
+    OrganisationTreeV2IT() {
+        var keycloakUrl = getKeycloakUrl();
+
+        organisationTreeV2Api = createClient(HeaderBuilder.getJwtAllRoleAtt(keycloakUrl));
+        organisationTreeV2ApiNoHeader = createClient(null);
+        organisationTreeV2ApiNoRoleAtt = createClient(HeaderBuilder.getJwtNoRoleAtt(keycloakUrl));
+        organisationTreeV2ApiNotAdmin = createClient(HeaderBuilder.getJwtNotAdmin(keycloakUrl));
+        organisationTreeV2ApiExpiredJwt = createClient(HeaderBuilder.getExpiredJwt(keycloakUrl));
+        organisationTreeV2ApiInvalidIssuerJwt = createClient(HeaderBuilder.getInvalidIssuerJwt());
+        organisationTreeV2ApiTamperedJwt = createClient(HeaderBuilder.getTamperedJwt(keycloakUrl));
+        organisationTreeV2ApiMissingSignatureJwt = createClient(HeaderBuilder.getMissingSignatureJwt(keycloakUrl));
+        organisationTreeV2ApiDifferentSignedJwt = createClient(HeaderBuilder.getDifferentSignedJwt(keycloakUrl));
+    }
+
+    private OrganisationTreeV2Api createClient(String token) {
         var apiClient = new ApiClient();
         apiClient.setBasePath(getApiBasePath());
-        apiClient.addDefaultHeader("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl()));
-        organisationTreeV2Api = new OrganisationTreeV2Api(apiClient);
-
-        var apiClientNoHeader = new ApiClient();
-        apiClientNoHeader.setBasePath(getApiBasePath());
-        organisationTreeV2ApiNoHeader = new OrganisationTreeV2Api(apiClientNoHeader);
-
-        var apiClientInvalidJwt = new ApiClient();
-        apiClientInvalidJwt.setBasePath(getApiBasePath());
-        apiClientInvalidJwt.addDefaultHeader("Authorization", "Bearer " + HeaderBuilder.getInvalidJwt());
-        organisationTreeV2ApiInvalidJwt = new OrganisationTreeV2Api(apiClientInvalidJwt);
-
-        var apiClientNoRoleAtt = new ApiClient();
-        apiClientNoRoleAtt.setBasePath(getApiBasePath());
-        apiClientNoRoleAtt.addDefaultHeader("Authorization", "Bearer " + HeaderBuilder.getJwtNoRoleAtt(getKeycloakUrl()));
-        organisationTreeV2ApiNoRoleAtt = new OrganisationTreeV2Api(apiClientNoRoleAtt);
-
-        var apiClientNotAdmin = new ApiClient();
-        apiClientNotAdmin.setBasePath(getApiBasePath());
-        apiClientNotAdmin.addDefaultHeader("Authorization", "Bearer " + HeaderBuilder.getJwtNotAdmin(getKeycloakUrl()));
-        organisationTreeV2ApiNotAdmin = new OrganisationTreeV2Api(apiClientNotAdmin);
+        if (token != null) {
+            apiClient.addDefaultHeader("Authorization", "Bearer " + token);
+        }
+        return new OrganisationTreeV2Api(apiClient);
     }
 
 // ------ JWT errors -------
@@ -63,19 +62,6 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
     @Test
     void errorIfNoJwtToken_getOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisationtree/æ/åø")).
-                GET().
-                build();
-
-        var client = HttpClient.newHttpClient();
-        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
-
-        assertEquals(401, responseString.statusCode());
-    }
-
-    @Test
-    void errorIfInvalidJwtToken_getOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
-        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisationtree/æ/åø")).
-                header("Authorization", "Bearer " + HeaderBuilder.getInvalidJwt()).
                 GET().
                 build();
 
@@ -112,99 +98,228 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
     }
 
     @Test
-    void errorIfNoJwtToken_servicesV2OrganisationTreeForApiKeyPost() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNoHeader.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
-        assertEquals(401, expectedException.getCode());
+    void errorIfExpiredJwtToken_getOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisationtree/æ/åø")).
+                header("Authorization", "Bearer " + HeaderBuilder.getExpiredJwt(getKeycloakUrl())).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(401, responseString.statusCode());
     }
 
     @Test
-    void errorIfInvalidJwtToken_servicesV2OrganisationTreeForApiKeyPost() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiInvalidJwt.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
-        assertEquals(401, expectedException.getCode());
+    void errorIfInvalidIssuerJwtToken_getOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisationtree/æ/åø")).
+                header("Authorization", "Bearer " + HeaderBuilder.getInvalidIssuerJwt()).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(401, responseString.statusCode());
+    }
+
+    @Test
+    void errorIfTamperedJwtToken_getOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisationtree/æ/åø")).
+                header("Authorization", "Bearer " + HeaderBuilder.getTamperedJwt(getKeycloakUrl())).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(401, responseString.statusCode());
+    }
+
+    @Test
+    void errorIfMissingSignatureJwtToken_getOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisationtree/æ/åø")).
+                header("Authorization", "Bearer " + HeaderBuilder.getMissingSignatureJwt(getKeycloakUrl())).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(401, responseString.statusCode());
+    }
+
+    @Test
+    void errorIfDifferentSignedJwtToken_getOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisationtree/æ/åø")).
+                header("Authorization", "Bearer " + HeaderBuilder.getDifferentSignedJwt(getKeycloakUrl())).
+                GET().
+                build();
+
+        var client = HttpClient.newHttpClient();
+        var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+        assertEquals(401, responseString.statusCode());
+    }
+
+    @Test
+    void errorIfNoJwtToken_servicesV2OrganisationTreeForApiKeyPost() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiNoHeader.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
     }
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationTreeForApiKeyPost() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
     }
 
     @Test
     void errorIfNotAdmin_servicesV2OrganisationTreeForApiKeyPost() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNotAdmin.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
-        assertEquals(403, expectedException.getCode());
+        assertThrowsWithStatus(403, () -> organisationTreeV2ApiNotAdmin.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
+    }
+
+    @Test
+    void errorIfExpiredJwtToken_servicesV2OrganisationTreeForApiKeyPost() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiExpiredJwt.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
+    }
+
+    @Test
+    void errorIfInvalidIssuerJwtToken_servicesV2OrganisationTreeForApiKeyPost() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiInvalidIssuerJwt.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
+    }
+
+    @Test
+    void errorIfTamperedJwtToken_servicesV2OrganisationTreeForApiKeyPost() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiTamperedJwt.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
+    }
+
+    @Test
+    void errorIfMissingSignatureJwtToken_servicesV2OrganisationTreeForApiKeyPost() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiMissingSignatureJwt.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
+    }
+
+    @Test
+    void errorIfDifferentSignedJwtToken_servicesV2OrganisationTreeForApiKeyPost() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiDifferentSignedJwt.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
     }
 
     @Test
     void errorIfNoJwtToken_servicesV2OrganisationtreeChildrenGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNoHeader.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
-        assertEquals(401, expectedException.getCode());
-    }
-
-    @Test
-    void errorIfInvalidJwtToken_servicesV2OrganisationtreeChildrenGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiInvalidJwt.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiNoHeader.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
     }
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationtreeChildrenGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
     }
 
     @Test
     void errorIfNotAdmin_servicesV2OrganisationtreeChildrenGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNotAdmin.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
-        assertEquals(403, expectedException.getCode());
+        assertThrowsWithStatus(403, () -> organisationTreeV2ApiNotAdmin.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
+    }
+
+    @Test
+    void errorIfExpiredJwtToken_servicesV2OrganisationtreeChildrenGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiExpiredJwt.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
+    }
+
+    @Test
+    void errorIfInvalidIssuerJwtToken_servicesV2OrganisationtreeChildrenGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiInvalidIssuerJwt.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
+    }
+
+    @Test
+    void errorIfTamperedJwtToken_servicesV2OrganisationtreeChildrenGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiTamperedJwt.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
+    }
+
+    @Test
+    void errorIfMissingSignatureJwtToken_servicesV2OrganisationtreeChildrenGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiMissingSignatureJwt.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
+    }
+
+    @Test
+    void errorIfDifferentSignedJwtToken_servicesV2OrganisationtreeChildrenGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiDifferentSignedJwt.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
     }
 
     @Test
     void errorIfNoJwtToken_servicesV2OrganisationtreeCodeGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNoHeader.servicesV2OrganisationtreeCodeGet(childOrg));
-        assertEquals(401, expectedException.getCode());
-    }
-
-    @Test
-    void errorIfInvalidJwtToken_servicesV2OrganisationtreeCodeGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiInvalidJwt.servicesV2OrganisationtreeCodeGet(childOrg));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiNoHeader.servicesV2OrganisationtreeCodeGet(childOrg));
     }
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationtreeCodeGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationtreeCodeGet(childOrg));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationtreeCodeGet(childOrg));
     }
 
     @Test
     void errorIfNotAdmin_servicesV2OrganisationtreeCodeGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNotAdmin.servicesV2OrganisationtreeCodeGet(childOrg));
-        assertEquals(403, expectedException.getCode());
+        assertThrowsWithStatus(403, () -> organisationTreeV2ApiNotAdmin.servicesV2OrganisationtreeCodeGet(childOrg));
+    }
+
+    @Test
+    void errorIfExpiredJwtToken_servicesV2OrganisationtreeCodeGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiExpiredJwt.servicesV2OrganisationtreeCodeGet(childOrg));
+    }
+
+    @Test
+    void errorIfInvalidIssuerJwtToken_servicesV2OrganisationtreeCodeGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiInvalidIssuerJwt.servicesV2OrganisationtreeCodeGet(childOrg));
+    }
+
+    @Test
+    void errorIfTamperedJwtToken_servicesV2OrganisationtreeCodeGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiTamperedJwt.servicesV2OrganisationtreeCodeGet(childOrg));
+    }
+
+    @Test
+    void errorIfMissingSignatureJwtToken_servicesV2OrganisationtreeCodeGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiMissingSignatureJwt.servicesV2OrganisationtreeCodeGet(childOrg));
+    }
+
+    @Test
+    void errorIfDifferentSignedJwtToken_servicesV2OrganisationtreeCodeGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiDifferentSignedJwt.servicesV2OrganisationtreeCodeGet(childOrg));
     }
 
     @Test
     void errorIfNoJwtToken_servicesV2OrganisationtreeGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNoHeader.servicesV2OrganisationtreeGet(childOrg, 13));
-        assertEquals(401, expectedException.getCode());
-    }
-
-    @Test
-    void errorIfInvalidJwtToken_servicesV2OrganisationtreeGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiInvalidJwt.servicesV2OrganisationtreeGet(childOrg, 13));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiNoHeader.servicesV2OrganisationtreeGet(childOrg, 13));
     }
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationtreeGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationtreeGet(childOrg, 13));
-        assertEquals(401, expectedException.getCode());
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationtreeGet(childOrg, 13));
     }
 
     @Test
     void errorIfNotAdmin_servicesV2OrganisationtreeGet() {
-        var expectedException = assertThrows(ApiException.class, () -> organisationTreeV2ApiNotAdmin.servicesV2OrganisationtreeGet(childOrg, 13));
-        assertEquals(403, expectedException.getCode());
+        assertThrowsWithStatus(403, () -> organisationTreeV2ApiNotAdmin.servicesV2OrganisationtreeGet(childOrg, 13));
+    }
+
+    @Test
+    void errorIfExpiredJwtToken_servicesV2OrganisationtreeGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiExpiredJwt.servicesV2OrganisationtreeGet(childOrg, 13));
+    }
+
+    @Test
+    void errorIfInvalidIssuerJwtToken_servicesV2OrganisationtreeGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiInvalidIssuerJwt.servicesV2OrganisationtreeGet(childOrg, 13));
+    }
+
+    @Test
+    void errorIfTamperedJwtToken_servicesV2OrganisationtreeGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiTamperedJwt.servicesV2OrganisationtreeGet(childOrg, 13));
+    }
+
+    @Test
+    void errorIfMissingSignatureJwtToken_servicesV2OrganisationtreeGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiMissingSignatureJwt.servicesV2OrganisationtreeGet(childOrg, 13));
+    }
+
+    @Test
+    void errorIfDifferentSignedJwtToken_servicesV2OrganisationtreeGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiDifferentSignedJwt.servicesV2OrganisationtreeGet(childOrg, 13));
     }
 
 // ----------- No JWT errors -----------
