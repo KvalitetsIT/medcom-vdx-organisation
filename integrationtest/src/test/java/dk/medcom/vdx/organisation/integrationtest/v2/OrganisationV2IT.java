@@ -515,7 +515,36 @@ class OrganisationV2IT extends AbstractIntegrationTest {
 // --------- CORS ----------
 
     @Test
-    void testCorsAllowed() throws IOException, InterruptedException {
+    void testCorsAllowedServicesV2OrganisationGet() throws IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(URI.create(String.format("%s/services/v2/organisation", getApiBasePath())))
+                .method("OPTIONS", HttpRequest.BodyPublishers.noBody())
+                .header("Origin", "http://allowed:4100")
+                .header("Access-Control-Request-Method", "GET")
+                .build();
+
+        var client = HttpClient.newBuilder().build();
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        var headers = response.headers().map();
+        assertTrue(headers.get("Access-Control-Allow-Methods").contains("GET"));
+        assertTrue(headers.get("Access-Control-Allow-Origin").contains("http://allowed:4100"));
+        assertEquals(200, response.statusCode());
+    }
+
+    @Test
+    void testCorsDeniedServicesV2OrganisationGet() throws IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(URI.create(String.format("%s/services/v2/organisation", getApiBasePath())))
+                .method("OPTIONS", HttpRequest.BodyPublishers.noBody())
+                .header("Origin", "http://denied:4200")
+                .header("Access-Control-Request-Method", "GET")
+                .build();
+
+        var client = HttpClient.newBuilder().build();
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(403, response.statusCode());
+    }
+
+    @Test
+    void testCorsAllowedServicesV2OrganisationPost() throws IOException, InterruptedException {
         var request = HttpRequest.newBuilder(URI.create(String.format("%s/services/v2/organisation", getApiBasePath())))
                 .method("OPTIONS", HttpRequest.BodyPublishers.noBody())
                 .header("Origin", "http://allowed:4100")
@@ -524,12 +553,131 @@ class OrganisationV2IT extends AbstractIntegrationTest {
 
         var client = HttpClient.newBuilder().build();
         var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        var headers = response.headers().map();
+        assertTrue(headers.get("Access-Control-Allow-Methods").contains("POST"));
+        assertTrue(headers.get("Access-Control-Allow-Origin").contains("http://allowed:4100"));
         assertEquals(200, response.statusCode());
     }
 
     @Test
-    void testCorsDenied() throws IOException, InterruptedException {
+    void testCorsDeniedServicesV2OrganisationPost() throws IOException, InterruptedException {
         var request = HttpRequest.newBuilder(URI.create(String.format("%s/services/v2/organisation", getApiBasePath())))
+                .method("OPTIONS", HttpRequest.BodyPublishers.noBody())
+                .header("Origin", "http://denied:4200")
+                .header("Access-Control-Request-Method", "POST")
+                .build();
+
+        var client = HttpClient.newBuilder().build();
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(403, response.statusCode());
+    }
+
+    @Test
+    void testCorsAllowedServicesV2OrganisationCodeGet() throws IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(URI.create(String.format("%s/services/v2/organisation/some-org", getApiBasePath())))
+                .method("OPTIONS", HttpRequest.BodyPublishers.noBody())
+                .header("Origin", "http://allowed:4100")
+                .header("Access-Control-Request-Method", "GET")
+                .build();
+
+        var client = HttpClient.newBuilder().build();
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        var headers = response.headers().map();
+        assertTrue(headers.get("Access-Control-Allow-Methods").contains("GET"));
+        assertTrue(headers.get("Access-Control-Allow-Origin").contains("http://allowed:4100"));
+        assertEquals(200, response.statusCode());
+    }
+
+    @Test
+    void testCorsDeniedServicesV2OrganisationCodeGet() throws IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(URI.create(String.format("%s/services/v2/organisation/some-org", getApiBasePath())))
+                .method("OPTIONS", HttpRequest.BodyPublishers.noBody())
+                .header("Origin", "http://denied:4200")
+                .header("Access-Control-Request-Method", "GET")
+                .build();
+
+        var client = HttpClient.newBuilder().build();
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(403, response.statusCode());
+    }
+
+    @Test
+    void testCorsAllowedServicesV2OrganisationCodePut() throws IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(URI.create(String.format("%s/services/v2/organisation/some-org", getApiBasePath())))
+                .method("OPTIONS", HttpRequest.BodyPublishers.noBody())
+                .header("Origin", "http://allowed:4100")
+                .header("Access-Control-Request-Method", "PUT")
+                .build();
+
+        var client = HttpClient.newBuilder().build();
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        var headers = response.headers().map();
+        assertTrue(headers.get("Access-Control-Allow-Methods").contains("PUT"));
+        assertTrue(headers.get("Access-Control-Allow-Origin").contains("http://allowed:4100"));
+        assertEquals(200, response.statusCode());
+    }
+
+    @Test
+    void testCorsDeniedServicesV2OrganisationCodePut() throws IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(URI.create(String.format("%s/services/v2/organisation/some-org", getApiBasePath())))
+                .method("OPTIONS", HttpRequest.BodyPublishers.noBody())
+                .header("Origin", "http://denied:4200")
+                .header("Access-Control-Request-Method", "PUT")
+                .build();
+
+        var client = HttpClient.newBuilder().build();
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(403, response.statusCode());
+    }
+
+    @Test
+    void testCorsAllowedServicesV2OrganisationParentCodePost() throws IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(URI.create(String.format("%s/services/v2/organisation/some-org", getApiBasePath())))
+                .method("OPTIONS", HttpRequest.BodyPublishers.noBody())
+                .header("Origin", "http://allowed:4100")
+                .header("Access-Control-Request-Method", "POST")
+                .build();
+
+        var client = HttpClient.newBuilder().build();
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        var headers = response.headers().map();
+        assertTrue(headers.get("Access-Control-Allow-Methods").contains("POST"));
+        assertTrue(headers.get("Access-Control-Allow-Origin").contains("http://allowed:4100"));
+        assertEquals(200, response.statusCode());
+    }
+
+    @Test
+    void testCorsDeniedServicesV2OrganisationParentCodePost() throws IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(URI.create(String.format("%s/services/v2/organisation/some-org", getApiBasePath())))
+                .method("OPTIONS", HttpRequest.BodyPublishers.noBody())
+                .header("Origin", "http://denied:4200")
+                .header("Access-Control-Request-Method", "POST")
+                .build();
+
+        var client = HttpClient.newBuilder().build();
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        assertEquals(403, response.statusCode());
+    }
+
+    @Test
+    void testCorsAllowedServicesV2OrganisationUriPost() throws IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(URI.create(String.format("%s/services/v2/organisation/uri", getApiBasePath())))
+                .method("OPTIONS", HttpRequest.BodyPublishers.noBody())
+                .header("Origin", "http://allowed:4100")
+                .header("Access-Control-Request-Method", "POST")
+                .build();
+
+        var client = HttpClient.newBuilder().build();
+        var response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        var headers = response.headers().map();
+        assertTrue(headers.get("Access-Control-Allow-Methods").contains("POST"));
+        assertTrue(headers.get("Access-Control-Allow-Origin").contains("http://allowed:4100"));
+        assertEquals(200, response.statusCode());
+    }
+
+    @Test
+    void testCorsDeniedServicesV2OrganisationUriPost() throws IOException, InterruptedException {
+        var request = HttpRequest.newBuilder(URI.create(String.format("%s/services/v2/organisation/uri", getApiBasePath())))
                 .method("OPTIONS", HttpRequest.BodyPublishers.noBody())
                 .header("Origin", "http://denied:4200")
                 .header("Access-Control-Request-Method", "POST")
