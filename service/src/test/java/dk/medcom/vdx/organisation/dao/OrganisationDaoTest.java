@@ -3,22 +3,22 @@ package dk.medcom.vdx.organisation.dao;
 
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.dao.impl.OrganisationDaoImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.sql.DataSource;
 
 import java.util.UUID;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OrganisationDaoTest extends AbstractDaoTest {
     @Autowired
     private DataSource dataSource;
     private OrganisationDaoImpl organisationDao;
 
-    @Before
+    @BeforeEach
     public void setup() {
         organisationDao = new OrganisationDaoImpl(dataSource);
     }
@@ -34,8 +34,10 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         assertEquals("child", result.getOrganisationId());
         assertEquals("child", result.getGroupName());
         assertNull(result.getSmsCallbackUrl());
+        assertFalse(result.isAllowCustomUriWithoutDomain());
         assertNull(result.getSmsSenderName());
         assertNull(result.getPoolSize());
+        assertEquals("8adeac18-f061-4992-818b-8d4461ccfaa7", result.getHistoryApiKey());
         assertNull(result.getDeviceWebhookEndpoint());
         assertNull(result.getDeviceWebhookEndpointKey());
     }
@@ -52,7 +54,9 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         assertEquals("parent", result.getOrganisationId());
         assertEquals("parent", result.getGroupName());
         assertEquals("sms-sender", result.getSmsSenderName());
+        assertFalse(result.isAllowCustomUriWithoutDomain());
         assertEquals("callback", result.getSmsCallbackUrl());
+        assertNull(result.getHistoryApiKey());
         assertEquals("device-webhook-endpoint", result.getDeviceWebhookEndpoint());
         assertEquals("device-webhook-endpoint-key", result.getDeviceWebhookEndpointKey());
     }
@@ -162,7 +166,79 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         assertEquals(input.getOrganisationName(), dbOrganisation.getOrganisationName());
         assertEquals(input.getPoolSize(), dbOrganisation.getPoolSize());
         assertEquals(input.getSmsSenderName(), dbOrganisation.getSmsSenderName());
+        assertFalse(dbOrganisation.isAllowCustomUriWithoutDomain());
         assertEquals(input.getSmsCallbackUrl(), dbOrganisation.getSmsCallbackUrl());
+        assertNull(input.getHistoryApiKey());
+        assertEquals(input.getDeviceWebhookEndpoint(), dbOrganisation.getDeviceWebhookEndpoint());
+        assertEquals(input.getDeviceWebhookEndpointKey(), dbOrganisation.getDeviceWebhookEndpointKey());
+    }
+
+    @Test
+    public void testInsertAndFind() {
+        var input = new Organisation();
+        input.setGroupId(13L);
+        input.setOrganisationId("org code");
+        input.setOrganisationName("org name");
+        input.setPoolSize(100);
+        input.setSmsSenderName("sms name");
+        input.setAllowCustomUriWithoutDomain(true);
+        input.setSmsCallbackUrl("sms callback");
+        input.setHistoryApiKey(randomString());
+        input.setDeviceWebhookEndpoint(randomString());
+        input.setDeviceWebhookEndpointKey(randomString());
+
+
+        var id = organisationDao.insert(input);
+        assertTrue(id > 0);
+
+        var dbOrganisation = organisationDao.findOrganisation(input.getOrganisationId());
+        assertNotNull(dbOrganisation);
+
+        assertEquals(input.getGroupId(), dbOrganisation.getGroupId());
+        assertEquals(input.getOrganisationId(), dbOrganisation.getOrganisationId());
+        assertEquals(input.getOrganisationName(), dbOrganisation.getOrganisationName());
+        assertEquals(input.getPoolSize(), dbOrganisation.getPoolSize());
+        assertEquals(input.getSmsSenderName(), dbOrganisation.getSmsSenderName());
+        assertEquals(input.isAllowCustomUriWithoutDomain(), dbOrganisation.isAllowCustomUriWithoutDomain());
+        assertEquals(input.getSmsCallbackUrl(), dbOrganisation.getSmsCallbackUrl());
+        assertEquals(input.getHistoryApiKey(), dbOrganisation.getHistoryApiKey());
+        assertEquals(input.getDeviceWebhookEndpoint(), dbOrganisation.getDeviceWebhookEndpoint());
+        assertEquals(input.getDeviceWebhookEndpointKey(), dbOrganisation.getDeviceWebhookEndpointKey());
+    }
+
+    @Test
+    public void testUpdate() {
+        var input = new Organisation();
+        input.setGroupId(123L);
+        input.setParentId(321L);
+        input.setOrganisationId("company 2");
+        input.setOrganisationName(randomString());
+        input.setPoolSize(99);
+        input.setSmsSenderName(randomString().substring(0, 10));
+        input.setAllowCustomUriWithoutDomain(true);
+        input.setSmsCallbackUrl(randomString());
+        input.setHistoryApiKey(randomString());
+        input.setDeviceWebhookEndpoint(randomString());
+        input.setDeviceWebhookEndpointKey(randomString());
+
+        var result = organisationDao.update(input);
+        assertTrue(result);
+
+        var dbOrganisation = organisationDao.findOrganisation(input.getOrganisationId());
+        assertNotNull(dbOrganisation);
+
+        // Should not be updated
+        assertEquals(2, dbOrganisation.getGroupId(), 0);
+        assertNull(dbOrganisation.getParentId());
+        assertEquals("company 2", dbOrganisation.getOrganisationId());
+        assertEquals("company name 2", dbOrganisation.getOrganisationName());
+
+        //Should be updated
+        assertEquals(input.getPoolSize(), dbOrganisation.getPoolSize());
+        assertEquals(input.getSmsSenderName(), dbOrganisation.getSmsSenderName());
+        assertEquals(input.isAllowCustomUriWithoutDomain(), dbOrganisation.isAllowCustomUriWithoutDomain());
+        assertEquals(input.getSmsCallbackUrl(), dbOrganisation.getSmsCallbackUrl());
+        assertEquals(input.getHistoryApiKey(), dbOrganisation.getHistoryApiKey());
         assertEquals(input.getDeviceWebhookEndpoint(), dbOrganisation.getDeviceWebhookEndpoint());
         assertEquals(input.getDeviceWebhookEndpointKey(), dbOrganisation.getDeviceWebhookEndpointKey());
     }
@@ -189,5 +265,9 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         var result = organisationDao.findOrganisationByHistoryApiKey("NOT FOUND");
 
         assertNull(result);
+    }
+
+    private String randomString() {
+        return UUID.randomUUID().toString();
     }
 }

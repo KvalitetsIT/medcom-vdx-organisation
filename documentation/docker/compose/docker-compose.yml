@@ -1,41 +1,85 @@
-version: '2.1'
 services:
-   mariadb:
-     image: mariadb:10.6
-     environment:
+  mariadb:
+    image: mariadb:10.6
+    environment:
       - MYSQL_ROOT_PASSWORD=rootroot
       - MYSQL_DATABASE=hellodb
       - MYSQL_USER=hellouser
       - MYSQL_PASSWORD=secret1234
-     healthcheck:
+    healthcheck:
       test: mysql --user=hellouser --password=secret1234 -e 'show databases;'
       interval: 2s
       timeout: 2s
       retries: 10
-   helloservice:
-     image: kvalitetsit/medcom-vdx-organisation:latest
-     environment:
-      - jdbc_url=jdbc:mariadb://mariadb:3306/hellodb
-      - jdbc_user=hellouser
-      - jdbc_pass=secret1234
-      - usercontext_header_name=X-Test-Auth
 
-      - userattributes_role_key=UserRoles
-      - userattributes_org_key=organisation
+  db-init:
+    image: mariadb:10.6
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      organisationservice:
+        condition: service_healthy
+    volumes:
+      - ./database/initial_org.sql:/init.sql
+    entrypoint: [ "/bin/bash", "-c", "mysql -h mariadb -u hellouser -psecret1234 hellodb < /init.sql" ]
 
-      - userrole_admin_values=adminrole
-      - userrole_user_values=userrole1,userrole2
-      - userrole_monitor_values=monitorrole
-      - userrole_provisioner_values=provisionerrole
-     depends_on:
+  keycloak:
+    image: quay.io/keycloak/keycloak:24.0.4
+    volumes:
+      - ./realms/keycloaktest-realm.json:/opt/keycloak/data/import/keycloaktest-realm.json
+    command: start-dev --http-relative-path /auth --import-realm --features=token-exchange,admin-fine-grained-authz
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=Test1234
+      - KEYCLOAK_LOGLEVEL=DEBUG
+      - KC_HTTP_PORT=9000
+      - KC_HOSTNAME=localhost
+    ports:
+      - 9000:9000
+
+  organisationservice:
+    image: kvalitetsit/medcom-vdx-organisation:latest
+    environment:
+      - LOG_LEVEL=DEBUG
+      - jdbc.url=jdbc:mariadb://mariadb:3306/hellodb
+      - jdbc.user=hellouser
+      - jdbc.pass=secret1234
+
+      - sessiondata_headername=x-sessiondata
+
+      - userservice_token_attribute_organisation=dk:medcom:organisation_id
+      - userservice_token_attribute_email=dk:medcom:email
+      - userservice_token_attribute_userrole=dk:medcom:video:role
+
+      - mapping_role_provisioner=meeting-provision
+      - mapping_role_user=meeting-user
+      - mapping_role_meeting_planner=meeting-planner
+      - mapping_role_admin=meeting-admin
+
+      - ALLOWED_ORIGINS=http://localhost
+
+      - spring.security.oauth2.resourceserver.jwt.issuer-uri=http://localhost:9000/auth/realms/keycloaktest
+      - spring.security.oauth2.resourceserver.jwt.jwk-set-uri=http://keycloak:9000/auth/realms/keycloaktest/protocol/openid-connect/certs
+    depends_on:
       mariadb:
        condition: service_healthy
-     ports: 
+    ports:
       - 8080:8080
-   documenatation-and-test:
-     image: kvalitetsit/medcom-vdx-organisation-documentation:latest
-     environment:
-      - BASE_URL=/test
-      - 'SERVER_URLS=[{"url": "http://localhost:8080", "name": "HelloService"}]'
-     ports:
+      - 8081:8081
+    healthcheck:
+      test: "curl --fail --silent localhost:8081/actuator/health | grep UP || exit 1"
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
+  documentation-and-test:
+    image: kvalitetsit/medcom-vdx-organisation-documentation:latest
+    environment:
+      - BASE_URL_V1=/test/v1
+      - BASE_URL_V2=/test/v2
+      - 'SERVER_URLS=[{"url": "http://localhost:8080", "name": "VDX Organisation API"}]'
+      - OAUTH_USE_PKCE=true
+      - AUTH_URL=http://localhost:9000/auth/realms/keycloaktest/protocol/openid-connect/auth
+      - TOKEN_URL=http://localhost:9000/auth/realms/keycloaktest/protocol/openid-connect/token
+    ports:
       - 80:8080

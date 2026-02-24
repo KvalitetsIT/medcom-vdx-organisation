@@ -1,12 +1,12 @@
-package dk.medcom.vdx.organisation.controller;
+package dk.medcom.vdx.organisation.controller.v1;
 
 import dk.medcom.vdx.organisation.controller.exception.BadRequestException;
 import dk.medcom.vdx.organisation.controller.exception.ResourceNotFoundException;
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.service.OrganisationTreeService;
 import dk.medcom.vdx.organisation.service.impl.OrganisationTreeBuilderImpl;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.openapitools.model.OrganisationTreeForApiKey;
 import org.springframework.http.HttpStatus;
@@ -14,14 +14,14 @@ import org.springframework.http.HttpStatus;
 import java.util.Arrays;
 import java.util.Optional;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class OrganisationTreeControllerTest {
 
     private OrganisationTreeController organisationTreeController;
     private OrganisationTreeService organisationTreeService;
 
-    @Before
+    @BeforeEach
     public void setup() {
         organisationTreeService = Mockito.mock(OrganisationTreeService.class);
         organisationTreeController = new OrganisationTreeController(organisationTreeService, new OrganisationTreeBuilderImpl());
@@ -174,18 +174,18 @@ public class OrganisationTreeControllerTest {
         assertTrue(treeChild.getChildren().isEmpty());
     }
 
-    @Test(expected = ResourceNotFoundException.class)
+    @Test
     public void testOrganisationNotFound() {
         var input = "not_found";
         Mockito.when(organisationTreeService.findOrganisations(input)).thenReturn(Optional.empty());
-        organisationTreeController.servicesOrganisationtreeCodeGet(input);
+        assertThrows(ResourceNotFoundException.class, () -> organisationTreeController.servicesOrganisationtreeCodeGet(input));
     }
 
-    @Test(expected = ResourceNotFoundException.class)
+    @Test
     public void testOrganisationByApiKeyNotFound() {
         var input = "not_found";
         Mockito.when(organisationTreeService.findOrganisations("history", input)).thenReturn(Optional.empty());
-        organisationTreeController.servicesOrganisationtreeCodeGet(input);
+        assertThrows(ResourceNotFoundException.class, () -> organisationTreeController.servicesOrganisationtreeCodeGet(input));
     }
 
     @Test

@@ -9,7 +9,7 @@ import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import dk.medcom.vdx.organisation.dao.OrganisationViews;
 import dk.medcom.vdx.organisation.dao.impl.OrganisationDaoImpl;
 import dk.medcom.vdx.organisation.dao.impl.OrganisationViewsImpl;
-import dk.medcom.vdx.organisation.dao.jpa.OrganisationRepository;
+import dk.medcom.vdx.organisation.interceptor.OauthInterceptor;
 import dk.medcom.vdx.organisation.interceptor.UserSecurityInterceptor;
 import dk.medcom.vdx.organisation.service.OrganisationNameService;
 import dk.medcom.vdx.organisation.service.OrganisationService;
@@ -20,7 +20,6 @@ import dk.medcom.vdx.organisation.service.impl.OrganisationTreeServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.*;
 import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.cors.CorsConfiguration;
@@ -43,12 +42,14 @@ public class OrganisationConfiguration implements WebMvcConfigurer {
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         logger.debug("Adding interceptors");
+        registry.addInterceptor(oauthInterceptor());
         registry.addInterceptor(userSecurityInterceptor());
     }
 
     @Bean
-    public FilterRegistrationBean<CorsFilter> corsFilter() {
+    CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
+
         config.setAllowCredentials(true);
         allowedOrigins.forEach(config::addAllowedOrigin);
         config.addAllowedHeader("*");
@@ -57,10 +58,13 @@ public class OrganisationConfiguration implements WebMvcConfigurer {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", config);
 
-        FilterRegistrationBean<CorsFilter> bean = new FilterRegistrationBean<>(new CorsFilter(source));
-        bean.setOrder(0);
+        return new CorsFilter(source);
+    }
 
-        return bean;
+    @Bean
+    public OauthInterceptor oauthInterceptor() {
+        logger.debug("Creating oauth interceptor");
+        return new OauthInterceptor();
     }
 
     @Bean
@@ -93,10 +97,9 @@ public class OrganisationConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public OrganisationService organisationService(OrganisationRepository organisationRepository,
-                                                   OrganisationDao organisationDao,
+    public OrganisationService organisationService(OrganisationDao organisationDao,
                                                    GroupsDao groupsDao) {
-        return new OrganisationNameService(organisationRepository, organisationDao, groupsDao);
+        return new OrganisationNameService(organisationDao, groupsDao);
     }
 
     @Bean

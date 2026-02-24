@@ -1,0 +1,18 @@
+{
+  "realm": "keycloaktest",
+  "enabled": true,
+  "components": {
+    "org.keycloak.keys.KeyProvider": [
+      {
+        "name": "rsa-test-key",
+        "providerId": "rsa",
+        "config": {
+          "privateKey": ["-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDYmZj9dQJUwI/k\nH9YlxbAaVVCREJyZKKxAjElt6MW/2YFKHFAqqAf6xeieZcv+q2NfWNKvjQK5ucQx\nOmUQBaMcyVuiX1CCYErfZjUEmJ/HM+cAYfzemy7m3c8Iq109w4TI5deqNwV8ju1h\ntlAs23xLcEhbh7JGI4TpP1I1r8tI+OajlLf5dBB/NtTzG3BQnRzDiwobS+LMUI8a\nPvDS/5rHbWwhQwFT0OqGLsptYrLkLQZnmzA4BK5P+OtY335TIAjhuGsEMIbxAScK\npd94kXEGDHJ3iPG6+tW6ZY7+F6Jv+PyuOTnga0b/5uNOBUEGcqZqUBGaOxKBTVQb\n+W8Z8fwlAgMBAAECggEAOijoLSqFkTdRi8pGqMbP1gpRg1pIClIjCoQA1YvayXyA\nXGOE3SdYWSxaHWotH/lqSfhiPjQpZrBsb2GEMIyq8zhYLB3W0uNDR4A8vTq0MHuN\nzAsDqMxXiDNH+8Zz13lQBte8lJ6IkR0ZvZKELb9TvTftnfIuWun/rtfLXdIRzkpU\nsB/yPiSfs8rPUcST6aF97eLhSXJ6JgSqxWVdwFZVyWS5knpXyvLJDnPQm11KCuBI\n7LdOINH65aE5GMJyCdx3zOz5qrY5PRmyKOJWOQJa9IYflOPAeWzLNFIFef/A13j7\ni1+qLvzBVrxuB+uDhI4O4FcT2VhGE6ND/n5rsCXd8wKBgQDjt3ClKSx/8HN2Kd0I\nC+8VJDfmlR2TAWT/DxxXk4zlPKQIXlVgkezt7gZCriIvRo+rTWnRgk/TD95+HXrW\n0DTrELsor3JiZyoO7HijF/9mkah9d8sE9p4q3rceFWObsUrWOm9lS6mi++n32buy\ni8z0cXsLGfvkDP1hfZD/LYxqQwKBgQDzgLDjXZThNdk57cgID/9SCOJkmQQfW1Qt\nTSDDdFstPjrtI1QgN/FMMAsob7cG4CSbaNzM2sHnBIs/JyoLmeVpV2PLxBkssAdF\nlcHjXPnhrgE4shjP/yqbhfxnd6TRuR5PtDHLHZ7RAt0om2A49eKt7eSf9sGjMxGn\nQGcysSEddwKBgQCxp3Z5U+MEuVnK8SQg1/ahPs1h1inpe2gI2QgahuGgIiwy3y2q\nlo4Kne1Cbkn7KgiB83Y/3nNaTYIeT+960ZrHXRk2x5HslWGpnPENBHbb1X1mzWOV\nLrX86h5gmP1KBQpGkfZAR8RDhFdnZvXZeNngRvxgj9gFdeDkAytw+V8XswKBgHXx\n37xBl9t+ObnVcw50sTcLFp2jgFuv4RYQRc5mjcNcYS577kOs1TQSEVWExyKNby3X\nnRuc2k8L5GaykasM4BImQjBwy8DZgqwx3bhDUMX/gpfzrBETh4/NVnTHfw4WnJf+\nsB+yOTsEKBuDJxhwAVw93n+dBi4GjoZ0q4fiRCgBAoGAJIqibU0+t+JDZD77RTfv\nPTw/+wcmNYgfowLfIIfptQtGGO59Xg3RdKbX7Vd5tPPt6qHgJMUSbPJAJdKeAbfj\nOgAsrsaetzcFTnD41lYN8LrjVtoL7z+vRhevuTm2oWtxkXB89b2e6KtvaDrtbL4c\nX8VxAEwOr9UEF6fRaqta5ys=\n-----END PRIVATE KEY-----\n"],
+          "algorithm": ["RS256"],
+          "priority": ["100"]
+        }
+      }
+    ]
+  },
+  "keycloakVersion": "26.0.0"
+}
