@@ -435,9 +435,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
         assertEquals("MinAfsender", result.getSmsSenderName());
         assertEquals(Boolean.FALSE, result.getAllowCustomUriWithoutDomain());
         assertEquals("some_url", result.getSmsCallbackUrl());
-        assertNull(result.getHistoryApiKey());
         assertNull(result.getDeviceWebhookEndpoint());
-        assertNull(result.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -471,9 +469,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
         assertEquals(input.getSmsCallbackUrl(), result.getSmsCallbackUrl());
         assertEquals(input.getAllowCustomUriWithoutDomain(), result.getAllowCustomUriWithoutDomain());
         assertEquals(input.getSmsSenderName(), result.getSmsSenderName());
-        assertEquals(input.getHistoryApiKey(), result.getHistoryApiKey());
         assertEquals(input.getDeviceWebhookEndpoint(), result.getDeviceWebhookEndpoint());
-        assertEquals(input.getDeviceWebhookEndpointKey(), result.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -491,9 +487,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
         assertNotNull(result.getAllowCustomUriWithoutDomain());
         assertFalse(result.getAllowCustomUriWithoutDomain());
         assertNull(result.getSmsSenderName());
-        assertNull(result.getHistoryApiKey());
         assertNull(result.getDeviceWebhookEndpoint());
-        assertNull(result.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -508,9 +502,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
         assertEquals("MinAfsender", result.getSmsSenderName());
         assertEquals(Boolean.FALSE, result.getAllowCustomUriWithoutDomain());
         assertEquals("some_url", result.getSmsCallbackUrl());
-        assertNull(result.getHistoryApiKey());
         assertNull(result.getDeviceWebhookEndpoint());
-        assertNull(result.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -524,7 +516,6 @@ class OrganisationV2IT extends AbstractIntegrationTest {
         assertEquals("sms-sender", result.getSmsSenderName());
         assertEquals("callback", result.getSmsCallbackUrl());
         assertEquals("device-webhook-endpoint", result.getDeviceWebhookEndpoint());
-        assertEquals("device-webhook-endpoint-key", result.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -603,9 +594,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
         assertNull(result.getSmsCallbackUrl());
         assertEquals(0, result.getPoolSize(), 0);
         assertEquals(Boolean.FALSE, result.getAllowCustomUriWithoutDomain());
-        assertNull(result.getHistoryApiKey());
         assertNull(result.getDeviceWebhookEndpoint());
-        assertNull(result.getDeviceWebhookEndpointKey());
     }
 
     @Test
@@ -632,9 +621,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
         assertEquals(inputOrganisation.getSmsCallbackUrl(), result.getSmsCallbackUrl());
         assertEquals(inputOrganisation.getPoolSize(), result.getPoolSize());
         assertEquals(inputOrganisation.getAllowCustomUriWithoutDomain(), result.getAllowCustomUriWithoutDomain());
-        assertEquals(inputOrganisation.getHistoryApiKey(), result.getHistoryApiKey());
         assertEquals(inputOrganisation.getDeviceWebhookEndpoint(), result.getDeviceWebhookEndpoint());
-        assertEquals(inputOrganisation.getDeviceWebhookEndpointKey(), result.getDeviceWebhookEndpointKey());
     }
 
     @Test

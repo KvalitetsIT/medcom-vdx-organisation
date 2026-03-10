@@ -16,9 +16,7 @@ public class OrganisationMapper {
                 .smsSenderName(input.getSmsSenderName())
                 .allowCustomUriWithoutDomain(input.isAllowCustomUriWithoutDomain())
                 .smsCallbackUrl(input.getSmsCallbackUrl())
-                .historyApiKey(input.getHistoryApiKey())
-                .deviceWebhookEndpoint(input.getDeviceWebhookEndpoint())
-                .deviceWebhookEndpointKey(input.getDeviceWebhookEndpointKey());
+                .deviceWebhookEndpoint(input.getDeviceWebhookEndpoint());
     }
 
     public static OrganisationCreate externalToInternal(org.openapitools.model.OrganisationCreate input, String parentCode) {

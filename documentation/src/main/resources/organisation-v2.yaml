@@ -669,20 +669,11 @@ components:
           maxLength: 100
           example: http://callback.api/%reference%?status=%status%
           description: If set a callback is done to this URL when SMS status is updated. Valid variables is %reference% and %status%.
-        historyApiKey:
-          type: string
-          maxLength: 36
-          description: Api key for calls to history service
         deviceWebhookEndpoint:
           type: string
           maxLength: 100
           example: http://webhook.endpoint/here
           description: Endpoint of device webhook
-        deviceWebhookEndpointKey:
-          type: string
-          maxLength: 100
-          example: this-is-a-key
-          description: Endpoint key of device webhook for header
 
     organisationtree:
       type: object

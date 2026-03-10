@@ -445,9 +445,7 @@ public class OrganisationV2ControllerTest {
         assertEquals(expected.getSmsSenderName(), actual.getSmsSenderName());
         assertEquals(expected.isAllowCustomUriWithoutDomain(), actual.getAllowCustomUriWithoutDomain());
         assertEquals(expected.getSmsCallbackUrl(), actual.getSmsCallbackUrl());
-        assertEquals(expected.getHistoryApiKey(), actual.getHistoryApiKey());
         assertEquals(expected.getDeviceWebhookEndpoint(), actual.getDeviceWebhookEndpoint());
-        assertEquals(expected.getDeviceWebhookEndpointKey(), actual.getDeviceWebhookEndpointKey());
     }
 
     private boolean assertOrganisationCreate(OrganisationCreate expected, String expectedParent, dk.medcom.vdx.organisation.service.model.OrganisationCreate actual) {
