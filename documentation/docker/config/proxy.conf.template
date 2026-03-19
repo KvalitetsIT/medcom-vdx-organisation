@@ -1,0 +1,47 @@
+    server {
+        listen            8080;
+        server_name       localhost;
+        index             index.html index.htm;
+
+        location $BASE_URL_V1 {
+            absolute_redirect off;
+            alias            /usr/share/nginx/v1/html$BASE_URL_V1/;
+            expires 1d;
+
+            location ~ swagger-initializer.js {
+                expires -1;
+                include templates/cors.conf;
+            }
+
+            location ~* \.(?:json|yml|yaml)$ {
+                #SWAGGER_ROOT
+                expires -1;
+
+                include templates/cors.conf;
+            }
+
+            include templates/cors.conf;
+            include templates/embedding.conf;
+        }
+
+        location $BASE_URL_V2 {
+            absolute_redirect off;
+            alias            /usr/share/nginx/v2/html$BASE_URL_V2/;
+            expires 1d;
+
+            location ~ swagger-initializer.js {
+                expires -1;
+                include templates/cors.conf;
+            }
+
+            location ~* \.(?:json|yml|yaml)$ {
+                #SWAGGER_ROOT
+                expires -1;
+
+                include templates/cors.conf;
+            }
+
+            include templates/cors.conf;
+            include templates/embedding.conf;
+        }
+    }

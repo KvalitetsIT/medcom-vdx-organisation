@@ -1,14 +1,22 @@
 #! /bin/sh
 
-export DOC_FILES=/usr/share/nginx/html/*.yaml
+echo 'Setting base urls in proxy conf'
+envsubst '$BASE_URL_V1 $BASE_URL_V2' < /etc/nginx/proxy.conf.template > /etc/nginx/conf.d/proxy.conf
+export PORT="8081"
 
-echo "Running set version"
-/kit/setVersion.sh
-echo "Running set servers"
-/kit/setServers.sh
+echo 'Building v1 documentation'
+export DOC_VERSION="v1"
+export BASE_URL="$BASE_URL_V1"
+/kit/buildDocumentation.sh
+mkdir -p /usr/share/nginx/v1/html$BASE_URL_V1
+cp -R /usr/share/nginx/html/. /usr/share/nginx/v1/html$BASE_URL_V1/
 
-echo "Sets env URLS to list of versions"
-export URLS=$(cat /kit/env)
+echo 'Building v2 documentation'
+export DOC_VERSION="v2"
+export BASE_URL="$BASE_URL_V2"
+/kit/buildDocumentation.sh
+mkdir -p /usr/share/nginx/v2/html$BASE_URL_V2
+cp -R /usr/share/nginx/html/. /usr/share/nginx/v2/html$BASE_URL_V2/
 
 echo "Restarting nginx"
-/docker-entrypoint.sh nginx -g 'daemon off;'
+nginx -g 'daemon off;'

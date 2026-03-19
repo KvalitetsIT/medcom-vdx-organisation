@@ -52,7 +52,6 @@
 		<dependency>
 			<groupId>com.squareup.okhttp3</groupId>
 			<artifactId>logging-interceptor</artifactId>
-			<version>5.3.2</version>
 			<scope>test</scope>
 		</dependency>
 
@@ -76,6 +75,12 @@
 		<dependency>
 			<groupId>jakarta.ws.rs</groupId>
 			<artifactId>jakarta.ws.rs-api</artifactId>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.oltu.oauth2</groupId>
+			<artifactId>org.apache.oltu.oauth2.client</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 	<build>
@@ -116,8 +121,12 @@
 									<inline>
 										<files>
 											<file>
-												<source>${project.basedir}/src/main/resources/organisation.yaml</source>
-												<destName>${git.commit.id.describe}.yaml</destName>
+												<source>${project.basedir}/src/main/resources/organisation-v1.yaml</source>
+												<destName>${git.commit.id.describe}-v1.yaml</destName>
+											</file>
+											<file>
+												<source>${project.basedir}/src/main/resources/organisation-v2.yaml</source>
+												<destName>${git.commit.id.describe}-v2.yaml</destName>
 											</file>
 											<file>
 												<source>${project.build.outputDirectory}/git.properties</source>
@@ -155,11 +164,12 @@
 				<version>7.20.0</version>
 				<executions>
 					<execution>
+						<id>test-v1</id>
 						<goals>
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>${project.basedir}/src/main/resources/organisation.yaml</inputSpec>
+							<inputSpec>${project.basedir}/src/main/resources/organisation-v1.yaml</inputSpec>
 							<generatorName>java</generatorName>
 							<configOptions>
 								<sourceFolder>src/test/java</sourceFolder>
@@ -174,12 +184,56 @@
 						</configuration>
 					</execution>
 					<execution>
-						<id>server</id>
+						<id>server-v1</id>
 						<goals>
 							<goal>generate</goal>
 						</goals>
 						<configuration>
-							<inputSpec>${project.basedir}/src/main/resources/organisation.yaml</inputSpec>
+							<inputSpec>${project.basedir}/src/main/resources/organisation-v1.yaml</inputSpec>
+							<generatorName>spring</generatorName>
+							<configOptions>
+								<sourceFolder>src/main/java</sourceFolder>
+								<dateLibrary>java8</dateLibrary>
+								<interfaceOnly>true</interfaceOnly>
+								<performBeanValidation>true</performBeanValidation>
+								<library>spring-cloud</library>
+								<useSpringBoot3>true</useSpringBoot3>
+								<useJakartaEe>true</useJakartaEe>
+								<useTags>true</useTags>
+							</configOptions>
+							<output>${project.build.directory}/generated-sources/openapi/main</output>
+							<generateApiDocumentation>false</generateApiDocumentation>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+						</configuration>
+					</execution>
+					<execution>
+						<id>test-v2</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${project.basedir}/src/main/resources/organisation-v2.yaml</inputSpec>
+							<generatorName>java</generatorName>
+							<configOptions>
+								<sourceFolder>src/test/java</sourceFolder>
+								<dateLibrary>java8</dateLibrary>
+								<useJakartaEe>true</useJakartaEe>
+							</configOptions>
+							<output>${project.build.directory}/generated-test-sources/openapi/test</output>
+							<generateApiTests>false</generateApiTests>
+							<generateModelTests>false</generateModelTests>
+							<addTestCompileSourceRoot>true</addTestCompileSourceRoot>
+							<addCompileSourceRoot>false</addCompileSourceRoot>
+						</configuration>
+					</execution>
+					<execution>
+						<id>server-v2</id>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<configuration>
+							<inputSpec>${project.basedir}/src/main/resources/organisation-v2.yaml</inputSpec>
 							<generatorName>spring</generatorName>
 							<configOptions>
 								<sourceFolder>src/main/java</sourceFolder>
