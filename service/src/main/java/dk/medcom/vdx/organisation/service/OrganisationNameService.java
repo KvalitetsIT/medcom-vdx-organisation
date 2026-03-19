@@ -67,12 +67,13 @@ public class OrganisationNameService implements OrganisationService {
 
             var newOrganisation = mapNewOrganisation(organisationCreate, groupId, name);
 
-            organisationDao.insert(newOrganisation);
-
-            return getOrganisationById(organisationCreate.organisationCode()).orElseThrow(() -> {
-                logger.warn("Failed to find organisation {} after creation.", newOrganisation.getOrganisationId());
-                return new DaoException("Failed to find organisation %s after creation.".formatted(newOrganisation.getOrganisationId()));
-            });
+            var id = organisationDao.insert(newOrganisation);
+            if (id > 0) {
+                return newOrganisation;
+            } else {
+                logger.warn("Failed to create organisation {}", newOrganisation.getOrganisationId());
+                throw new DaoException("Failed to create organisation %s".formatted(newOrganisation.getOrganisationId()));
+            }
         }
         else {
             throw new InvalidDataException("Organisation %s already exists.".formatted(organisationCreate.organisationCode()));

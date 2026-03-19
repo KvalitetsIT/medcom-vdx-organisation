@@ -80,25 +80,28 @@ public class OrganisationServiceImplTest {
         parentOrganisation.setSmsSenderName("sms sender");
         parentOrganisation.setSmsCallbackUrl("sms callback");
 
-        var newOrganisation = new Organisation();
-        newOrganisation.setOrganisationName(organisation.name());
-        newOrganisation.setGroupId(10L);
-        newOrganisation.setSmsSenderName(null);
-        newOrganisation.setAllowCustomUriWithoutDomain(false);
-        newOrganisation.setSmsCallbackUrl(null);
-        newOrganisation.setGroupId(10L);
-        newOrganisation.setPoolSize(null);
-        newOrganisation.setOrganisationId(organisation.organisationCode());
-
-        Mockito.when(organisationDao.findOrganisation(code)).thenReturn(null, newOrganisation);
+        Mockito.when(organisationDao.findOrganisation(code)).thenReturn(null);
         Mockito.when(organisationDao.findOrganisation(organisation.parentOrganisation())).thenReturn(parentOrganisation);
         Mockito.when(groupsDao.insert(Mockito.any())).thenReturn(10L);
+        Mockito.when(organisationDao.insert(Mockito.any())).thenReturn(1L);
 
         var result = organisationService.createOrganisationBasic(organisation);
 
         assertNotNull(result);
+        assertEquals(10L, result.getGroupId());
+        assertNull(result.getParentId());
+        assertNull(result.getPoolSize());
+        assertNull(result.getGroupName());
+        assertEquals(organisation.organisationCode(), result.getOrganisationId());
+        assertEquals(organisation.name(), result.getOrganisationName());
+        assertNull(result.getSmsSenderName());
+        assertFalse(result.isAllowCustomUriWithoutDomain());
+        assertNull(result.getSmsCallbackUrl());
+        assertNull(result.getHistoryApiKey());
+        assertNull(result.getDeviceWebhookEndpoint());
+        assertNull(result.getDeviceWebhookEndpointKey());
 
-        Mockito.verify(organisationDao, times(2)).findOrganisation(code);
+        Mockito.verify(organisationDao, times(1)).findOrganisation(code);
         Mockito.verify(organisationDao, times(1)).findOrganisation(organisation.parentOrganisation());
         Mockito.verify(organisationDao, times(1)).insert(Mockito.argThat(x -> {
             assertEquals(10L, x.getGroupId());
@@ -165,10 +168,10 @@ public class OrganisationServiceImplTest {
 
         var result = assertThrows(DaoException.class, () -> organisationService.createOrganisation(organisation));
         assertNotNull(result);
-        assertEquals("Failed to find organisation %s after creation.".formatted(organisation.organisationCode()), result.getMessage());
+        assertEquals("Failed to create organisation %s".formatted(organisation.organisationCode()), result.getMessage());
 
         Mockito.verify(organisationDao, times(1)).findOrganisation(organisation.parentOrganisation());
-        Mockito.verify(organisationDao, times(2)).findOrganisation(organisation.organisationCode());
+        Mockito.verify(organisationDao, times(1)).findOrganisation(organisation.organisationCode());
         Mockito.verify(organisationDao, times(1)).insert(Mockito.argThat(x -> {
             assertEquals(11L, x.getGroupId());
             assertEquals(organisation.organisationCode(), x.getOrganisationId());
@@ -200,17 +203,29 @@ public class OrganisationServiceImplTest {
     public void testCreateOrganisation() {
         var organisation = randomOrganisationCreateExt();
         var parentOrganisation = randomOrganisation();
-        var newOrganisation = randomOrganisation();
 
-        Mockito.when(organisationDao.findOrganisation(organisation.organisationCode())).thenReturn(null, newOrganisation);
+        Mockito.when(organisationDao.findOrganisation(organisation.organisationCode())).thenReturn(null);
         Mockito.when(organisationDao.findOrganisation(organisation.parentOrganisation())).thenReturn(parentOrganisation);
         Mockito.when(groupsDao.insert(Mockito.any())).thenReturn(10L);
+        Mockito.when(organisationDao.insert(Mockito.any())).thenReturn(1L);
 
         var result = organisationService.createOrganisation(organisation);
 
         assertNotNull(result);
+        assertEquals(10L, result.getGroupId());
+        assertNull(result.getParentId());
+        assertEquals(organisation.poolSize(), result.getPoolSize());
+        assertNull(result.getGroupName());
+        assertEquals(organisation.organisationCode(), result.getOrganisationId());
+        assertEquals(organisation.name(), result.getOrganisationName());
+        assertEquals(organisation.smsSenderName(), result.getSmsSenderName());
+        assertEquals(organisation.allowCustomUriWithoutDomain(), result.isAllowCustomUriWithoutDomain());
+        assertEquals(organisation.smsCallbackUrl(), result.getSmsCallbackUrl());
+        assertEquals(organisation.historyApiKey(), result.getHistoryApiKey());
+        assertEquals(organisation.deviceWebhookEndpoint(), result.getDeviceWebhookEndpoint());
+        assertEquals(organisation.deviceWebhookEndpointKey(), result.getDeviceWebhookEndpointKey());
 
-        Mockito.verify(organisationDao, times(2)).findOrganisation(organisation.organisationCode());
+        Mockito.verify(organisationDao, times(1)).findOrganisation(organisation.organisationCode());
         Mockito.verify(organisationDao, times(1)).findOrganisation(organisation.parentOrganisation());
         Mockito.verify(organisationDao, times(1)).insert(Mockito.argThat(x -> {
             assertEquals(10L, x.getGroupId());
