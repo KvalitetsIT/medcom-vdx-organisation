@@ -81,20 +81,15 @@ public class OrganisationNameService implements OrganisationService {
 
     @Override
     public Organisation updateOrganisation(String organisationCode, OrganisationUpdate organisationUpdate) {
-        var update = mapUpdatedOrganisation(organisationCode, organisationUpdate);
-
-        var updateRes = organisationDao.update(update);
-        var updatedOrg = getOrganisationById(organisationCode);
-
-        if (updatedOrg.isPresent() && updateRes) {
-            return updatedOrg.get();
-        } else if (updatedOrg.isEmpty()) {
-            logger.warn("Organisation with code {} not found in db.", organisationCode);
-            throw new OrganisationNotFoundException("Organisation with code %s not found.".formatted(organisationCode));
-        } else {
+        if(!organisationDao.update(mapUpdatedOrganisation(organisationCode, organisationUpdate))) {
             logger.warn("Failed to update organisation with code {} in db.", organisationCode);
             throw new DaoException("Failed to update organisation with code %s.".formatted(organisationCode));
         }
+
+        return getOrganisationById(organisationCode).orElseThrow(() -> {
+            logger.warn("Organisation with code {} not found in db.", organisationCode);
+            return new OrganisationNotFoundException("Organisation with code %s not found.".formatted(organisationCode));
+        });
     }
 
     private static Organisation mapNewOrganisation(OrganisationCreate organisationCreate, long groupId, String name) {

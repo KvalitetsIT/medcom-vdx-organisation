@@ -276,7 +276,7 @@ public class OrganisationServiceImplTest {
         var organisation = new OrganisationUpdate(123, randomString(), true, randomString(), randomString(), randomString(), randomString());
 
         Mockito.when(organisationDao.findOrganisation(code)).thenReturn(null);
-        Mockito.when(organisationDao.update(Mockito.any())).thenReturn(false);
+        Mockito.when(organisationDao.update(Mockito.any())).thenReturn(true);
 
         var expectedException = assertThrows(OrganisationNotFoundException.class, () -> organisationService.updateOrganisation(code, organisation));
         assertNotNull(expectedException);
@@ -313,7 +313,6 @@ public class OrganisationServiceImplTest {
         assertNotNull(expectedException);
         assertEquals("Failed to update organisation with code %s.".formatted(code), expectedException.getMessage());
 
-        Mockito.verify(organisationDao).findOrganisation(code);
         Mockito.verify(organisationDao).update(Mockito.argThat(x -> {
             assertNull(x.getGroupId());
             assertEquals(code, x.getOrganisationId());
