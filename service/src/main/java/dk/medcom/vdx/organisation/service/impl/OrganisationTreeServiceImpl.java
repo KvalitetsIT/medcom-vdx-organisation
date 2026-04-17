@@ -3,13 +3,12 @@ package dk.medcom.vdx.organisation.service.impl;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.service.OrganisationTreeService;
+import dk.medcom.vdx.organisation.service.exception.OrganisationNotFoundException;
+import dk.medcom.vdx.organisation.service.model.OrganisationSimple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 public class OrganisationTreeServiceImpl implements OrganisationTreeService {
     private static final Logger logger = LoggerFactory.getLogger(OrganisationTreeServiceImpl.class);
@@ -81,6 +80,17 @@ public class OrganisationTreeServiceImpl implements OrganisationTreeService {
         organisations.addAll(children(organisation.getGroupId().intValue()));
 
         return organisations;
+    }
+
+    @Override
+    public List<OrganisationSimple> findDescendantsOfOrganisation(String code) {
+        var children = organisationDao.findDescendantsOfOrganisation(code);
+        if (children.isEmpty()) {
+            logger.warn("Organisation with code {} not found in db.", code);
+            throw new OrganisationNotFoundException("Organisation with code %s not found.".formatted(code));
+        }
+        return children.stream().filter(x -> x.organisationId() != null)
+                .map(OrganisationSimple::from).toList();
     }
 
     private List<Organisation> children(int groupId) {

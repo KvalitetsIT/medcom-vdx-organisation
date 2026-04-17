@@ -2,33 +2,29 @@ package dk.medcom.vdx.organisation.dao.impl;
 
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
+import dk.medcom.vdx.organisation.dao.entity.OrganisationGroupJoin;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 
 import javax.sql.DataSource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 public class OrganisationDaoImpl implements OrganisationDao {
     private final static Logger logger = LoggerFactory.getLogger(OrganisationDaoImpl.class);
-    private final DataSource dataSource;
     private final NamedParameterJdbcTemplate template;
 
     public OrganisationDaoImpl(DataSource dataSource) {
-        this.dataSource = dataSource;
         template = new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Override
     public Organisation findOrganisation(String code) {
-        NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
         var sql = "select o.pool_size, " +
                 "g.parent_id, " +
                 "g.group_id, " +
@@ -72,7 +68,6 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 "where g.group_id = :group_id " +
                 "and g.deleted_time = '0001-01-01 00:00:00'";
 
-        NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("group_id", groupId);
 
@@ -101,7 +96,6 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 "where g.parent_id = :group_id " +
                 "and g.deleted_time = '0001-01-01 00:00:00'";
 
-        NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("group_id", groupId);
 
@@ -161,7 +155,6 @@ public class OrganisationDaoImpl implements OrganisationDao {
 
     @Override
     public Organisation findOrganisationByHistoryApiKey(String historyApiKey) {
-        NamedParameterJdbcTemplate template = new NamedParameterJdbcTemplate(dataSource);
         var sql = "select o.pool_size, " +
                 "g.parent_id, " +
                 "g.group_id, " +
@@ -185,5 +178,49 @@ public class OrganisationDaoImpl implements OrganisationDao {
         catch(EmptyResultDataAccessException e) {
             return null;
         }
+    }
+
+    @Override
+    public List<OrganisationGroupJoin> findDescendantsOfOrganisation(String code) {
+        var sql = """
+                with recursive org_hierarchy as (
+                    select o.pool_size,
+                       g.parent_id,
+                       g.group_id,
+                       g.group_name,
+                       o.organisation_id,
+                       o.name organisation_name,
+                       o.sms_sender_name,
+                       o.allow_custom_uri_without_domain,
+                       o.sms_callback_url,
+                       o.history_api_key,
+                       o.device_webhook_endpoint,
+                       o.device_webhook_endpoint_key
+                    from organisation o, groups g
+                        where o.organisation_id = :organisation_id
+                            and g.group_id = o.group_id
+                union all
+                    select o.pool_size,
+                       g.parent_id,
+                       g.group_id,
+                       g.group_name,
+                       o.organisation_id,
+                       o.name organisation_name,
+                       o.sms_sender_name,
+                       o.allow_custom_uri_without_domain,
+                       o.sms_callback_url,
+                       o.history_api_key,
+                       o.device_webhook_endpoint,
+                       o.device_webhook_endpoint_key
+                    from groups g
+                inner join org_hierarchy oh ON g.parent_id = oh.group_id
+                    left outer join (select * from organisation where deleted_time = '0001-01-01 00:00:00') o on g.group_id = o.group_id
+                        where g.parent_id = oh.group_id
+                            and g.deleted_time = '0001-01-01 00:00:00'
+                )
+                select * from org_hierarchy
+                """;
+
+        return template.query(sql, Collections.singletonMap("organisation_id", code), DataClassRowMapper.newInstance(OrganisationGroupJoin.class));
     }
 }
