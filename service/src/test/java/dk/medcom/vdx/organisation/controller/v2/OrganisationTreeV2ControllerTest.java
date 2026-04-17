@@ -5,6 +5,8 @@ import dk.medcom.vdx.organisation.controller.exception.ResourceNotFoundV2Excepti
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.service.OrganisationTreeBuilder;
 import dk.medcom.vdx.organisation.service.OrganisationTreeService;
+import dk.medcom.vdx.organisation.service.exception.OrganisationNotFoundException;
+import dk.medcom.vdx.organisation.service.model.OrganisationSimple;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -89,6 +91,42 @@ public class OrganisationTreeV2ControllerTest {
         assertEquals("Request does not identify an organisation.", expectedException.getMessage());
 
         Mockito.verify(organisationTreeService).findOrganisations(input.getApiKeyType(), input.getApiKey());
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testServicesV2OrganisationCodeDescendantsGet() {
+        var input = randomString();
+        var descendants = List.of(new OrganisationSimple(randomString()), new OrganisationSimple(randomString()), new OrganisationSimple(randomString()));
+
+        Mockito.when(organisationTreeService.findDescendantsOfOrganisation(input)).thenReturn(descendants);
+
+        var result = organisationTreeV2Controller.servicesV2OrganisationCodeDescendantsGet(input);
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode().value());
+
+        assertNotNull(result.getBody());
+        assertEquals(3, result.getBody().size());
+        assertTrue(result.getBody().stream().anyMatch(x -> x.getCode() != null && x.getCode().equals(descendants.getFirst().code())));
+        assertTrue(result.getBody().stream().anyMatch(x -> x.getCode() != null && x.getCode().equals(descendants.get(1).code())));
+        assertTrue(result.getBody().stream().anyMatch(x -> x.getCode() != null && x.getCode().equals(descendants.getLast().code())));
+
+        Mockito.verify(organisationTreeService).findDescendantsOfOrganisation(input);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testServicesV2OrganisationCodeDescendantsGetNotFound() {
+        var input = randomString();
+
+        Mockito.when(organisationTreeService.findDescendantsOfOrganisation(input)).thenThrow(new OrganisationNotFoundException("message"));
+
+        var exception = assertThrows(ResourceNotFoundV2Exception.class, () -> organisationTreeV2Controller.servicesV2OrganisationCodeDescendantsGet(input));
+        assertNotNull(exception);
+        assertEquals(404, exception.getHttpStatus().value());
+        assertEquals("message", exception.getMessage());
+
+        Mockito.verify(organisationTreeService).findDescendantsOfOrganisation(input);
         verifyNoMoreInteractions();
     }
 

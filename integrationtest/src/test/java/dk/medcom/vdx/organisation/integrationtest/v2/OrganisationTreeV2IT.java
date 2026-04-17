@@ -163,6 +163,46 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
     }
 
     @Test
+    void errorIfNoJwtToken_servicesV2OrganisationCodeDescendantsGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiNoHeader.servicesV2OrganisationCodeDescendantsGet(childOrg));
+    }
+
+    @Test
+    void errorIfNoRoleAttInToken_servicesV2OrganisationCodeDescendantsGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationCodeDescendantsGet(childOrg));
+    }
+
+    @Test
+    void errorIfNotAdmin_servicesV2OrganisationCodeDescendantsGet() {
+        assertThrowsWithStatus(403, () -> organisationTreeV2ApiNotAdmin.servicesV2OrganisationCodeDescendantsGet(childOrg));
+    }
+
+    @Test
+    void errorIfExpiredJwtToken_servicesV2OrganisationCodeDescendantsGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiExpiredJwt.servicesV2OrganisationCodeDescendantsGet(childOrg));
+    }
+
+    @Test
+    void errorIfInvalidIssuerJwtToken_servicesV2OrganisationCodeDescendantsGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiInvalidIssuerJwt.servicesV2OrganisationCodeDescendantsGet(childOrg));
+    }
+
+    @Test
+    void errorIfTamperedJwtToken_servicesV2OrganisationCodeDescendantsGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiTamperedJwt.servicesV2OrganisationCodeDescendantsGet(childOrg));
+    }
+
+    @Test
+    void errorIfMissingSignatureJwtToken_servicesV2OrganisationCodeDescendantsGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiMissingSignatureJwt.servicesV2OrganisationCodeDescendantsGet(childOrg));
+    }
+
+    @Test
+    void errorIfDifferentSignedJwtToken_servicesV2OrganisationCodeDescendantsGet() {
+        assertThrowsWithStatus(401, () -> organisationTreeV2ApiDifferentSignedJwt.servicesV2OrganisationCodeDescendantsGet(childOrg));
+    }
+
+    @Test
     void errorIfNoJwtToken_servicesV2OrganisationTreeForApiKeyPost() {
         assertThrowsWithStatus(401, () -> organisationTreeV2ApiNoHeader.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
     }
@@ -347,6 +387,18 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
     }
 
     @Test
+    void testServicesV2OrganisationCodeDescendantsGet() throws ApiException {
+        var response = organisationTreeV2Api.servicesV2OrganisationCodeDescendantsGet("parent");
+        assertNotNull(response);
+
+        assertEquals(4, response.size());
+        assertTrue(response.stream().anyMatch(x -> x.getCode() != null && x.getCode().equals("parent")));
+        assertTrue(response.stream().anyMatch(x -> x.getCode() != null && x.getCode().equals("child")));
+        assertTrue(response.stream().anyMatch(x -> x.getCode() != null && x.getCode().equals("another-child")));
+        assertTrue(response.stream().anyMatch(x -> x.getCode() != null && x.getCode().equals("another-child-2")));
+    }
+
+    @Test
     void testServicesV2OrganisationTreeForApiKeyPost() throws ApiException {
         var response = organisationTreeV2Api.servicesV2OrganisationTreeForApiKeyPost(historyApiKey());
         assertNotNull(response);
@@ -378,7 +430,7 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
 
         var children = response.getChildren();
         assertEquals(Optional.of(11).get(), children.getFirst().getGroupId());
-        assertEquals(2, children.getFirst().getChildren().size());
+        assertEquals(3, children.getFirst().getChildren().size());
 
         children = children.getFirst().getChildren();
         assertEquals(Optional.of(12).get(), children.getFirst().getGroupId());
@@ -386,6 +438,9 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
 
         assertEquals(Optional.of(17).get(), children.get(1).getGroupId());
         assertEquals(0, children.get(1).getChildren().size());
+
+        assertEquals(17, children.get(2).getGroupId());
+        assertEquals(0, children.get(2).getChildren().size());
 
         children = children.getFirst().getChildren();
         assertEquals(Optional.of(13).get(), children.getFirst().getGroupId());
@@ -405,7 +460,7 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
         assertNotNull(response);
 
         assertEquals(Optional.of(11).get(), response.getGroupId());
-        assertEquals(2, response.getChildren().size());
+        assertEquals(3, response.getChildren().size());
 
         var children = response.getChildren();
         assertEquals(Optional.of(12).get(), children.getFirst().getGroupId());
@@ -413,6 +468,9 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
 
         assertEquals(Optional.of(17).get(), children.get(1).getGroupId());
         assertEquals(0, children.get(1).getChildren().size());
+
+        assertEquals(17, children.get(2).getGroupId());
+        assertEquals(0, children.get(2).getChildren().size());
 
         children = children.getFirst().getChildren();
         assertEquals(Optional.of(13).get(), children.getFirst().getGroupId());

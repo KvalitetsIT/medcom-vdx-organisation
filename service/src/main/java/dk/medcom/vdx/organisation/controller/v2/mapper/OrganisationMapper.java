@@ -4,6 +4,7 @@ import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.service.model.OrganisationCreate;
 import dk.medcom.vdx.organisation.service.model.OrganisationUpdate;
 import org.openapitools.model.OrganisationResponse;
+import org.openapitools.model.OrganisationSimple;
 
 public class OrganisationMapper {
 
@@ -17,6 +18,11 @@ public class OrganisationMapper {
                 .allowCustomUriWithoutDomain(input.isAllowCustomUriWithoutDomain())
                 .smsCallbackUrl(input.getSmsCallbackUrl())
                 .deviceWebhookEndpoint(input.getDeviceWebhookEndpoint());
+    }
+
+    public static OrganisationSimple internalToExternal(dk.medcom.vdx.organisation.service.model.OrganisationSimple input) {
+        return new OrganisationSimple()
+                .code(input.code());
     }
 
     public static OrganisationCreate externalToInternal(org.openapitools.model.OrganisationCreate input, String parentCode) {
