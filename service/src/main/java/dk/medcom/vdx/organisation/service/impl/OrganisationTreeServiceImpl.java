@@ -84,12 +84,12 @@ public class OrganisationTreeServiceImpl implements OrganisationTreeService {
 
     @Override
     public List<OrganisationSimple> findDescendantsOfOrganisation(String code) {
-        var children = organisationDao.findDescendantsOfOrganisation(code);
-        if (children.isEmpty()) {
+        var descendants = organisationDao.findDescendantsOfOrganisation(code);
+        if (descendants.isEmpty()) {
             logger.warn("Organisation with code {} not found in db.", code);
             throw new OrganisationNotFoundException("Organisation with code %s not found.".formatted(code));
         }
-        return children.stream().filter(x -> x.organisationId() != null)
+        return descendants.stream().filter(x -> x.organisationId() != null)
                 .map(OrganisationSimple::from).toList();
     }
 
