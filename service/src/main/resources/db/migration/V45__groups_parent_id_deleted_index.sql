@@ -1,0 +1,1 @@
+create index idx_parent_id_deleted on groups(parent_id, deleted_time);
