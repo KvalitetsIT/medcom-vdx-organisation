@@ -31,6 +31,7 @@ insert into organisation(id, organisation_id, name, group_id, history_api_key) v
 insert into organisation(id, organisation_id, name, group_id, history_api_key) values(12, 'medcom', 'This Is Medcom', 15, '23646a74-7737-4bab-a8a9-07f21471a14a');
 insert into organisation(id, organisation_id, name, group_id) values(13, 'æ/åø', 'This is with a slash', 16);
 insert into organisation(id, organisation_id, name, group_id, history_api_key) values(14, 'another-child', 'This is a another child', 17, 'kuk');
+insert into organisation(id, organisation_id, name, group_id, history_api_key) values(15, 'another-child-2', 'This is a another child in group 17', 17, 'kuk 2');
 
 INSERT INTO scheduling_info (id, uri_with_domain, provision_status, organisation_id)
 VALUES (1, '1238@test.dk', 'PROVISIONED_OK', 5);

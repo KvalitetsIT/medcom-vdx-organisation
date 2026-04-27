@@ -172,7 +172,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
         var children = response.getChildren();
         assertEquals(11, children.getFirst().getGroupId());
-        assertEquals(2, children.getFirst().getChildren().size());
+        assertEquals(3, children.getFirst().getChildren().size());
 
         children = children.getFirst().getChildren();
         assertEquals(12, children.getFirst().getGroupId());
@@ -180,6 +180,9 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
         assertEquals(17, children.get(1).getGroupId());
         assertEquals(0, children.get(1).getChildren().size());
+
+        assertEquals(17, children.get(2).getGroupId());
+        assertEquals(0, children.get(2).getChildren().size());
 
         children = children.getFirst().getChildren();
         assertEquals(13, children.getFirst().getGroupId());
@@ -199,7 +202,7 @@ public class OrganisationIT extends AbstractIntegrationTest {
         assertNotNull(response);
 
         assertEquals(11, response.getGroupId());
-        assertEquals(2, response.getChildren().size());
+        assertEquals(3, response.getChildren().size());
 
         var children = response.getChildren();
         assertEquals(12, children.getFirst().getGroupId());
@@ -207,6 +210,9 @@ public class OrganisationIT extends AbstractIntegrationTest {
 
         assertEquals(17, children.get(1).getGroupId());
         assertEquals(0, children.get(1).getChildren().size());
+
+        assertEquals(17, children.get(2).getGroupId());
+        assertEquals(0, children.get(2).getChildren().size());
 
         children = children.getFirst().getChildren();
         assertEquals(13, children.getFirst().getGroupId());

@@ -397,6 +397,40 @@ paths:
         '404':
           $ref: '#/components/responses/404'
 
+  /services/v2/organisation/{code}/descendants:
+    get:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation Tree V2
+      summary: Get a list of all suborganisation codes of a specific organisation
+      description: >-
+        Get a list of all suborganisation codes rooted at the specified code including the requested code <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/organisation-simple'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+
 components:
   securitySchemes:
     userContext:
@@ -456,6 +490,15 @@ components:
             $ref: '#/components/schemas/basic-error'
 
   schemas:
+    organisation-simple:
+      type: object
+      properties:
+        code:
+          description: The code that uniquely identifies an organisation
+          type: string
+          maxLength: 250
+          example: 'organisation_a'
+
     organisation-uri-request:
       type: array
       items:

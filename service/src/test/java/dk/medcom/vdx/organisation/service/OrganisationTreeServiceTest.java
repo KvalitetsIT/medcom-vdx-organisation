@@ -2,14 +2,14 @@ package dk.medcom.vdx.organisation.service;
 
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
+import dk.medcom.vdx.organisation.dao.entity.OrganisationGroupJoin;
+import dk.medcom.vdx.organisation.service.exception.OrganisationNotFoundException;
 import dk.medcom.vdx.organisation.service.impl.OrganisationTreeServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Optional;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.times;
@@ -234,6 +234,41 @@ public class OrganisationTreeServiceTest {
         Mockito.verifyNoMoreInteractions(organisationDao);
     }
 
+    @Test
+    public void testFindDescendantsOfOrganisation() {
+        var input = randomString();
+
+        var org1 = randomOrganisationGroupJoin();
+        var org2 = randomOrganisationGroupJoin();
+        var nullOrg = new OrganisationGroupJoin(789L, 876L, null, randomString(), null, null, null, null, null, null, null, null);
+
+        Mockito.when(organisationDao.findDescendantsOfOrganisation(input)).thenReturn(List.of(org1, org2, nullOrg));
+
+        var result = organisationTreeService.findDescendantsOfOrganisation(input);
+        assertNotNull(result);
+        assertEquals(2, result.size());
+        assertTrue(result.stream().anyMatch(x -> x.code() != null && x.code().equals(org1.organisationId())));
+        assertTrue(result.stream().anyMatch(x -> x.code() != null && x.code().equals(org2.organisationId())));
+        assertFalse(result.stream().anyMatch(x -> x.code() != null && x.code().equals(nullOrg.organisationId())));
+
+        Mockito.verify(organisationDao).findDescendantsOfOrganisation(input);
+        Mockito.verifyNoMoreInteractions(organisationDao);
+    }
+
+    @Test
+    public void testFindDescendantsOfOrganisationCodesNoOrganisationInDb() {
+        var input = randomString();
+
+        Mockito.when(organisationDao.findDescendantsOfOrganisation(input)).thenReturn(List.of());
+
+        var expectedException = assertThrows(OrganisationNotFoundException.class, () -> organisationTreeService.findDescendantsOfOrganisation(input));
+        assertNotNull(expectedException);
+        assertEquals("Organisation with code %s not found.".formatted(input), expectedException.getMessage());
+
+        Mockito.verify(organisationDao).findDescendantsOfOrganisation(input);
+        Mockito.verifyNoMoreInteractions(organisationDao);
+    }
+
     private void assertOrganisation(Optional<Organisation> expectedOrganisation, int groupId, Long parentId, Integer poolSize) {
         assertTrue(expectedOrganisation.isPresent());
 
@@ -254,5 +289,13 @@ public class OrganisationTreeServiceTest {
         }
 
         return organisation;
+    }
+
+    private String randomString() {
+        return UUID.randomUUID().toString();
+    }
+
+    private OrganisationGroupJoin randomOrganisationGroupJoin() {
+        return new OrganisationGroupJoin(123L, 321L, 234, randomString(), randomString(), randomString(), randomString(), false, randomString(), randomString(), randomString(), randomString());
     }
 }
