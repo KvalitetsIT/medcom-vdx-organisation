@@ -19,5 +19,10 @@ public interface OrganisationDao {
 
     Organisation findOrganisationByHistoryApiKey(String historyApiKey);
 
+    List<OrganisationGroupJoin> findAncestorsOfOrganisation(String code);
+    List<OrganisationGroupJoin> findAncestorsOfOrganisation(long groupId);
+    List<OrganisationGroupJoin> findAncestorsOfOrganisationByHistoryApiKey(String historyApiKey);
+
     List<OrganisationGroupJoin> findDescendantsOfOrganisation(String code);
+    List<OrganisationGroupJoin> findDescendantsOfOrganisation(long groupId);
 }

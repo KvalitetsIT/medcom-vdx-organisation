@@ -3,7 +3,10 @@ package dk.medcom.vdx.organisation.service.impl;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.service.OrganisationTreeService;
+import dk.medcom.vdx.organisation.service.ValidationService;
+import dk.medcom.vdx.organisation.service.exception.InvalidDataException;
 import dk.medcom.vdx.organisation.service.exception.OrganisationNotFoundException;
+import dk.medcom.vdx.organisation.service.model.OrganisationModel;
 import dk.medcom.vdx.organisation.service.model.OrganisationSimple;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,9 +16,11 @@ import java.util.*;
 public class OrganisationTreeServiceImpl implements OrganisationTreeService {
     private static final Logger logger = LoggerFactory.getLogger(OrganisationTreeServiceImpl.class);
 
+    private final ValidationService validationService;
     private final OrganisationDao organisationDao;
 
-    public OrganisationTreeServiceImpl(OrganisationDao organisationDao) {
+    public OrganisationTreeServiceImpl(ValidationService validationService, OrganisationDao organisationDao) {
+        this.validationService = validationService;
         this.organisationDao = organisationDao;
     }
 
@@ -83,7 +88,76 @@ public class OrganisationTreeServiceImpl implements OrganisationTreeService {
     }
 
     @Override
+    public List<OrganisationModel> findAncestorsByCode(String code) {
+        var organisations = organisationDao.findAncestorsOfOrganisation(code);
+        if (organisations.isEmpty()) {
+            logger.warn("Organisation with code {} not found.", code);
+            throw new OrganisationNotFoundException("Organisation with code %s not found.".formatted(code));
+        }
+        validationService.validateAncestorList(organisations);
+
+        return organisations.stream().map(OrganisationModel::from).toList();
+    }
+
+    @Override
+    public List<OrganisationModel> findAncestorsByGroupId(int groupId) {
+        var organisations = organisationDao.findAncestorsOfOrganisation(groupId);
+        if (organisations.isEmpty()) {
+            logger.warn("Organisation with group id {} not found.", groupId);
+            throw new OrganisationNotFoundException("Organisation with group id %s not found.".formatted(groupId));
+        }
+        validationService.validateAncestorList(organisations);
+
+        return organisations.stream().map(OrganisationModel::from).toList();
+    }
+
+    @Override
+    public List<OrganisationModel> findAncestorsByApiKey(String apiKeyType, String apiKey) {
+        if(apiKeyType.equals("history")) {
+            var organisations = organisationDao.findAncestorsOfOrganisationByHistoryApiKey(apiKey);
+            if(organisations.isEmpty()) {
+                logger.warn("Organisation not found in database.");
+                throw new OrganisationNotFoundException("Organisation not found in database.");
+            }
+            validationService.validateAncestorList(organisations);
+
+            return organisations.stream().map(OrganisationModel::from).toList();
+        }
+
+        logger.warn("ApiKey is not of valid type.");
+        throw new InvalidDataException("ApiKey is not of valid type.");
+    }
+
+    @Override
+    public List<OrganisationModel> findDescendantsByGroupId(int groupId) {
+        validationService.validateOrganisationByGroupId(groupId);
+
+        var organisations = organisationDao.findDescendantsOfOrganisation(groupId);
+        if (organisations.isEmpty()) {
+            logger.warn("Organisation with group id {} not found.", groupId);
+            throw new OrganisationNotFoundException("Organisation with group id %s not found.".formatted(groupId));
+        }
+
+        return organisations.stream().map(OrganisationModel::from).toList();
+    }
+
+    @Override
+    public List<OrganisationModel> findDescendantsByCode(String code) {
+        validationService.validateOrganisationByCode(code);
+
+        var organisations = organisationDao.findDescendantsOfOrganisation(code);
+        if (organisations.isEmpty()) {
+            logger.warn("Organisation with code {} not found.", code);
+            throw new OrganisationNotFoundException("Organisation with code %s not found.".formatted(code));
+        }
+
+        return organisations.stream().map(OrganisationModel::from).toList();
+    }
+
+    @Override
     public List<OrganisationSimple> findDescendantsOfOrganisation(String code) {
+        validationService.validateOrganisationByCode(code);
+
         var descendants = organisationDao.findDescendantsOfOrganisation(code);
         if (descendants.isEmpty()) {
             logger.warn("Organisation with code {} not found in db.", code);

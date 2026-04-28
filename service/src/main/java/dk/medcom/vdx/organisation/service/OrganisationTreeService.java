@@ -2,6 +2,7 @@ package dk.medcom.vdx.organisation.service;
 
 
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
+import dk.medcom.vdx.organisation.service.model.OrganisationModel;
 import dk.medcom.vdx.organisation.service.model.OrganisationSimple;
 
 import java.util.List;
@@ -18,5 +19,10 @@ public interface OrganisationTreeService {
 
     List<Organisation> findChildrenByOrganisationCode(String code);
 
+    List<OrganisationModel> findAncestorsByCode(String code);
+    List<OrganisationModel> findAncestorsByGroupId(int groupId);
+    List<OrganisationModel> findAncestorsByApiKey(String apiKeyType, String apiKey);
+    List<OrganisationModel> findDescendantsByGroupId(int groupId);
+    List<OrganisationModel> findDescendantsByCode(String code);
     List<OrganisationSimple> findDescendantsOfOrganisation(String code);
 }
