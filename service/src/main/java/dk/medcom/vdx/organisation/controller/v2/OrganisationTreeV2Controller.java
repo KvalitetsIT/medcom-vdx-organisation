@@ -91,7 +91,7 @@ public class OrganisationTreeV2Controller implements OrganisationTreeV2Api {
             if (organisationCode != null) {
                 var organisations = organisationTreeService.findDescendantsByCode(organisationCode);
 
-                return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTreeFromModel(organisations, organisations.getFirst().groupId()));
+                return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTreeFromModel(organisations, organisations.getFirst().group().id()));
             } else {
                 var organisations = organisationTreeService.findDescendantsByGroupId(groupId);
 

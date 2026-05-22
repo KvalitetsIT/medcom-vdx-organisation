@@ -2,30 +2,23 @@ package dk.medcom.vdx.organisation.service.model;
 
 import dk.medcom.vdx.organisation.dao.entity.OrganisationGroupJoin;
 
-public record OrganisationModel(Long groupId,
-                                Long parentId,
+public record OrganisationModel(String id,
+                                String name,
                                 Integer poolSize,
-                                String groupName,
-                                String organisationId,
-                                String organisationName,
-                                String smsSenderName,
                                 Boolean allowCustomUriWithoutDomain,
-                                String smsCallbackUrl,
+                                Group group,
+                                SmsInfo smsInfo,
                                 String historyApiKey,
-                                String deviceWebhookEndpoint,
-                                String deviceWebhookEndpointKey) {
+                                DeviceWebhook deviceWebhook) {
     public static OrganisationModel from(OrganisationGroupJoin organisationGroupJoin) {
-        return new OrganisationModel(organisationGroupJoin.groupId(),
-                organisationGroupJoin.parentId(),
-                organisationGroupJoin.poolSize(),
-                organisationGroupJoin.groupName(),
-                organisationGroupJoin.organisationId(),
+        return new OrganisationModel(organisationGroupJoin.organisationId(),
                 organisationGroupJoin.organisationName(),
-                organisationGroupJoin.smsSenderName(),
+                organisationGroupJoin.poolSize(),
                 organisationGroupJoin.allowCustomUriWithoutDomain(),
-                organisationGroupJoin.smsCallbackUrl(),
+                new Group(organisationGroupJoin.groupId(), organisationGroupJoin.parentId(), organisationGroupJoin.groupName()),
+                new SmsInfo(organisationGroupJoin.smsSenderName(), organisationGroupJoin.smsCallbackUrl()),
                 organisationGroupJoin.historyApiKey(),
-                organisationGroupJoin.deviceWebhookEndpoint(),
-                organisationGroupJoin.deviceWebhookEndpointKey());
+                new DeviceWebhook(organisationGroupJoin.deviceWebhookEndpoint(), organisationGroupJoin.deviceWebhookEndpointKey())
+        );
     }
 }

@@ -7,7 +7,10 @@ import dk.medcom.vdx.organisation.service.exception.InvalidDataException;
 import dk.medcom.vdx.organisation.service.exception.OrganisationNotFoundException;
 import dk.medcom.vdx.organisation.service.exception.OrganisationNotInTreeException;
 import dk.medcom.vdx.organisation.service.impl.OrganisationTreeServiceImpl;
+import dk.medcom.vdx.organisation.service.model.DeviceWebhook;
+import dk.medcom.vdx.organisation.service.model.Group;
 import dk.medcom.vdx.organisation.service.model.OrganisationModel;
+import dk.medcom.vdx.organisation.service.model.SmsInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -555,7 +558,7 @@ public class OrganisationTreeServiceTest {
     }
 
     private void assertOrganisation(OrganisationGroupJoin organisationGroupJoinExpected, OrganisationModel actual) {
-        var expected = new OrganisationModel(organisationGroupJoinExpected.groupId(), organisationGroupJoinExpected.parentId(), organisationGroupJoinExpected.poolSize(), organisationGroupJoinExpected.groupName(), organisationGroupJoinExpected.organisationId(), organisationGroupJoinExpected.organisationName(), organisationGroupJoinExpected.smsSenderName(), organisationGroupJoinExpected.allowCustomUriWithoutDomain(), organisationGroupJoinExpected.smsCallbackUrl(), organisationGroupJoinExpected.historyApiKey(), organisationGroupJoinExpected.deviceWebhookEndpoint(), organisationGroupJoinExpected.deviceWebhookEndpointKey());
+        var expected = new OrganisationModel(organisationGroupJoinExpected.organisationId(), organisationGroupJoinExpected.organisationName(), organisationGroupJoinExpected.poolSize(), organisationGroupJoinExpected.allowCustomUriWithoutDomain(), new Group(organisationGroupJoinExpected.groupId(), organisationGroupJoinExpected.parentId(), organisationGroupJoinExpected.groupName()), new SmsInfo(organisationGroupJoinExpected.smsSenderName(), organisationGroupJoinExpected.smsCallbackUrl()), organisationGroupJoinExpected.historyApiKey(), new DeviceWebhook(organisationGroupJoinExpected.deviceWebhookEndpoint(), organisationGroupJoinExpected.deviceWebhookEndpointKey()));
         assertEquals(expected, actual);
     }
 

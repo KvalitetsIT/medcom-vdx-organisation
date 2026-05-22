@@ -7,8 +7,7 @@ import dk.medcom.vdx.organisation.service.OrganisationTreeBuilder;
 import dk.medcom.vdx.organisation.service.OrganisationTreeService;
 import dk.medcom.vdx.organisation.service.exception.OrganisationNotFoundException;
 import dk.medcom.vdx.organisation.service.exception.OrganisationNotInTreeException;
-import dk.medcom.vdx.organisation.service.model.OrganisationModel;
-import dk.medcom.vdx.organisation.service.model.OrganisationSimple;
+import dk.medcom.vdx.organisation.service.model.*;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -164,7 +163,7 @@ public class OrganisationTreeV2ControllerTest {
         var buildTreeOutput = randomOrganisationTree(organisationCode);
 
         Mockito.when(organisationTreeService.findDescendantsByCode(organisationCode)).thenReturn(organisationList);
-        Mockito.when(organisationTreeBuilder.buildOrganisationTreeFromModel(organisationList, organisationList.getFirst().groupId())).thenReturn(buildTreeOutput);
+        Mockito.when(organisationTreeBuilder.buildOrganisationTreeFromModel(organisationList, organisationList.getFirst().group().id())).thenReturn(buildTreeOutput);
 
         var resultEntity = organisationTreeV2Controller.servicesV2OrganisationtreeChildrenGet(organisationCode, null);
         assertNotNull(resultEntity);
@@ -173,7 +172,7 @@ public class OrganisationTreeV2ControllerTest {
         assertEquals(buildTreeOutput, resultEntity.getBody());
 
         Mockito.verify(organisationTreeService).findDescendantsByCode(organisationCode);
-        Mockito.verify(organisationTreeBuilder).buildOrganisationTreeFromModel(organisationList, organisationList.getFirst().groupId());
+        Mockito.verify(organisationTreeBuilder).buildOrganisationTreeFromModel(organisationList, organisationList.getFirst().group().id());
         verifyNoMoreInteractions();
     }
 
@@ -435,18 +434,14 @@ public class OrganisationTreeV2ControllerTest {
 
     private OrganisationModel randomOrganisation() {
         return new OrganisationModel(
-                count++,
-                count++,
+                randomString(),
+                randomString(),
                 (int) count++,
-                randomString(),
-                randomString(),
-                randomString(),
-                randomString(),
                 false,
+                new Group(count++, count++, randomString()),
+                new SmsInfo(randomString(), randomString()),
                 randomString(),
-                randomString(),
-                randomString(),
-                randomString()
+                new DeviceWebhook(randomString(), randomString())
         );
     }
 

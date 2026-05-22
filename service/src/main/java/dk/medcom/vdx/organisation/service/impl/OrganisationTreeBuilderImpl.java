@@ -56,16 +56,16 @@ public class OrganisationTreeBuilderImpl implements OrganisationTreeBuilder {
         Map<Long, Organisationtree> treeMap = new HashMap<>();
         for (OrganisationModel organisation : organisationList) {
             Organisationtree tree = mapOrganisationTree(organisation);
-            treeMap.merge(organisation.groupId(), tree, this::merge);
+            treeMap.merge(organisation.group().id(), tree, this::merge);
 
             Organisationtree parentOrganisationTreeDto;
-            if(organisation.parentId() != null) {
-                parentOrganisationTreeDto = treeMap.getOrDefault(organisation.parentId(), new Organisationtree());
+            if(organisation.group().parentId() != null) {
+                parentOrganisationTreeDto = treeMap.getOrDefault(organisation.group().parentId(), new Organisationtree());
                 parentOrganisationTreeDto.addChildrenItem(tree);
-                treeMap.put(organisation.parentId(), parentOrganisationTreeDto);
+                treeMap.put(organisation.group().parentId(), parentOrganisationTreeDto);
             }
             else {
-                rootGroupId = organisation.groupId();
+                rootGroupId = organisation.group().id();
             }
         }
 
@@ -96,14 +96,14 @@ public class OrganisationTreeBuilderImpl implements OrganisationTreeBuilder {
 
     private Organisationtree mapOrganisationTree(OrganisationModel organisation) {
         Organisationtree organisationTreeDto = new Organisationtree();
-        organisationTreeDto.setCode(organisation.organisationId() != null ? organisation.organisationId() : organisation.groupId().toString());
-        organisationTreeDto.setName(organisation.organisationName() != null ? organisation.organisationName() : organisation.groupName());
+        organisationTreeDto.setCode(organisation.id() != null ? organisation.id() : organisation.group().id().toString());
+        organisationTreeDto.setName(organisation.name() != null ? organisation.name() : organisation.group().name());
         organisationTreeDto.setPoolSize(organisation.poolSize() != null ? organisation.poolSize() : 0);
-        organisationTreeDto.setSmsCallbackUrl(organisation.smsCallbackUrl());
-        organisationTreeDto.setSmsSenderName(organisation.smsSenderName());
-        organisationTreeDto.setGroupId(organisation.groupId().intValue());
-        organisationTreeDto.setDeviceWebhookEndpoint(organisation.deviceWebhookEndpoint());
-        organisationTreeDto.setDeviceWebhookEndpointKey(organisation.deviceWebhookEndpointKey());
+        organisationTreeDto.setSmsCallbackUrl(organisation.smsInfo().callbackUrl());
+        organisationTreeDto.setSmsSenderName(organisation.smsInfo().senderName());
+        organisationTreeDto.setGroupId(organisation.group().id().intValue());
+        organisationTreeDto.setDeviceWebhookEndpoint(organisation.deviceWebhook().endpoint());
+        organisationTreeDto.setDeviceWebhookEndpointKey(organisation.deviceWebhook().key());
 
         return organisationTreeDto;
     }
