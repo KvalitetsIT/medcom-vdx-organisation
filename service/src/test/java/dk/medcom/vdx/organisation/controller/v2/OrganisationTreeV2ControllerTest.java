@@ -1,8 +1,6 @@
 package dk.medcom.vdx.organisation.controller.v2;
 
 import dk.medcom.vdx.organisation.controller.exception.BadRequestException;
-import dk.medcom.vdx.organisation.controller.exception.PermissionDeniedV2Exception;
-import dk.medcom.vdx.organisation.controller.exception.ResourceNotFoundV2Exception;
 import dk.medcom.vdx.organisation.service.OrganisationTreeBuilder;
 import dk.medcom.vdx.organisation.service.OrganisationTreeService;
 import dk.medcom.vdx.organisation.service.exception.OrganisationNotFoundException;
@@ -85,9 +83,8 @@ public class OrganisationTreeV2ControllerTest {
         var input = new OrganisationTreeForApiKey(randomString(), randomString());
         Mockito.when(organisationTreeService.findAncestorsByApiKey(input.getApiKeyType(), input.getApiKey())).thenThrow(OrganisationNotFoundException.class);
 
-        var expectedException = assertThrows(ResourceNotFoundV2Exception.class, () -> organisationTreeV2Controller.servicesV2OrganisationTreeForApiKeyPost(input));
+        var expectedException = assertThrows(OrganisationNotFoundException.class, () -> organisationTreeV2Controller.servicesV2OrganisationTreeForApiKeyPost(input));
         assertNotNull(expectedException);
-        assertEquals(404, expectedException.getHttpStatus().value());
 
         Mockito.verify(organisationTreeService).findAncestorsByApiKey(input.getApiKeyType(), input.getApiKey());
         verifyNoMoreInteractions();
@@ -98,9 +95,8 @@ public class OrganisationTreeV2ControllerTest {
         var input = new OrganisationTreeForApiKey(randomString(), randomString());
         Mockito.when(organisationTreeService.findAncestorsByApiKey(input.getApiKeyType(), input.getApiKey())).thenThrow(OrganisationNotInTreeException.class);
 
-        var expectedException = assertThrows(PermissionDeniedV2Exception.class, () -> organisationTreeV2Controller.servicesV2OrganisationTreeForApiKeyPost(input));
+        var expectedException = assertThrows(OrganisationNotInTreeException.class, () -> organisationTreeV2Controller.servicesV2OrganisationTreeForApiKeyPost(input));
         assertNotNull(expectedException);
-        assertEquals(403, expectedException.getHttpStatus().value());
 
         Mockito.verify(organisationTreeService).findAncestorsByApiKey(input.getApiKeyType(), input.getApiKey());
         verifyNoMoreInteractions();
@@ -133,9 +129,8 @@ public class OrganisationTreeV2ControllerTest {
 
         Mockito.when(organisationTreeService.findDescendantsOfOrganisation(input)).thenThrow(new OrganisationNotFoundException("message"));
 
-        var exception = assertThrows(ResourceNotFoundV2Exception.class, () -> organisationTreeV2Controller.servicesV2OrganisationCodeDescendantsGet(input));
+        var exception = assertThrows(OrganisationNotFoundException.class, () -> organisationTreeV2Controller.servicesV2OrganisationCodeDescendantsGet(input));
         assertNotNull(exception);
-        assertEquals(404, exception.getHttpStatus().value());
         assertEquals("message", exception.getMessage());
 
         Mockito.verify(organisationTreeService).findDescendantsOfOrganisation(input);
@@ -148,9 +143,8 @@ public class OrganisationTreeV2ControllerTest {
 
         Mockito.when(organisationTreeService.findDescendantsOfOrganisation(input)).thenThrow(OrganisationNotInTreeException.class);
 
-        var exception = assertThrows(PermissionDeniedV2Exception.class, () -> organisationTreeV2Controller.servicesV2OrganisationCodeDescendantsGet(input));
+        var exception = assertThrows(OrganisationNotInTreeException.class, () -> organisationTreeV2Controller.servicesV2OrganisationCodeDescendantsGet(input));
         assertNotNull(exception);
-        assertEquals(403, exception.getHttpStatus().value());
 
         Mockito.verify(organisationTreeService).findDescendantsOfOrganisation(input);
         verifyNoMoreInteractions();
@@ -182,9 +176,8 @@ public class OrganisationTreeV2ControllerTest {
 
         Mockito.when(organisationTreeService.findDescendantsByCode(organisationCode)).thenThrow(OrganisationNotFoundException.class);
 
-        var expectedException = assertThrows(ResourceNotFoundV2Exception.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeChildrenGet(organisationCode, null));
+        var expectedException = assertThrows(OrganisationNotFoundException.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeChildrenGet(organisationCode, null));
         assertNotNull(expectedException);
-        assertEquals(404, expectedException.getHttpStatus().value());
 
         Mockito.verify(organisationTreeService).findDescendantsByCode(organisationCode);
         verifyNoMoreInteractions();
@@ -196,9 +189,8 @@ public class OrganisationTreeV2ControllerTest {
 
         Mockito.when(organisationTreeService.findDescendantsByCode(organisationCode)).thenThrow(OrganisationNotInTreeException.class);
 
-        var expectedException = assertThrows(PermissionDeniedV2Exception.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeChildrenGet(organisationCode, null));
+        var expectedException = assertThrows(OrganisationNotInTreeException.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeChildrenGet(organisationCode, null));
         assertNotNull(expectedException);
-        assertEquals(403, expectedException.getHttpStatus().value());
 
         Mockito.verify(organisationTreeService).findDescendantsByCode(organisationCode);
         verifyNoMoreInteractions();
@@ -230,9 +222,8 @@ public class OrganisationTreeV2ControllerTest {
 
         Mockito.when(organisationTreeService.findDescendantsByGroupId(organisationGroup)).thenThrow(OrganisationNotFoundException.class);
 
-        var expectedException = assertThrows(ResourceNotFoundV2Exception.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeChildrenGet(null, organisationGroup));
+        var expectedException = assertThrows(OrganisationNotFoundException.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeChildrenGet(null, organisationGroup));
         assertNotNull(expectedException);
-        assertEquals(404, expectedException.getHttpStatus().value());
 
         Mockito.verify(organisationTreeService).findDescendantsByGroupId(organisationGroup);
         verifyNoMoreInteractions();
@@ -244,9 +235,8 @@ public class OrganisationTreeV2ControllerTest {
 
         Mockito.when(organisationTreeService.findDescendantsByGroupId(organisationGroup)).thenThrow(OrganisationNotInTreeException.class);
 
-        var expectedException = assertThrows(PermissionDeniedV2Exception.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeChildrenGet(null, organisationGroup));
+        var expectedException = assertThrows(OrganisationNotInTreeException.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeChildrenGet(null, organisationGroup));
         assertNotNull(expectedException);
-        assertEquals(403, expectedException.getHttpStatus().value());
 
         Mockito.verify(organisationTreeService).findDescendantsByGroupId(organisationGroup);
         verifyNoMoreInteractions();
@@ -295,9 +285,8 @@ public class OrganisationTreeV2ControllerTest {
         var input = randomString();
         Mockito.when(organisationTreeService.findAncestorsByCode(input)).thenThrow(OrganisationNotFoundException.class);
 
-        var expectedException = assertThrows(ResourceNotFoundV2Exception.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeCodeGet(input));
+        var expectedException = assertThrows(OrganisationNotFoundException.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeCodeGet(input));
         assertNotNull(expectedException);
-        assertEquals(404, expectedException.getHttpStatus().value());
 
         Mockito.verify(organisationTreeService).findAncestorsByCode(input);
         verifyNoMoreInteractions();
@@ -308,9 +297,8 @@ public class OrganisationTreeV2ControllerTest {
         var input = randomString();
         Mockito.when(organisationTreeService.findAncestorsByCode(input)).thenThrow(OrganisationNotInTreeException.class);
 
-        var expectedException = assertThrows(PermissionDeniedV2Exception.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeCodeGet(input));
+        var expectedException = assertThrows(OrganisationNotInTreeException.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeCodeGet(input));
         assertNotNull(expectedException);
-        assertEquals(403, expectedException.getHttpStatus().value());
 
         Mockito.verify(organisationTreeService).findAncestorsByCode(input);
         verifyNoMoreInteractions();
@@ -342,9 +330,8 @@ public class OrganisationTreeV2ControllerTest {
 
         Mockito.when(organisationTreeService.findAncestorsByCode(organisationCode)).thenThrow(OrganisationNotFoundException.class);
 
-        var expectedException = assertThrows(ResourceNotFoundV2Exception.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeGet(organisationCode, null));
+        var expectedException = assertThrows(OrganisationNotFoundException.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeGet(organisationCode, null));
         assertNotNull(expectedException);
-        assertEquals(404, expectedException.getHttpStatus().value());
 
         Mockito.verify(organisationTreeService).findAncestorsByCode(organisationCode);
         verifyNoMoreInteractions();
@@ -356,9 +343,8 @@ public class OrganisationTreeV2ControllerTest {
 
         Mockito.when(organisationTreeService.findAncestorsByCode(organisationCode)).thenThrow(OrganisationNotInTreeException.class);
 
-        var expectedException = assertThrows(PermissionDeniedV2Exception.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeGet(organisationCode, null));
+        var expectedException = assertThrows(OrganisationNotInTreeException.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeGet(organisationCode, null));
         assertNotNull(expectedException);
-        assertEquals(403, expectedException.getHttpStatus().value());
 
         Mockito.verify(organisationTreeService).findAncestorsByCode(organisationCode);
         verifyNoMoreInteractions();
@@ -390,9 +376,8 @@ public class OrganisationTreeV2ControllerTest {
 
         Mockito.when(organisationTreeService.findAncestorsByGroupId(organisationGroup)).thenThrow(OrganisationNotFoundException.class);
 
-        var expectedException = assertThrows(ResourceNotFoundV2Exception.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeGet(null, organisationGroup));
+        var expectedException = assertThrows(OrganisationNotFoundException.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeGet(null, organisationGroup));
         assertNotNull(expectedException);
-        assertEquals(404, expectedException.getHttpStatus().value());
 
         Mockito.verify(organisationTreeService).findAncestorsByGroupId(organisationGroup);
         verifyNoMoreInteractions();
@@ -404,9 +389,8 @@ public class OrganisationTreeV2ControllerTest {
 
         Mockito.when(organisationTreeService.findAncestorsByGroupId(organisationGroup)).thenThrow(OrganisationNotInTreeException.class);
 
-        var expectedException = assertThrows(PermissionDeniedV2Exception.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeGet(null, organisationGroup));
+        var expectedException = assertThrows(OrganisationNotInTreeException.class, () -> organisationTreeV2Controller.servicesV2OrganisationtreeGet(null, organisationGroup));
         assertNotNull(expectedException);
-        assertEquals(403, expectedException.getHttpStatus().value());
 
         Mockito.verify(organisationTreeService).findAncestorsByGroupId(organisationGroup);
         verifyNoMoreInteractions();
