@@ -2,6 +2,7 @@ package dk.medcom.vdx.organisation.service.impl;
 
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.service.OrganisationTreeBuilder;
+import dk.medcom.vdx.organisation.service.model.OrganisationModel;
 import org.openapitools.model.Organisationtree;
 
 import java.util.HashMap;
@@ -12,6 +13,11 @@ public class OrganisationTreeBuilderImpl implements OrganisationTreeBuilder {
     @Override
     public Organisationtree buildOrganisationTree(List<Organisation> organisationList) {
         return buildOrganisationTree(organisationList, null);
+    }
+
+    @Override
+    public Organisationtree buildOrganisationTreeFromModel(List<OrganisationModel> organisationList) {
+        return buildOrganisationTreeFromModel(organisationList, null);
     }
 
     @Override
@@ -40,6 +46,32 @@ public class OrganisationTreeBuilderImpl implements OrganisationTreeBuilder {
         return treeMap.get(rootGroupId);
     }
 
+    @Override
+    public Organisationtree buildOrganisationTreeFromModel(List<OrganisationModel> organisationList, Long root) {
+        if (organisationList == null || organisationList.isEmpty()) {
+            return null;
+        }
+
+        Long rootGroupId = root;
+        Map<Long, Organisationtree> treeMap = new HashMap<>();
+        for (OrganisationModel organisation : organisationList) {
+            Organisationtree tree = mapOrganisationTree(organisation);
+            treeMap.merge(organisation.group().id(), tree, this::merge);
+
+            Organisationtree parentOrganisationTreeDto;
+            if(organisation.group().parentId() != null) {
+                parentOrganisationTreeDto = treeMap.getOrDefault(organisation.group().parentId(), new Organisationtree());
+                parentOrganisationTreeDto.addChildrenItem(tree);
+                treeMap.put(organisation.group().parentId(), parentOrganisationTreeDto);
+            }
+            else {
+                rootGroupId = organisation.group().id();
+            }
+        }
+
+        return treeMap.get(rootGroupId);
+    }
+
     private Organisationtree merge(Organisationtree existingOrganisation, Organisationtree organisation) {
         if(existingOrganisation.getChildren() != null) {
             existingOrganisation.getChildren().forEach(organisation::addChildrenItem);
@@ -58,6 +90,20 @@ public class OrganisationTreeBuilderImpl implements OrganisationTreeBuilder {
         organisationTreeDto.setGroupId(organisation.getGroupId().intValue());
         organisationTreeDto.setDeviceWebhookEndpoint(organisation.getDeviceWebhookEndpoint());
         organisationTreeDto.setDeviceWebhookEndpointKey(organisation.getDeviceWebhookEndpointKey());
+
+        return organisationTreeDto;
+    }
+
+    private Organisationtree mapOrganisationTree(OrganisationModel organisation) {
+        Organisationtree organisationTreeDto = new Organisationtree();
+        organisationTreeDto.setCode(organisation.id() != null ? organisation.id() : organisation.group().id().toString());
+        organisationTreeDto.setName(organisation.name() != null ? organisation.name() : organisation.group().name());
+        organisationTreeDto.setPoolSize(organisation.poolSize() != null ? organisation.poolSize() : 0);
+        organisationTreeDto.setSmsCallbackUrl(organisation.smsInfo().callbackUrl());
+        organisationTreeDto.setSmsSenderName(organisation.smsInfo().senderName());
+        organisationTreeDto.setGroupId(organisation.group().id().intValue());
+        organisationTreeDto.setDeviceWebhookEndpoint(organisation.deviceWebhook().endpoint());
+        organisationTreeDto.setDeviceWebhookEndpointKey(organisation.deviceWebhook().key());
 
         return organisationTreeDto;
     }

@@ -37,7 +37,7 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
     OrganisationTreeV2IT() {
         var keycloakUrl = getKeycloakUrl();
 
-        organisationTreeV2Api = createClient(HeaderBuilder.getJwtAllRoleAtt(keycloakUrl));
+        organisationTreeV2Api = createClient(HeaderBuilder.getJwtAllRoleAtt(keycloakUrl, "parent"));
         organisationTreeV2ApiNoHeader = createClient(null);
         organisationTreeV2ApiNoRoleAtt = createClient(HeaderBuilder.getJwtNoRoleAtt(keycloakUrl));
         organisationTreeV2ApiNotAdmin = createClient(HeaderBuilder.getJwtNotAdmin(keycloakUrl));
@@ -367,7 +367,7 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
     @Test
     void testGetOrganisationTreeSlash() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisationtree/æ/åø")).
-                header("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl())).
+                header("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl(), "æ/åø")).
                 GET().
                 build();
 
@@ -422,17 +422,13 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
 
     @Test
     void testServicesV2OrganisationtreeChildrenGetByGroupId() throws ApiException {
-        var response = organisationTreeV2Api.servicesV2OrganisationtreeChildrenGet(null, 10);
+        var response = organisationTreeV2Api.servicesV2OrganisationtreeChildrenGet(null, 11);
         assertNotNull(response);
 
-        assertEquals(Optional.of(10).get(), response.getGroupId());
-        assertEquals(1, response.getChildren().size());
+        assertEquals(Optional.of(11).get(), response.getGroupId());
+        assertEquals(3, response.getChildren().size());
 
         var children = response.getChildren();
-        assertEquals(Optional.of(11).get(), children.getFirst().getGroupId());
-        assertEquals(3, children.getFirst().getChildren().size());
-
-        children = children.getFirst().getChildren();
         assertEquals(Optional.of(12).get(), children.getFirst().getGroupId());
         assertEquals(1, children.getFirst().getChildren().size());
 
@@ -531,6 +527,7 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
 
     @Test
     void testServicesV2OrganisationtreeCodeGet_with_group_only() throws ApiException {
+        var organisationTreeV2Api = createClient(HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl(), "vdx"));
         var response = organisationTreeV2Api.servicesV2OrganisationtreeCodeGet("medcom_test_2");
 
         assertNotNull(response);
@@ -596,7 +593,7 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
     @Test
     void testServicesV2OrganisationtreeGetWithSlashQueryParameter() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisationtree?organisationCode=æ/åø")).
-                header("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl())).
+                header("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl(), "æ/åø")).
                 GET().
                 build();
 

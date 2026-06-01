@@ -184,23 +184,95 @@ public class OrganisationDaoImpl implements OrganisationDao {
     public List<OrganisationGroupJoin> findDescendantsOfOrganisation(String code) {
         var sql = """
                 with recursive org_hierarchy as (
-                    select o.pool_size,
-                       g.parent_id,
-                       g.group_id,
-                       g.group_name,
-                       o.organisation_id,
-                       o.name organisation_name,
-                       o.sms_sender_name,
-                       o.allow_custom_uri_without_domain,
-                       o.sms_callback_url,
-                       o.history_api_key,
-                       o.device_webhook_endpoint,
-                       o.device_webhook_endpoint_key
+                    %s
                     from organisation o, groups g
                         where o.organisation_id = :organisation_id
                             and g.group_id = o.group_id
                 union all
-                    select o.pool_size,
+                    %s
+                    %s
+                )
+                select * from org_hierarchy
+                """.formatted(organisationGroupValuesSql(), organisationGroupValuesSql(), fromDescendantSql());
+
+        return template.query(sql, Collections.singletonMap("organisation_id", code), DataClassRowMapper.newInstance(OrganisationGroupJoin.class));
+    }
+
+    @Override
+    public List<OrganisationGroupJoin> findDescendantsOfOrganisation(long groupId) {
+        var sql = """
+                with recursive org_hierarchy as (
+                    %s
+                    from groups g left outer join (select * from organisation where deleted_time = '0001-01-01 00:00:00') o on g.group_id = o.group_id
+                        where g.group_id = :group_id
+                            and g.deleted_time = '0001-01-01 00:00:00'
+                union all
+                    %s
+                    %s
+                )
+                select * from org_hierarchy
+                """.formatted(organisationGroupValuesSql(), organisationGroupValuesSql(), fromDescendantSql());
+
+        return template.query(sql, Collections.singletonMap("group_id", groupId), DataClassRowMapper.newInstance(OrganisationGroupJoin.class));
+    }
+
+    @Override
+    public List<OrganisationGroupJoin> findAncestorsOfOrganisation(String code) {
+        var sql = """
+                with recursive org_hierarchy as (
+                    %s
+                    from organisation o, groups g
+                        where o.organisation_id = :organisation_id
+                            and g.group_id = o.group_id
+                union all
+                    %s
+                    %s
+                )
+                select * from org_hierarchy
+                """.formatted(organisationGroupValuesSql(), organisationGroupValuesSql(), fromAncestorSql());
+
+        return template.query(sql, Collections.singletonMap("organisation_id", code), DataClassRowMapper.newInstance(OrganisationGroupJoin.class));
+    }
+
+    @Override
+    public List<OrganisationGroupJoin> findAncestorsOfOrganisation(long groupId) {
+        var sql = """
+                with recursive org_hierarchy as (
+                    %s
+                    from groups g left outer join (select * from organisation where deleted_time = '0001-01-01 00:00:00') o on g.group_id = o.group_id
+                        where g.group_id = :group_id
+                            and g.deleted_time = '0001-01-01 00:00:00'
+                union all
+                    %s
+                    %s
+                )
+                select * from org_hierarchy
+                """.formatted(organisationGroupValuesSql(), organisationGroupValuesSql(), fromAncestorSql());
+
+        return template.query(sql, Collections.singletonMap("group_id", groupId), DataClassRowMapper.newInstance(OrganisationGroupJoin.class));
+    }
+
+    @Override
+    public List<OrganisationGroupJoin> findAncestorsOfOrganisationByHistoryApiKey(String historyApiKey) {
+        var sql = """
+                with recursive org_hierarchy as (
+                    %s
+                    from organisation o, groups g
+                        where o.history_api_key = :history_api_key
+                            and g.group_id = o.group_id
+                union all
+                    %s
+                    %s
+                )
+                select * from org_hierarchy
+                """.formatted(organisationGroupValuesSql(), organisationGroupValuesSql(), fromAncestorSql());
+
+        return template.query(sql, Collections.singletonMap("history_api_key", historyApiKey), DataClassRowMapper.newInstance(OrganisationGroupJoin.class));
+    }
+
+    private String organisationGroupValuesSql() {
+        return """
+                select o.pool_size,
                        g.parent_id,
                        g.group_id,
                        g.group_name,
@@ -212,15 +284,26 @@ public class OrganisationDaoImpl implements OrganisationDao {
                        o.history_api_key,
                        o.device_webhook_endpoint,
                        o.device_webhook_endpoint_key
+                """;
+    }
+
+    private String fromDescendantSql() {
+        return """
                     from groups g
                 inner join org_hierarchy oh ON g.parent_id = oh.group_id
                     left outer join (select * from organisation where deleted_time = '0001-01-01 00:00:00') o on g.group_id = o.group_id
                         where g.parent_id = oh.group_id
                             and g.deleted_time = '0001-01-01 00:00:00'
-                )
-                select * from org_hierarchy
                 """;
+    }
 
-        return template.query(sql, Collections.singletonMap("organisation_id", code), DataClassRowMapper.newInstance(OrganisationGroupJoin.class));
+    private String fromAncestorSql() {
+        return """
+                    from groups g
+                inner join org_hierarchy oh ON g.group_id = oh.parent_id
+                    left outer join (select * from organisation where deleted_time = '0001-01-01 00:00:00') o on g.group_id = o.group_id
+                        where g.group_id = oh.parent_id
+                            and g.deleted_time = '0001-01-01 00:00:00'
+                """;
     }
 }

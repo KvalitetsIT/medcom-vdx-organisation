@@ -11,8 +11,8 @@ import java.util.UUID;
 
 public class HeaderBuilder {
 
-    public static String getJwtAllRoleAtt(String keycloakUrl) {
-        return buildJwt(keycloakUrl, 100, "medcom", randomString(), List.of("meeting-user","meeting-admin","meeting-provisioner","meeting-provisioner-user","meeting-planner"));
+    public static String getJwtAllRoleAtt(String keycloakUrl, String organisationAtt) {
+        return buildJwt(keycloakUrl, 100, organisationAtt, randomString(), List.of("meeting-user","meeting-admin","meeting-provisioner","meeting-provisioner-user","meeting-planner"));
     }
 
     public static String getJwtNoRoleAtt(String keycloakUrl) {

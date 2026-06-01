@@ -1,12 +1,10 @@
 package dk.medcom.vdx.organisation.controller.v2;
 
-import dk.medcom.vdx.organisation.controller.exception.BadRequestException;
-import dk.medcom.vdx.organisation.controller.exception.ResourceNotFoundV2Exception;
+import dk.medcom.vdx.organisation.controller.exception.*;
 import dk.medcom.vdx.organisation.controller.v2.mapper.OrganisationMapper;
 import dk.medcom.vdx.organisation.interceptor.Oauth;
 import dk.medcom.vdx.organisation.service.OrganisationTreeBuilder;
 import dk.medcom.vdx.organisation.service.OrganisationTreeService;
-import dk.medcom.vdx.organisation.service.exception.OrganisationNotFoundException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.openapitools.api.OrganisationTreeV2Api;
 import org.openapitools.model.OrganisationSimple;
@@ -51,12 +49,8 @@ public class OrganisationTreeV2Controller implements OrganisationTreeV2Api {
     public ResponseEntity<List<OrganisationSimple>> servicesV2OrganisationCodeDescendantsGet(String code) {
         logger.debug("Enter GET sub organisation codes of organisation: {}", code);
 
-        try {
-            var codeList = organisationTreeService.findDescendantsOfOrganisation(code);
-            return ResponseEntity.ok(codeList.stream().map(OrganisationMapper::internalToExternal).toList());
-        } catch (OrganisationNotFoundException e) {
-            throw new ResourceNotFoundV2Exception(e.getMessage());
-        }
+        var codeList = organisationTreeService.findDescendantsOfOrganisation(code);
+        return ResponseEntity.ok(codeList.stream().map(OrganisationMapper::internalToExternal).toList());
     }
 
     @Oauth
@@ -65,9 +59,9 @@ public class OrganisationTreeV2Controller implements OrganisationTreeV2Api {
     public ResponseEntity<Organisationtree> servicesV2OrganisationTreeForApiKeyPost(OrganisationTreeForApiKey organisationTreeForApiKey) {
         logger.debug("Enter POST organisation tree for api key.");
 
-        var organisations = organisationTreeService.findOrganisations(organisationTreeForApiKey.getApiKeyType(), organisationTreeForApiKey.getApiKey()).orElseThrow(() -> new ResourceNotFoundV2Exception("Request does not identify an organisation."));
+        var organisations = organisationTreeService.findAncestorsByApiKey(organisationTreeForApiKey.getApiKeyType(), organisationTreeForApiKey.getApiKey());
 
-        return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTree(organisations));
+        return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTreeFromModel(organisations));
     }
 
     @Oauth
@@ -78,22 +72,13 @@ public class OrganisationTreeV2Controller implements OrganisationTreeV2Api {
         validateExactlyOneQueryParameterSet(organisationCode, groupId);
 
         if (organisationCode != null) {
-            var organisations = organisationTreeService.findChildrenByOrganisationCode(organisationCode);
+            var organisations = organisationTreeService.findDescendantsByCode(organisationCode);
 
-            if(organisations.isEmpty()) {
-                throw new ResourceNotFoundV2Exception("Organisation tree with organisation code %s not found.".formatted(organisationCode));
-            }
-
-            return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTree(organisations, organisations.getFirst().getGroupId()));
-
+            return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTreeFromModel(organisations, organisations.getFirst().group().id()));
         } else {
-            var organisations = organisationTreeService.findChildrenByGroupId(groupId);
+            var organisations = organisationTreeService.findDescendantsByGroupId(groupId);
 
-            if(organisations.isEmpty()) {
-                throw new ResourceNotFoundV2Exception("Organisation tree with group id %s not found.".formatted(groupId));
-            }
-
-            return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTree(organisations, groupId.longValue()));
+            return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTreeFromModel(organisations, groupId.longValue()));
         }
     }
 
@@ -102,9 +87,9 @@ public class OrganisationTreeV2Controller implements OrganisationTreeV2Api {
     @PreAuthorize(adminRoleAtt)
     public ResponseEntity<Organisationtree> servicesV2OrganisationtreeCodeGet(String code) {
         logger.debug("Enter GET organisation tree from code: {}.", code);
-        var organisations = organisationTreeService.findOrganisations(code).orElseThrow(() -> new ResourceNotFoundV2Exception("The code: "+code+" does not identify an organisation"));
+        var organisations = organisationTreeService.findAncestorsByCode(code);
 
-        return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTree(organisations));
+        return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTreeFromModel(organisations));
     }
 
     @Oauth
@@ -118,9 +103,9 @@ public class OrganisationTreeV2Controller implements OrganisationTreeV2Api {
             return servicesV2OrganisationtreeCodeGet(organisationCode);
         }
 
-        var organisations = organisationTreeService.getByGroupId(groupId).orElseThrow(() -> new ResourceNotFoundV2Exception("The group Id %s does not exist.".formatted(groupId)));
+        var organisations = organisationTreeService.findAncestorsByGroupId(groupId);
 
-        return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTree(organisations));
+        return ResponseEntity.ok(organisationTreeBuilder.buildOrganisationTreeFromModel(organisations));
     }
 
     private void validateExactlyOneQueryParameterSet(String organisationCode, Integer groupId) {

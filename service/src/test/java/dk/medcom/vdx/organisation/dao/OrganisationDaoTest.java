@@ -302,6 +302,126 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         assertTrue(result.isEmpty());
     }
 
+    @Test
+    public void testFindDescendantsOfOrganisationByGroupId() {
+        var result = organisationDao.findDescendantsOfOrganisation(11);
+        assertNotNull(result);
+        assertEquals(5, result.size());
+
+        var orgGroup11 = new OrganisationGroupJoin(11L, 10L, 20, "parent", "parent", "parent org", "sms-sender", false, "callback", null, "device-webhook-endpoint", "device-webhook-endpoint-key");
+        var resOrgGroup11 = result.stream().filter(organisationGroupJoin -> organisationGroupJoin.groupId() == 11).findFirst().orElseThrow();
+        assertEquals(orgGroup11, resOrgGroup11);
+
+        var orgGroup12 = new OrganisationGroupJoin(12L, 11L, null, "child_one", null, null, null, null, null, null, null, null);
+        var resOrgGroup12 = result.stream().filter(organisationGroupJoin -> organisationGroupJoin.groupId() == 12).findFirst().orElseThrow();
+        assertEquals(orgGroup12, resOrgGroup12);
+
+        var orgGroup13 = new OrganisationGroupJoin(13L, 12L, null, "child", "child", "child org", null, false, null, "8adeac18-f061-4992-818b-8d4461ccfaa7", null, null);
+        var resOrgGroup13 = result.stream().filter(organisationGroupJoin -> organisationGroupJoin.groupId() == 13).findFirst().orElseThrow();
+        assertEquals(orgGroup13, resOrgGroup13);
+
+        var orgGroup17 = new OrganisationGroupJoin(17L, 11L, null, "another-child", "another-child", "This is a another child", null, false, null, "kuk", null, null);
+        var resOrgGroup17 = result.stream().filter(organisationGroupJoin -> organisationGroupJoin.groupId() == 17 && organisationGroupJoin.organisationId().equals("another-child")).findFirst().orElseThrow();
+        assertEquals(orgGroup17, resOrgGroup17);
+
+        var orgGroup17two = new OrganisationGroupJoin(17L, 11L, null, "another-child", "another-child-2", "This is a another child in group 17", null, false, null, "kuk 2", null, null);
+        var resOrgGroup17two = result.stream().filter(organisationGroupJoin -> organisationGroupJoin.groupId() == 17 && organisationGroupJoin.organisationId().equals("another-child-2")).findFirst().orElseThrow();
+        assertEquals(orgGroup17two, resOrgGroup17two);
+    }
+
+    @Test
+    public void testFindDescendantsOfOrganisationByGroupIdNotFound() {
+        var result = organisationDao.findDescendantsOfOrganisation(12345);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testFindAncestorsOfOrganisation() {
+        var result = organisationDao.findAncestorsOfOrganisation("child");
+        assertNotNull(result);
+        assertEquals(4, result.size());
+
+        var orgGroup13 = new OrganisationGroupJoin(13L, 12L, null, "child", "child", "child org", null, false, null, "8adeac18-f061-4992-818b-8d4461ccfaa7", null, null);
+        var resOrgGroup13 = result.stream().filter(organisationGroupJoin -> organisationGroupJoin.groupId() == 13).findFirst().orElseThrow();
+        assertEquals(orgGroup13, resOrgGroup13);
+
+        var orgGroup12 = new OrganisationGroupJoin(12L, 11L, null, "child_one", null, null, null, null, null, null, null, null);
+        var resOrgGroup12 = result.stream().filter(organisationGroupJoin -> organisationGroupJoin.groupId() == 12).findFirst().orElseThrow();
+        assertEquals(orgGroup12, resOrgGroup12);
+
+        var orgGroup11 = new OrganisationGroupJoin(11L, 10L, 20, "parent", "parent", "parent org", "sms-sender", false, "callback", null, "device-webhook-endpoint", "device-webhook-endpoint-key");
+        var resOrgGroup11 = result.stream().filter(organisationGroupJoin -> organisationGroupJoin.groupId() == 11).findFirst().orElseThrow();
+        assertEquals(orgGroup11, resOrgGroup11);
+
+        var orgGroup10 = new OrganisationGroupJoin(10L, null, null, "super_parent", null, null, null, null, null, null, null, null);
+        var resOrgGroup10 = result.stream().filter(organisationGroupJoin -> organisationGroupJoin.groupId() == 10).findFirst().orElseThrow();
+        assertEquals(orgGroup10, resOrgGroup10);
+    }
+
+    @Test
+    public void testFindAncestorsOfOrganisationNotFound() {
+        var result = organisationDao.findAncestorsOfOrganisation("NOT FOUND");
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testFindAncestorsOfOrganisationByGroupId() {
+        var result = organisationDao.findAncestorsOfOrganisation(12);
+        assertNotNull(result);
+        assertEquals(3, result.size());
+
+        var orgGroup12 = new OrganisationGroupJoin(12L, 11L, null, "child_one", null, null, null, null, null, null, null, null);
+        var resOrgGroup12 = result.stream().filter(organisationGroupJoin -> organisationGroupJoin.groupId() == 12).findFirst().orElseThrow();
+        assertEquals(orgGroup12, resOrgGroup12);
+
+        var orgGroup11 = new OrganisationGroupJoin(11L, 10L, 20, "parent", "parent", "parent org", "sms-sender", false, "callback", null, "device-webhook-endpoint", "device-webhook-endpoint-key");
+        var resOrgGroup11 = result.stream().filter(organisationGroupJoin -> organisationGroupJoin.groupId() == 11).findFirst().orElseThrow();
+        assertEquals(orgGroup11, resOrgGroup11);
+
+        var orgGroup10 = new OrganisationGroupJoin(10L, null, null, "super_parent", null, null, null, null, null, null, null, null);
+        var resOrgGroup10 = result.stream().filter(organisationGroupJoin -> organisationGroupJoin.groupId() == 10).findFirst().orElseThrow();
+        assertEquals(orgGroup10, resOrgGroup10);
+    }
+
+    @Test
+    public void testFindAncestorsOfOrganisationByGroupIdNotFound() {
+        var result = organisationDao.findAncestorsOfOrganisation(12345);
+
+        assertTrue(result.isEmpty());
+    }
+
+    @Test
+    public void testFindAncestorsOfOrganisationByHistoryApiKey() {
+        var result = organisationDao.findAncestorsOfOrganisationByHistoryApiKey("8adeac18-f061-4992-818b-8d4461ccfaa7");
+        assertNotNull(result);
+        assertEquals(4, result.size());
+
+        var orgGroup13 = new OrganisationGroupJoin(13L, 12L, null, "child", "child", "child org", null, false, null, "8adeac18-f061-4992-818b-8d4461ccfaa7", null, null);
+        var resOrgGroup13 = result.stream().filter(organisationGroupJoin -> organisationGroupJoin.groupId() == 13).findFirst().orElseThrow();
+        assertEquals(orgGroup13, resOrgGroup13);
+
+        var orgGroup12 = new OrganisationGroupJoin(12L, 11L, null, "child_one", null, null, null, null, null, null, null, null);
+        var resOrgGroup12 = result.stream().filter(organisationGroupJoin -> organisationGroupJoin.groupId() == 12).findFirst().orElseThrow();
+        assertEquals(orgGroup12, resOrgGroup12);
+
+        var orgGroup11 = new OrganisationGroupJoin(11L, 10L, 20, "parent", "parent", "parent org", "sms-sender", false, "callback", null, "device-webhook-endpoint", "device-webhook-endpoint-key");
+        var resOrgGroup11 = result.stream().filter(organisationGroupJoin -> organisationGroupJoin.groupId() == 11).findFirst().orElseThrow();
+        assertEquals(orgGroup11, resOrgGroup11);
+
+        var orgGroup10 = new OrganisationGroupJoin(10L, null, null, "super_parent", null, null, null, null, null, null, null, null);
+        var resOrgGroup10 = result.stream().filter(organisationGroupJoin -> organisationGroupJoin.groupId() == 10).findFirst().orElseThrow();
+        assertEquals(orgGroup10, resOrgGroup10);
+    }
+
+    @Test
+    public void testFindAncestorsOfOrganisationByHistoryApiKeyNotFound() {
+        var result = organisationDao.findAncestorsOfOrganisationByHistoryApiKey("NOT FOUND");
+
+        assertTrue(result.isEmpty());
+    }
+
 
     private String randomString() {
         return UUID.randomUUID().toString();

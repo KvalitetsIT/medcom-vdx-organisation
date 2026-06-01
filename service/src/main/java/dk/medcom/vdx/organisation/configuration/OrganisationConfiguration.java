@@ -11,12 +11,10 @@ import dk.medcom.vdx.organisation.dao.impl.OrganisationDaoImpl;
 import dk.medcom.vdx.organisation.dao.impl.OrganisationViewsImpl;
 import dk.medcom.vdx.organisation.interceptor.OauthInterceptor;
 import dk.medcom.vdx.organisation.interceptor.UserSecurityInterceptor;
-import dk.medcom.vdx.organisation.service.OrganisationNameService;
-import dk.medcom.vdx.organisation.service.OrganisationService;
-import dk.medcom.vdx.organisation.service.OrganisationTreeBuilder;
-import dk.medcom.vdx.organisation.service.OrganisationTreeService;
+import dk.medcom.vdx.organisation.service.*;
 import dk.medcom.vdx.organisation.service.impl.OrganisationTreeBuilderImpl;
 import dk.medcom.vdx.organisation.service.impl.OrganisationTreeServiceImpl;
+import dk.medcom.vdx.organisation.service.impl.ValidationServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -92,14 +90,21 @@ public class OrganisationConfiguration implements WebMvcConfigurer {
     }
 
     @Bean
-    public OrganisationTreeService organisationTreeService(OrganisationDao organisationDao) {
-        return new OrganisationTreeServiceImpl(organisationDao);
+    public OrganisationTreeService organisationTreeService(ValidationService validationService,
+                                                           OrganisationDao organisationDao) {
+        return new OrganisationTreeServiceImpl(validationService, organisationDao);
     }
 
     @Bean
     public OrganisationService organisationService(OrganisationDao organisationDao,
                                                    GroupsDao groupsDao) {
         return new OrganisationNameService(organisationDao, groupsDao);
+    }
+
+    @Bean
+    public ValidationService validationService(UserContextService userContextService,
+                                        OrganisationDao organisationDao) {
+        return new ValidationServiceImpl(userContextService, organisationDao);
     }
 
     @Bean

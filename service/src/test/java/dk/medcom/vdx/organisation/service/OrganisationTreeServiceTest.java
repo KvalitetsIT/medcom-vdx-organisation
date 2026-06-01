@@ -3,8 +3,14 @@ package dk.medcom.vdx.organisation.service;
 import dk.medcom.vdx.organisation.dao.OrganisationDao;
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.dao.entity.OrganisationGroupJoin;
+import dk.medcom.vdx.organisation.service.exception.InvalidDataException;
 import dk.medcom.vdx.organisation.service.exception.OrganisationNotFoundException;
+import dk.medcom.vdx.organisation.service.exception.OrganisationNotInTreeException;
 import dk.medcom.vdx.organisation.service.impl.OrganisationTreeServiceImpl;
+import dk.medcom.vdx.organisation.service.model.DeviceWebhook;
+import dk.medcom.vdx.organisation.service.model.Group;
+import dk.medcom.vdx.organisation.service.model.OrganisationModel;
+import dk.medcom.vdx.organisation.service.model.SmsInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -16,12 +22,18 @@ import static org.mockito.Mockito.times;
 
 public class OrganisationTreeServiceTest {
     private OrganisationTreeService organisationTreeService;
+    private ValidationService validationService;
     private OrganisationDao organisationDao;
 
     @BeforeEach
     public void setup() {
+        validationService = Mockito.mock(ValidationService.class);
         organisationDao = Mockito.mock(OrganisationDao.class);
-        organisationTreeService = new OrganisationTreeServiceImpl(organisationDao);
+        organisationTreeService = new OrganisationTreeServiceImpl(validationService, organisationDao);
+    }
+
+    private void verifyNoMoreInteractions() {
+        Mockito.verifyNoMoreInteractions(validationService, organisationDao);
     }
 
     @Test
@@ -235,6 +247,258 @@ public class OrganisationTreeServiceTest {
     }
 
     @Test
+    public void testFindAncestorsByCode() {
+        var code = randomString();
+        var ancestorList = List.of(randomOrganisationGroupJoin(), randomOrganisationGroupJoin());
+
+        Mockito.when(organisationDao.findAncestorsOfOrganisation(code)).thenReturn(ancestorList);
+
+        var result = organisationTreeService.findAncestorsByCode(code);
+        assertNotNull(result);
+        assertEquals(2, result.size());
+
+        assertOrganisation(ancestorList.getFirst(), result.getFirst());
+        assertOrganisation(ancestorList.getLast(), result.getLast());
+
+        Mockito.verify(organisationDao).findAncestorsOfOrganisation(code);
+        Mockito.verify(validationService).validateAncestorList(ancestorList);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testFindAncestorsByCodeNoOrganisationInDb() {
+        var code = randomString();
+
+        Mockito.when(organisationDao.findAncestorsOfOrganisation(code)).thenReturn(List.of());
+
+        var expectedException = assertThrows(OrganisationNotFoundException.class, () -> organisationTreeService.findAncestorsByCode(code));
+        assertNotNull(expectedException);
+        assertEquals("Organisation with code %s not found.".formatted(code), expectedException.getMessage());
+
+        Mockito.verify(organisationDao).findAncestorsOfOrganisation(code);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testFindAncestorsByCodeValidationFails() {
+        var code = randomString();
+        var ancestorList = List.of(randomOrganisationGroupJoin(), randomOrganisationGroupJoin());
+
+        Mockito.when(organisationDao.findAncestorsOfOrganisation(code)).thenReturn(ancestorList);
+        Mockito.doThrow(OrganisationNotInTreeException.class).when(validationService).validateAncestorList(ancestorList);
+
+        var expectedException = assertThrows(OrganisationNotInTreeException.class, () -> organisationTreeService.findAncestorsByCode(code));
+        assertNotNull(expectedException);
+
+        Mockito.verify(organisationDao).findAncestorsOfOrganisation(code);
+        Mockito.verify(validationService).validateAncestorList(ancestorList);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testFindAncestorsByGroupId() {
+        var groupId = 123;
+        var ancestorList = List.of(randomOrganisationGroupJoin(), randomOrganisationGroupJoin());
+
+        Mockito.when(organisationDao.findAncestorsOfOrganisation(groupId)).thenReturn(ancestorList);
+
+        var result = organisationTreeService.findAncestorsByGroupId(groupId);
+        assertNotNull(result);
+        assertEquals(2, result.size());
+
+        assertOrganisation(ancestorList.getFirst(), result.getFirst());
+        assertOrganisation(ancestorList.getLast(), result.getLast());
+
+        Mockito.verify(organisationDao).findAncestorsOfOrganisation(groupId);
+        Mockito.verify(validationService).validateAncestorList(ancestorList);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testFindAncestorsByGroupIdNoOrganisationInDb() {
+        var groupId = 321;
+
+        Mockito.when(organisationDao.findAncestorsOfOrganisation(groupId)).thenReturn(List.of());
+
+        var expectedException = assertThrows(OrganisationNotFoundException.class, () -> organisationTreeService.findAncestorsByGroupId(groupId));
+        assertNotNull(expectedException);
+        assertEquals("Organisation with group id 321 not found.", expectedException.getMessage());
+
+        Mockito.verify(organisationDao).findAncestorsOfOrganisation(groupId);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testFindAncestorsByGroupIdValidationFails() {
+        var groupId = 234;
+        var ancestorList = List.of(randomOrganisationGroupJoin(), randomOrganisationGroupJoin());
+
+        Mockito.when(organisationDao.findAncestorsOfOrganisation(groupId)).thenReturn(ancestorList);
+        Mockito.doThrow(OrganisationNotInTreeException.class).when(validationService).validateAncestorList(ancestorList);
+
+        var expectedException = assertThrows(OrganisationNotInTreeException.class, () -> organisationTreeService.findAncestorsByGroupId(groupId));
+        assertNotNull(expectedException);
+
+        Mockito.verify(organisationDao).findAncestorsOfOrganisation(groupId);
+        Mockito.verify(validationService).validateAncestorList(ancestorList);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testFindAncestorsByApiKey() {
+        var apiKey = randomString();
+        var ancestorList = List.of(randomOrganisationGroupJoin(), randomOrganisationGroupJoin());
+
+        Mockito.when(organisationDao.findAncestorsOfOrganisationByHistoryApiKey(apiKey)).thenReturn(ancestorList);
+
+        var result = organisationTreeService.findAncestorsByApiKey("history", apiKey);
+        assertNotNull(result);
+        assertEquals(2, result.size());
+
+        assertOrganisation(ancestorList.getFirst(), result.getFirst());
+        assertOrganisation(ancestorList.getLast(), result.getLast());
+
+        Mockito.verify(organisationDao).findAncestorsOfOrganisationByHistoryApiKey(apiKey);
+        Mockito.verify(validationService).validateAncestorList(ancestorList);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testFindAncestorsByApiKeyNoOrganisationInDb() {
+        var apiKey = randomString();
+
+        Mockito.when(organisationDao.findAncestorsOfOrganisationByHistoryApiKey(apiKey)).thenReturn(List.of());
+
+        var expectedException = assertThrows(OrganisationNotFoundException.class, () -> organisationTreeService.findAncestorsByApiKey("history", apiKey));
+        assertNotNull(expectedException);
+        assertEquals("Organisation not found in database.", expectedException.getMessage());
+
+        Mockito.verify(organisationDao).findAncestorsOfOrganisationByHistoryApiKey(apiKey);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testFindAncestorsByApiKeyUnknownApiKeyType() {
+        var apiKey = randomString();
+
+        var expectedException = assertThrows(InvalidDataException.class, () -> organisationTreeService.findAncestorsByApiKey("unknown-key-type", apiKey));
+        assertNotNull(expectedException);
+        assertEquals("ApiKey is not of valid type.", expectedException.getMessage());
+
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testFindAncestorsByApiKeyValidationFails() {
+        var apiKey = randomString();
+        var ancestorList = List.of(randomOrganisationGroupJoin(), randomOrganisationGroupJoin());
+
+        Mockito.when(organisationDao.findAncestorsOfOrganisationByHistoryApiKey(apiKey)).thenReturn(ancestorList);
+        Mockito.doThrow(OrganisationNotInTreeException.class).when(validationService).validateAncestorList(ancestorList);
+
+        var expectedException = assertThrows(OrganisationNotInTreeException.class, () -> organisationTreeService.findAncestorsByApiKey("history", apiKey));
+        assertNotNull(expectedException);
+
+        Mockito.verify(organisationDao).findAncestorsOfOrganisationByHistoryApiKey(apiKey);
+        Mockito.verify(validationService).validateAncestorList(ancestorList);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testFindDescendantsByCode() {
+        var code = randomString();
+        var descendantList = List.of(randomOrganisationGroupJoin(), randomOrganisationGroupJoin());
+
+        Mockito.when(organisationDao.findDescendantsOfOrganisation(code)).thenReturn(descendantList);
+
+        var result = organisationTreeService.findDescendantsByCode(code);
+        assertNotNull(result);
+        assertEquals(2, result.size());
+
+        assertOrganisation(descendantList.getFirst(), result.getFirst());
+        assertOrganisation(descendantList.getLast(), result.getLast());
+
+        Mockito.verify(validationService).validateOrganisationByCode(code);
+        Mockito.verify(organisationDao).findDescendantsOfOrganisation(code);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testFindDescendantsByCodeNoOrganisationInDb() {
+        var code = randomString();
+
+        Mockito.when(organisationDao.findDescendantsOfOrganisation(code)).thenReturn(List.of());
+
+        var expectedException = assertThrows(OrganisationNotFoundException.class, () -> organisationTreeService.findDescendantsByCode(code));
+        assertNotNull(expectedException);
+        assertEquals("Organisation with code %s not found.".formatted(code), expectedException.getMessage());
+
+        Mockito.verify(validationService).validateOrganisationByCode(code);
+        Mockito.verify(organisationDao).findDescendantsOfOrganisation(code);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testFindDescendantsByCodeValidationFails() {
+        var code = randomString();
+
+        Mockito.doThrow(OrganisationNotInTreeException.class).when(validationService).validateOrganisationByCode(code);
+
+        var expectedException = assertThrows(OrganisationNotInTreeException.class, () -> organisationTreeService.findDescendantsByCode(code));
+        assertNotNull(expectedException);
+
+        Mockito.verify(validationService).validateOrganisationByCode(code);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testFindDescendantsByGroupId() {
+        var groupId = 123;
+        var descendantList = List.of(randomOrganisationGroupJoin(), randomOrganisationGroupJoin());
+
+        Mockito.when(organisationDao.findDescendantsOfOrganisation(groupId)).thenReturn(descendantList);
+
+        var result = organisationTreeService.findDescendantsByGroupId(groupId);
+        assertNotNull(result);
+        assertEquals(2, result.size());
+
+        assertOrganisation(descendantList.getFirst(), result.getFirst());
+        assertOrganisation(descendantList.getLast(), result.getLast());
+
+        Mockito.verify(validationService).validateOrganisationByGroupId(groupId);
+        Mockito.verify(organisationDao).findDescendantsOfOrganisation(groupId);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testFindDescendantsByGroupIdNoOrganisationInDb() {
+        var groupId = 321;
+
+        Mockito.when(organisationDao.findDescendantsOfOrganisation(groupId)).thenReturn(List.of());
+
+        var expectedException = assertThrows(OrganisationNotFoundException.class, () -> organisationTreeService.findDescendantsByGroupId(groupId));
+        assertNotNull(expectedException);
+        assertEquals("Organisation with group id 321 not found.", expectedException.getMessage());
+
+        Mockito.verify(validationService).validateOrganisationByGroupId(groupId);
+        Mockito.verify(organisationDao).findDescendantsOfOrganisation(groupId);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testFindDescendantsByGroupIdValidationFails() {
+        var groupId = 234;
+
+        Mockito.doThrow(OrganisationNotInTreeException.class).when(validationService).validateOrganisationByGroupId(groupId);
+
+        var expectedException = assertThrows(OrganisationNotInTreeException.class, () -> organisationTreeService.findDescendantsByGroupId(groupId));
+        assertNotNull(expectedException);
+
+        Mockito.verify(validationService).validateOrganisationByGroupId(groupId);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
     public void testFindDescendantsOfOrganisation() {
         var input = randomString();
 
@@ -251,8 +515,9 @@ public class OrganisationTreeServiceTest {
         assertTrue(result.stream().anyMatch(x -> x.code() != null && x.code().equals(org2.organisationId())));
         assertFalse(result.stream().anyMatch(x -> x.code() != null && x.code().equals(nullOrg.organisationId())));
 
+        Mockito.verify(validationService).validateOrganisationByCode(input);
         Mockito.verify(organisationDao).findDescendantsOfOrganisation(input);
-        Mockito.verifyNoMoreInteractions(organisationDao);
+        verifyNoMoreInteractions();
     }
 
     @Test
@@ -265,8 +530,22 @@ public class OrganisationTreeServiceTest {
         assertNotNull(expectedException);
         assertEquals("Organisation with code %s not found.".formatted(input), expectedException.getMessage());
 
+        Mockito.verify(validationService).validateOrganisationByCode(input);
         Mockito.verify(organisationDao).findDescendantsOfOrganisation(input);
-        Mockito.verifyNoMoreInteractions(organisationDao);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testFindDescendantsOfOrganisationValidationFails() {
+        var input = randomString();
+
+        Mockito.doThrow(OrganisationNotInTreeException.class).when(validationService).validateOrganisationByCode(input);
+
+        var expectedException = assertThrows(OrganisationNotInTreeException.class, () -> organisationTreeService.findDescendantsOfOrganisation(input));
+        assertNotNull(expectedException);
+
+        Mockito.verify(validationService).validateOrganisationByCode(input);
+        verifyNoMoreInteractions();
     }
 
     private void assertOrganisation(Optional<Organisation> expectedOrganisation, int groupId, Long parentId, Integer poolSize) {
@@ -276,6 +555,11 @@ public class OrganisationTreeServiceTest {
         assertEquals(groupId, org.getGroupId().longValue());
         assertEquals(parentId, org.getParentId());
         assertEquals(poolSize, org.getPoolSize());
+    }
+
+    private void assertOrganisation(OrganisationGroupJoin organisationGroupJoinExpected, OrganisationModel actual) {
+        var expected = new OrganisationModel(organisationGroupJoinExpected.organisationId(), organisationGroupJoinExpected.organisationName(), organisationGroupJoinExpected.poolSize(), organisationGroupJoinExpected.allowCustomUriWithoutDomain(), new Group(organisationGroupJoinExpected.groupId(), organisationGroupJoinExpected.parentId(), organisationGroupJoinExpected.groupName()), new SmsInfo(organisationGroupJoinExpected.smsSenderName(), organisationGroupJoinExpected.smsCallbackUrl()), organisationGroupJoinExpected.historyApiKey(), new DeviceWebhook(organisationGroupJoinExpected.deviceWebhookEndpoint(), organisationGroupJoinExpected.deviceWebhookEndpointKey()));
+        assertEquals(expected, actual);
     }
 
     private Organisation createOrganisation(int groupId, Integer parentId, Integer poolSize) {

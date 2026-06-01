@@ -37,7 +37,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
     OrganisationV2IT() {
         var keycloakUrl = getKeycloakUrl();
 
-        organisationV2Api = createClient(HeaderBuilder.getJwtAllRoleAtt(keycloakUrl));
+        organisationV2Api = createClient(HeaderBuilder.getJwtAllRoleAtt(keycloakUrl, "medcom"));
         organisationV2ApiNoHeader = createClient(null);
         organisationV2ApiNoRoleAtt = createClient(HeaderBuilder.getJwtNoRoleAtt(keycloakUrl));
         organisationV2ApiNotAdmin = createClient(HeaderBuilder.getJwtNotAdmin(keycloakUrl));
@@ -407,7 +407,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
     @Test
     void testGetOrganisationSlashPath() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation/æ/åø")).
-                header("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl())).
+                header("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl(), "æ/åø")).
                 GET().
                 build();
 
@@ -521,7 +521,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
     @Test
     void testServicesV2OrganisationGetWithSlash() throws URISyntaxException, IOException, InterruptedException {
         var request = HttpRequest.newBuilder(new URI(getApiBasePath() + "/services/v2/organisation?organisationCode=æ/åø")).
-                header("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl())).
+                header("Authorization", "Bearer " + HeaderBuilder.getJwtAllRoleAtt(getKeycloakUrl(), "æ/åø")).
                 GET().
                 build();
 

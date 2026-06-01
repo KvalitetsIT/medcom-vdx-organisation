@@ -2,6 +2,10 @@ package dk.medcom.vdx.organisation.service;
 
 import dk.medcom.vdx.organisation.dao.entity.Organisation;
 import dk.medcom.vdx.organisation.service.impl.OrganisationTreeBuilderImpl;
+import dk.medcom.vdx.organisation.service.model.DeviceWebhook;
+import dk.medcom.vdx.organisation.service.model.Group;
+import dk.medcom.vdx.organisation.service.model.OrganisationModel;
+import dk.medcom.vdx.organisation.service.model.SmsInfo;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -93,6 +97,80 @@ public class OrganisationTreeBuilderTest {
         assertNull(result);
     }
 
+    @Test
+    public void testBuildTreeFromModel() {
+        var child = createOrganisationModel("child", 13, 12, null, "child_code");
+        var childOne = createOrganisationModel("childOne", 12, 11, null, null);
+        var childTwo = createOrganisationModel("childTwo", 14, 11, null, null);
+        var parent = createOrganisationModel("parent", 11, 10, 20, "parent_code", "sms-sender", "callback", UUID.randomUUID().toString(), UUID.randomUUID().toString());
+        var superParent = createOrganisationModel("superParent", 10, null, null, null);
+
+        var result = organisationTreeBuilder.buildOrganisationTreeFromModel(Arrays.asList(childOne, child, superParent, parent, childTwo));
+        assertNotNull(result);
+
+        assertEquals(0, result.getPoolSize().intValue());
+        assertEquals(superParent.name(), result.getName());
+        assertEquals(superParent.group().id().toString(), result.getCode());
+        assertNull(result.getSmsCallbackUrl());
+        assertNull(result.getSmsSenderName());
+        assertNull(result.getDeviceWebhookEndpoint());
+        assertNull(result.getDeviceWebhookEndpointKey());
+        assertEquals(0, result.getPoolSize().intValue());
+        assertEquals(1, result.getChildren().size());
+
+        var treeChild = result.getChildren().getFirst();
+        assertEquals(parent.name(), treeChild.getName());
+        assertEquals(parent.id(), treeChild.getCode());
+        assertEquals(parent.smsInfo().senderName(), treeChild.getSmsSenderName());
+        assertEquals(parent.smsInfo().callbackUrl(), treeChild.getSmsCallbackUrl());
+        assertEquals(parent.deviceWebhook().endpoint(), treeChild.getDeviceWebhookEndpoint());
+        assertEquals(parent.deviceWebhook().key(), treeChild.getDeviceWebhookEndpointKey());
+        assertEquals(20, treeChild.getPoolSize().intValue());
+        assertEquals(2, treeChild.getChildren().size());
+
+        var childOneTree = treeChild.getChildren().getFirst();
+        assertEquals(childOne.name(), childOneTree.getName());
+        assertEquals(childOne.group().id().toString(), childOneTree.getCode());
+        assertNull(childOneTree.getSmsCallbackUrl());
+        assertNull(childOneTree.getSmsSenderName());
+        assertNull(childOneTree.getDeviceWebhookEndpoint());
+        assertNull(childOneTree.getDeviceWebhookEndpointKey());
+        assertEquals(0, childOneTree.getPoolSize().intValue());
+        assertEquals(1, childOneTree.getChildren().size());
+
+        var childTwoTree = treeChild.getChildren().get(1);
+        assertEquals(childTwo.name(), childTwoTree.getName());
+        assertEquals(childTwo.group().id().toString(), childTwoTree.getCode());
+        assertNull(childTwoTree.getSmsCallbackUrl());
+        assertNull(childTwoTree.getSmsSenderName());
+        assertNull(childTwoTree.getDeviceWebhookEndpoint());
+        assertNull(childTwoTree.getDeviceWebhookEndpointKey());
+        assertEquals(0, childTwoTree.getPoolSize().intValue());
+        assertTrue(childTwoTree.getChildren().isEmpty());
+
+        treeChild = childOneTree.getChildren().getFirst();
+        assertEquals(child.name(), treeChild.getName());
+        assertEquals(child.id(), treeChild.getCode());
+        assertNull(treeChild.getSmsCallbackUrl());
+        assertNull(treeChild.getSmsSenderName());
+        assertNull(treeChild.getDeviceWebhookEndpoint());
+        assertNull(treeChild.getDeviceWebhookEndpointKey());
+        assertEquals(0, treeChild.getPoolSize().intValue());
+        assertTrue(treeChild.getChildren().isEmpty());
+    }
+
+    @Test
+    public void testBuildFromModelEmptyTree() {
+        var result = organisationTreeBuilder.buildOrganisationTreeFromModel(Collections.emptyList());
+        assertNull(result);
+    }
+
+    @Test
+    public void testBuildFromModelNullTree() {
+        var result = organisationTreeBuilder.buildOrganisationTreeFromModel(null);
+        assertNull(result);
+    }
+
     private Organisation createOrganisation(String name, int groupId, Integer parentId, Integer poolSize, String organisationId) {
         return createOrganisation(name, groupId, parentId, poolSize, organisationId, null, null, null, null);
     }
@@ -114,6 +192,23 @@ public class OrganisationTreeBuilderTest {
         organisation.setDeviceWebhookEndpointKey(deviceWebhookEndpointKey);
 
         return organisation;
+    }
+
+    private OrganisationModel createOrganisationModel(String name, int groupId, Integer parentId, Integer poolSize, String organisationId) {
+        return createOrganisationModel(name, groupId, parentId, poolSize, organisationId, null, null, null, null);
+    }
+
+    private OrganisationModel createOrganisationModel(String name, int groupId, Integer parentId, Integer poolSize, String organisationId, String smsSenderName, String smsCallbackUrl, String deviceWebhookEndpoint, String deviceWebhookEndpointKey) {
+        return new OrganisationModel(
+                organisationId,
+                name,
+                poolSize,
+                null,
+                new Group((long) groupId, parentId != null ? parentId.longValue() : null, null),
+                new SmsInfo(smsSenderName, smsCallbackUrl),
+                null,
+                new DeviceWebhook(deviceWebhookEndpoint, deviceWebhookEndpointKey)
+        );
     }
 
 }
