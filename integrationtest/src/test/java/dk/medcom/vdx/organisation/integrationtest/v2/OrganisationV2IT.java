@@ -81,7 +81,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
         var client = HttpClient.newHttpClient();
         var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(401, responseString.statusCode());
+        assertEquals(403, responseString.statusCode());
     }
 
     @Test
@@ -169,7 +169,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationCodeGet() {
-        assertThrowsWithStatus(401, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationCodeGet(testOrg));
+        assertThrowsWithStatus(403, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationCodeGet(testOrg));
     }
 
     @Test
@@ -209,7 +209,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationCodePut() {
-        assertThrowsWithStatus(401, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
+        assertThrowsWithStatus(403, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationCodePut(testOrg, randomOrganisationUpdate()));
     }
 
     @Test
@@ -249,7 +249,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationGet() {
-        assertThrowsWithStatus(401, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationGet(testOrg));
+        assertThrowsWithStatus(403, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationGet(testOrg));
     }
 
     @Test
@@ -289,7 +289,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationParentCodePost() {
-        assertThrowsWithStatus(401, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
+        assertThrowsWithStatus(403, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationParentCodePost(company1, randomOrganisationCreate()));
     }
 
     @Test
@@ -329,7 +329,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationPost() {
-        assertThrowsWithStatus(401, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
+        assertThrowsWithStatus(403, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationPost(company1, randomOrganisationCreate()));
     }
 
     @Test
@@ -369,7 +369,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationUriPost() {
-        assertThrowsWithStatus(401, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
+        assertThrowsWithStatus(403, () -> organisationV2ApiNoRoleAtt.servicesV2OrganisationUriPost(List.of("1239@test.dk")));
     }
 
     @Test
