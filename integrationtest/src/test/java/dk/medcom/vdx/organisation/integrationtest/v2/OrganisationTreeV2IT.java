@@ -81,7 +81,7 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
         var client = HttpClient.newHttpClient();
         var responseString = client.send(request, HttpResponse.BodyHandlers.ofString());
 
-        assertEquals(401, responseString.statusCode());
+        assertEquals(403, responseString.statusCode());
     }
 
     @Test
@@ -169,7 +169,7 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationCodeDescendantsGet() {
-        assertThrowsWithStatus(401, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationCodeDescendantsGet(childOrg));
+        assertThrowsWithStatus(403, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationCodeDescendantsGet(childOrg));
     }
 
     @Test
@@ -209,7 +209,7 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationTreeForApiKeyPost() {
-        assertThrowsWithStatus(401, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
+        assertThrowsWithStatus(403, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationTreeForApiKeyPost(historyApiKey()));
     }
 
     @Test
@@ -249,7 +249,7 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationtreeChildrenGet() {
-        assertThrowsWithStatus(401, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
+        assertThrowsWithStatus(403, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationtreeChildrenGet(childOrg, 13));
     }
 
     @Test
@@ -289,7 +289,7 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationtreeCodeGet() {
-        assertThrowsWithStatus(401, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationtreeCodeGet(childOrg));
+        assertThrowsWithStatus(403, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationtreeCodeGet(childOrg));
     }
 
     @Test
@@ -329,7 +329,7 @@ class OrganisationTreeV2IT extends AbstractIntegrationTest {
 
     @Test
     void errorIfNoRoleAttInToken_servicesV2OrganisationtreeGet() {
-        assertThrowsWithStatus(401, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationtreeGet(childOrg, 13));
+        assertThrowsWithStatus(403, () -> organisationTreeV2ApiNoRoleAtt.servicesV2OrganisationtreeGet(childOrg, 13));
     }
 
     @Test
