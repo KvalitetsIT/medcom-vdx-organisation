@@ -45,7 +45,8 @@ public class OrganisationNameService implements OrganisationService {
                 null,
                 null,
                 null,
-                null);
+                null,
+                false);
         return createOrganisation(organisation);
     }
 
@@ -105,6 +106,7 @@ public class OrganisationNameService implements OrganisationService {
         newOrganisation.setHistoryApiKey(organisationCreate.historyApiKey());
         newOrganisation.setDeviceWebhookEndpoint(organisationCreate.deviceWebhookEndpoint());
         newOrganisation.setDeviceWebhookEndpointKey(organisationCreate.deviceWebhookEndpointKey());
+        newOrganisation.setPolicyServerEnabled(organisationCreate.policyServerEnabled());
         return newOrganisation;
     }
 
@@ -118,6 +120,7 @@ public class OrganisationNameService implements OrganisationService {
         update.setHistoryApiKey(organisationUpdate.historyApiKey());
         update.setDeviceWebhookEndpoint(organisationUpdate.deviceWebhookEndpoint());
         update.setDeviceWebhookEndpointKey(organisationUpdate.deviceWebhookEndpointKey());
+        update.setPolicyServerEnabled(organisationUpdate.policyServerEnabled());
         return update;
     }
 }
