@@ -6,5 +6,6 @@ public record OrganisationUpdate(Integer poolSize,
                                  String smsCallbackUrl,
                                  String historyApiKey,
                                  String deviceWebhookEndpoint,
-                                 String deviceWebhookEndpointKey) {
+                                 String deviceWebhookEndpointKey,
+                                 boolean policyServerEnabled) {
 }

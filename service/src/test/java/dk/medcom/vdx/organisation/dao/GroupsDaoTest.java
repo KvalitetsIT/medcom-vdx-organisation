@@ -12,7 +12,7 @@ public class GroupsDaoTest extends AbstractDaoTest {
 
     @Test
     public void testInsertGroup() {
-        var group = Groups.createInstance("name", 2, 1, "system");
+        var group = Groups.createInstance("name", 2, 1L, "system");
 
         var id = groupsDao.insert(group);
 

@@ -13,6 +13,7 @@ public class Organisation {
     private String historyApiKey;
     private String deviceWebhookEndpoint;
     private String deviceWebhookEndpointKey;
+    private boolean policyServerEnabled;
 
     public Long getGroupId() {
         return groupId;
@@ -108,5 +109,13 @@ public class Organisation {
 
     public void setHistoryApiKey(String historyApiKey) {
         this.historyApiKey = historyApiKey;
+    }
+
+    public boolean isPolicyServerEnabled() {
+        return policyServerEnabled;
+    }
+
+    public void setPolicyServerEnabled(boolean policyServerEnabled) {
+        this.policyServerEnabled = policyServerEnabled;
     }
 }

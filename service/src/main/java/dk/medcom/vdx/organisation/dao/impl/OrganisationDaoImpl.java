@@ -36,7 +36,8 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 "o.sms_callback_url, " +
                 "o.history_api_key, " +
                 "o.device_webhook_endpoint, " +
-                "o.device_webhook_endpoint_key " +
+                "o.device_webhook_endpoint_key, " +
+                "o.policy_server_enabled " +
                 "from organisation o, groups g " +
                 "where o.organisation_id = :organisation_id" +
                 "  and g.group_id = o.group_id";
@@ -104,8 +105,8 @@ public class OrganisationDaoImpl implements OrganisationDao {
 
     @Override
     public long insert(Organisation newOrganisation) {
-        var sql = "insert into organisation(group_id, organisation_id, name, pool_size, sms_sender_name, allow_custom_uri_without_domain, sms_callback_url, history_api_key, device_webhook_endpoint, device_webhook_endpoint_key)" +
-                " values(:group_id, :organisation_id, :name, :pool_size, :sms_sender_name, :allow_custom_uri_with_domain, :sms_callback_url, :history_api_key, :device_webhook_endpoint, :device_webhook_endpoint_key)";
+        var sql = "insert into organisation(group_id, organisation_id, name, pool_size, sms_sender_name, allow_custom_uri_without_domain, sms_callback_url, history_api_key, device_webhook_endpoint, device_webhook_endpoint_key, policy_server_enabled)" +
+                " values(:group_id, :organisation_id, :name, :pool_size, :sms_sender_name, :allow_custom_uri_with_domain, :sms_callback_url, :history_api_key, :device_webhook_endpoint, :device_webhook_endpoint_key, :policy_server_enabled)";
 
         var parameters = new MapSqlParameterSource().
                 addValue("group_id", newOrganisation.getGroupId()).
@@ -117,7 +118,8 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 addValue("sms_callback_url", newOrganisation.getSmsCallbackUrl()).
                 addValue("history_api_key", newOrganisation.getHistoryApiKey()).
                 addValue("device_webhook_endpoint", newOrganisation.getDeviceWebhookEndpoint()).
-                addValue("device_webhook_endpoint_key", newOrganisation.getDeviceWebhookEndpointKey());
+                addValue("device_webhook_endpoint_key", newOrganisation.getDeviceWebhookEndpointKey()).
+                addValue("policy_server_enabled", newOrganisation.isPolicyServerEnabled());
 
         var keyHolder = new GeneratedKeyHolder();
 
@@ -137,7 +139,8 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 "       sms_callback_url = :sms_callback_url, " +
                 "       history_api_key = :history_api_key, " +
                 "       device_webhook_endpoint = :device_webhook_endpoint, " +
-                "       device_webhook_endpoint_key = :device_webhook_endpoint_key " +
+                "       device_webhook_endpoint_key = :device_webhook_endpoint_key, " +
+                "       policy_server_enabled = :policy_server_enabled " +
                 "   where organisation_id = :organisation_id";
 
         var parameters = new MapSqlParameterSource()
@@ -148,7 +151,8 @@ public class OrganisationDaoImpl implements OrganisationDao {
                 .addValue("sms_callback_url", organisation.getSmsCallbackUrl())
                 .addValue("history_api_key", organisation.getHistoryApiKey())
                 .addValue("device_webhook_endpoint", organisation.getDeviceWebhookEndpoint())
-                .addValue("device_webhook_endpoint_key", organisation.getDeviceWebhookEndpointKey());
+                .addValue("device_webhook_endpoint_key", organisation.getDeviceWebhookEndpointKey())
+                .addValue("policy_server_enabled", organisation.isPolicyServerEnabled());
 
         return template.update(sql, parameters) > 0;
     }
@@ -283,7 +287,8 @@ public class OrganisationDaoImpl implements OrganisationDao {
                        o.sms_callback_url,
                        o.history_api_key,
                        o.device_webhook_endpoint,
-                       o.device_webhook_endpoint_key
+                       o.device_webhook_endpoint_key,
+                       o.policy_server_enabled
                 """;
     }
 

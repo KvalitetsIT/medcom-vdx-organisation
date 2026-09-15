@@ -14,5 +14,7 @@ public interface OrganisationService {
 
     Organisation createOrganisation(OrganisationCreate organisationCreate);
 
+    Organisation ensureOrganisationExists(String organisationCode);
+
     Organisation updateOrganisation(String organisationCode, OrganisationUpdate organisationUpdate);
 }

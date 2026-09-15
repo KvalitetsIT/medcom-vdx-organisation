@@ -12,6 +12,7 @@ import dk.medcom.vdx.organisation.service.model.OrganisationCreate;
 import dk.medcom.vdx.organisation.service.model.OrganisationUpdate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
@@ -45,7 +46,8 @@ public class OrganisationNameService implements OrganisationService {
                 null,
                 null,
                 null,
-                null);
+                null,
+                false);
         return createOrganisation(organisation);
     }
 
@@ -81,6 +83,40 @@ public class OrganisationNameService implements OrganisationService {
     }
 
     @Override
+    @Transactional
+    public Organisation ensureOrganisationExists(String organisationCode) {
+        var existing = getOrganisationById(organisationCode);
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+
+        var group = Groups.createInstance(organisationCode, 2, null, "system");
+
+        try {
+            var groupId = groupsDao.insert(group);
+
+            var newOrganisation = new Organisation();
+            newOrganisation.setGroupId(groupId);
+            newOrganisation.setOrganisationId(organisationCode);
+            newOrganisation.setOrganisationName(organisationCode);
+
+            var id = organisationDao.insert(newOrganisation);
+            if (id > 0) {
+                return newOrganisation;
+            }
+
+            logger.warn("Failed to auto-provision organisation {}", organisationCode);
+            throw new DaoException("Failed to auto-provision organisation %s".formatted(organisationCode));
+        } catch (DuplicateKeyException e) {
+            logger.debug("Organisation {} was created concurrently, re-reading it.", organisationCode);
+            return getOrganisationById(organisationCode).orElseThrow(() -> {
+                logger.warn("Organisation with code {} not found in db after concurrent creation.", organisationCode);
+                return new OrganisationNotFoundException("Organisation with code %s not found.".formatted(organisationCode));
+            });
+        }
+    }
+
+    @Override
     public Organisation updateOrganisation(String organisationCode, OrganisationUpdate organisationUpdate) {
         if(!organisationDao.update(mapUpdatedOrganisation(organisationCode, organisationUpdate))) {
             logger.warn("Failed to update organisation with code {} in db.", organisationCode);
@@ -105,6 +141,7 @@ public class OrganisationNameService implements OrganisationService {
         newOrganisation.setHistoryApiKey(organisationCreate.historyApiKey());
         newOrganisation.setDeviceWebhookEndpoint(organisationCreate.deviceWebhookEndpoint());
         newOrganisation.setDeviceWebhookEndpointKey(organisationCreate.deviceWebhookEndpointKey());
+        newOrganisation.setPolicyServerEnabled(organisationCreate.policyServerEnabled());
         return newOrganisation;
     }
 
@@ -118,6 +155,7 @@ public class OrganisationNameService implements OrganisationService {
         update.setHistoryApiKey(organisationUpdate.historyApiKey());
         update.setDeviceWebhookEndpoint(organisationUpdate.deviceWebhookEndpoint());
         update.setDeviceWebhookEndpointKey(organisationUpdate.deviceWebhookEndpointKey());
+        update.setPolicyServerEnabled(organisationUpdate.policyServerEnabled());
         return update;
     }
 }

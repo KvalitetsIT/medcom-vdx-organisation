@@ -255,9 +255,99 @@ public class OrganisationServiceImplTest {
     }
 
     @Test
+    public void testEnsureOrganisationExistsAlreadyExists() {
+        var code = randomString();
+        var existing = randomOrganisation();
+
+        Mockito.when(organisationDao.findOrganisation(code)).thenReturn(existing);
+
+        var result = organisationService.ensureOrganisationExists(code);
+
+        assertSame(existing, result);
+
+        Mockito.verify(organisationDao, times(1)).findOrganisation(code);
+
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testEnsureOrganisationExistsCreatesBareMinimumOrganisation() {
+        var code = randomString();
+
+        Mockito.when(organisationDao.findOrganisation(code)).thenReturn(null);
+        Mockito.when(groupsDao.insert(Mockito.any())).thenReturn(10L);
+        Mockito.when(organisationDao.insert(Mockito.any())).thenReturn(1L);
+
+        var result = organisationService.ensureOrganisationExists(code);
+
+        assertNotNull(result);
+        assertEquals(10L, result.getGroupId());
+        assertEquals(code, result.getOrganisationId());
+        assertEquals(code, result.getOrganisationName());
+        assertNull(result.getPoolSize());
+        assertFalse(result.isPolicyServerEnabled());
+
+        Mockito.verify(organisationDao, times(1)).findOrganisation(code);
+        Mockito.verify(groupsDao, times(1)).insert(Mockito.argThat(x -> {
+            assertNull(x.parentId());
+            assertEquals(code, x.groupName());
+            assertEquals(2, x.groupType());
+            assertEquals("system", x.createdBy());
+
+            return true;
+        }));
+        Mockito.verify(organisationDao, times(1)).insert(Mockito.argThat(x -> {
+            assertEquals(10L, x.getGroupId());
+            assertEquals(code, x.getOrganisationId());
+            assertEquals(code, x.getOrganisationName());
+
+            return true;
+        }));
+
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testEnsureOrganisationExistsFailedToInsert() {
+        var code = randomString();
+
+        Mockito.when(organisationDao.findOrganisation(code)).thenReturn(null);
+        Mockito.when(groupsDao.insert(Mockito.any())).thenReturn(10L);
+        Mockito.when(organisationDao.insert(Mockito.any())).thenReturn(0L);
+
+        var result = assertThrows(DaoException.class, () -> organisationService.ensureOrganisationExists(code));
+        assertNotNull(result);
+        assertEquals("Failed to auto-provision organisation %s".formatted(code), result.getMessage());
+
+        Mockito.verify(organisationDao, times(1)).findOrganisation(code);
+        Mockito.verify(groupsDao, times(1)).insert(Mockito.any());
+        Mockito.verify(organisationDao, times(1)).insert(Mockito.any());
+
+        verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testEnsureOrganisationExistsConcurrentCreationReReadsOrganisation() {
+        var code = randomString();
+        var concurrentlyCreated = randomOrganisation();
+
+        Mockito.when(organisationDao.findOrganisation(code)).thenReturn(null, concurrentlyCreated);
+        Mockito.when(groupsDao.insert(Mockito.any())).thenThrow(new org.springframework.dao.DuplicateKeyException("duplicate"));
+
+        var result = organisationService.ensureOrganisationExists(code);
+
+        assertSame(concurrentlyCreated, result);
+
+        Mockito.verify(organisationDao, times(2)).findOrganisation(code);
+        Mockito.verify(groupsDao, times(1)).insert(Mockito.any());
+
+        verifyNoMoreInteractions();
+    }
+
+    @Test
     public void testUpdateOrganisation() {
         var code = randomString();
-        var organisation = new OrganisationUpdate(123, randomString(), true, randomString(), randomString(), randomString(), randomString());
+        var organisation = new OrganisationUpdate(123, randomString(), true, randomString(), randomString(), randomString(), randomString(), false);
         var updatedOrganisation = randomOrganisation();
 
         Mockito.when(organisationDao.findOrganisation(code)).thenReturn(updatedOrganisation);
@@ -288,7 +378,7 @@ public class OrganisationServiceImplTest {
     @Test
     public void testUpdateOrganisationOrganisationNotFound() {
         var code = randomString();
-        var organisation = new OrganisationUpdate(123, randomString(), true, randomString(), randomString(), randomString(), randomString());
+        var organisation = new OrganisationUpdate(123, randomString(), true, randomString(), randomString(), randomString(), randomString(), false);
 
         Mockito.when(organisationDao.findOrganisation(code)).thenReturn(null);
         Mockito.when(organisationDao.update(Mockito.any())).thenReturn(true);
@@ -318,7 +408,7 @@ public class OrganisationServiceImplTest {
     @Test
     public void testUpdateOrganisationFails() {
         var code = randomString();
-        var organisation = new OrganisationUpdate(123, randomString(), true, randomString(), randomString(), randomString(), randomString());
+        var organisation = new OrganisationUpdate(123, randomString(), true, randomString(), randomString(), randomString(), randomString(), false);
         var updatedOrganisation = randomOrganisation();
 
         Mockito.when(organisationDao.findOrganisation(code)).thenReturn(updatedOrganisation);
@@ -356,7 +446,8 @@ public class OrganisationServiceImplTest {
                 randomString(),
                 randomString(),
                 randomString(),
-                randomString());
+                randomString(),
+                false);
     }
 
     private Organisation randomOrganisation() {

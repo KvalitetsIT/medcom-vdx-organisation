@@ -61,6 +61,15 @@ public class OrganisationV2Controller implements OrganisationV2Api {
     @Oauth
     @Override
     @PreAuthorize(adminRoleAtt)
+    public ResponseEntity<OrganisationResponse> servicesV2OrganisationCodeEnsurePut(String code) {
+        logger.debug("Enter PUT ensure organisation exists.");
+        var organisation = organisationService.ensureOrganisationExists(code);
+        return ResponseEntity.ok(OrganisationMapper.internalToExternal(organisation));
+    }
+
+    @Oauth
+    @Override
+    @PreAuthorize(adminRoleAtt)
     public ResponseEntity<OrganisationResponse> servicesV2OrganisationCodePut(String code, OrganisationUpdate organisationUpdate) {
         logger.debug("Enter PUT organisation.");
         try {
