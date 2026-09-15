@@ -206,6 +206,40 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
+  /services/v2/organisation/{code}/ensure:
+    put:
+      security:
+        - keycloakOIDC: [ ]
+      tags:
+        - Organisation V2
+      summary: Ensure organisation exists
+      description: >-
+        Idempotently ensure an organisation with the given code exists, creating a bare-minimum,
+        top-level organisation if it does not already exist. If the organisation already exists it
+        is returned unchanged. <br>
+        The following values of the user role claim grants access: <br>
+        * meeting-admin
+      parameters:
+        - name: code
+          in: path
+          required: true
+          schema:
+            type: string
+          example: 'organisation_a'
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/organisation-response'
+        '401':
+          $ref: '#/components/responses/401'
+        '403':
+          $ref: '#/components/responses/403'
+        '500':
+          $ref: '#/components/responses/500'
+
   /services/v2/organisation/{parent_code}:
     post:
       security:
@@ -634,6 +668,11 @@ components:
           maxLength: 100
           example: this-is-a-key
           description: Endpoint key of device webhook for header
+        policyServerEnabled:
+          description: Whether or not the organisation uses the VDX policy server. Defaults to false.
+          type: boolean
+          example: false
+          default: false
 
     organisation-update:
       type: object
@@ -671,6 +710,11 @@ components:
           maxLength: 100
           example: this-is-a-key
           description: Endpoint key of device webhook for header
+        policyServerEnabled:
+          description: Whether or not the organisation uses the VDX policy server. Defaults to false.
+          type: boolean
+          example: false
+          default: false
 
     organisation-response:
       type: object
@@ -717,6 +761,10 @@ components:
           maxLength: 100
           example: http://webhook.endpoint/here
           description: Endpoint of device webhook
+        policyServerEnabled:
+          description: Whether or not the organisation uses the VDX policy server.
+          type: boolean
+          example: false
 
     organisationtree:
       type: object

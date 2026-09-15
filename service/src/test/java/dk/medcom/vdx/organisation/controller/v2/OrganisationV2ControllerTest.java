@@ -95,6 +95,24 @@ public class OrganisationV2ControllerTest {
     }
 
     @Test
+    public void testServicesV2OrganisationCodeEnsurePut() {
+        var code = randomString();
+        var output = randomOrganisation();
+
+        Mockito.when(organisationService.ensureOrganisationExists(code)).thenReturn(output);
+
+        var result = organisationV2Controller.servicesV2OrganisationCodeEnsurePut(code);
+        assertNotNull(result);
+        assertEquals(200, result.getStatusCode().value());
+
+        assertNotNull(result.getBody());
+        assertOrganisation(output, result.getBody());
+
+        Mockito.verify(organisationService).ensureOrganisationExists(code);
+        verifyNoMoreInteractions();
+    }
+
+    @Test
     public void testServicesV2OrganisationCodePut() {
         var organisation = randomString();
         var input = randomOrganisationUpdate();
@@ -118,6 +136,7 @@ public class OrganisationV2ControllerTest {
             assertEquals(input.getHistoryApiKey(), x.historyApiKey());
             assertEquals(input.getDeviceWebhookEndpoint(), x.deviceWebhookEndpoint());
             assertEquals(input.getDeviceWebhookEndpointKey(), x.deviceWebhookEndpointKey());
+            assertEquals(input.getPolicyServerEnabled(), x.policyServerEnabled());
 
             return true;
         }));
@@ -146,6 +165,7 @@ public class OrganisationV2ControllerTest {
             assertEquals(input.getHistoryApiKey(), x.historyApiKey());
             assertEquals(input.getDeviceWebhookEndpoint(), x.deviceWebhookEndpoint());
             assertEquals(input.getDeviceWebhookEndpointKey(), x.deviceWebhookEndpointKey());
+            assertEquals(input.getPolicyServerEnabled(), x.policyServerEnabled());
 
             return true;
         }));
@@ -174,6 +194,7 @@ public class OrganisationV2ControllerTest {
             assertEquals(input.getHistoryApiKey(), x.historyApiKey());
             assertEquals(input.getDeviceWebhookEndpoint(), x.deviceWebhookEndpoint());
             assertEquals(input.getDeviceWebhookEndpointKey(), x.deviceWebhookEndpointKey());
+            assertEquals(input.getPolicyServerEnabled(), x.policyServerEnabled());
 
             return true;
         }));
@@ -412,6 +433,7 @@ public class OrganisationV2ControllerTest {
         organisation.setHistoryApiKey(randomString());
         organisation.setDeviceWebhookEndpoint(randomString());
         organisation.setDeviceWebhookEndpointKey(randomString());
+        organisation.setPolicyServerEnabled(true);
 
         return organisation;
     }
@@ -424,7 +446,8 @@ public class OrganisationV2ControllerTest {
                 .smsCallbackUrl(randomString())
                 .historyApiKey(randomString())
                 .deviceWebhookEndpoint(randomString())
-                .deviceWebhookEndpointKey(randomString());
+                .deviceWebhookEndpointKey(randomString())
+                .policyServerEnabled(true);
     }
 
     private OrganisationUriInner randomOrganisationUriInner() {
@@ -446,6 +469,7 @@ public class OrganisationV2ControllerTest {
         assertEquals(expected.isAllowCustomUriWithoutDomain(), actual.getAllowCustomUriWithoutDomain());
         assertEquals(expected.getSmsCallbackUrl(), actual.getSmsCallbackUrl());
         assertEquals(expected.getDeviceWebhookEndpoint(), actual.getDeviceWebhookEndpoint());
+        assertEquals(expected.isPolicyServerEnabled(), actual.getPolicyServerEnabled());
     }
 
     private boolean assertOrganisationCreate(OrganisationCreate expected, String expectedParent, dk.medcom.vdx.organisation.service.model.OrganisationCreate actual) {
