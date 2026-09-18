@@ -118,6 +118,7 @@ public class OrganisationV2ControllerTest {
             assertEquals(input.getHistoryApiKey(), x.historyApiKey());
             assertEquals(input.getDeviceWebhookEndpoint(), x.deviceWebhookEndpoint());
             assertEquals(input.getDeviceWebhookEndpointKey(), x.deviceWebhookEndpointKey());
+            assertEquals(Boolean.TRUE.equals(input.getPolicyServerEnabled()), x.policyServerEnabled());
 
             return true;
         }));
@@ -146,6 +147,7 @@ public class OrganisationV2ControllerTest {
             assertEquals(input.getHistoryApiKey(), x.historyApiKey());
             assertEquals(input.getDeviceWebhookEndpoint(), x.deviceWebhookEndpoint());
             assertEquals(input.getDeviceWebhookEndpointKey(), x.deviceWebhookEndpointKey());
+            assertEquals(Boolean.TRUE.equals(input.getPolicyServerEnabled()), x.policyServerEnabled());
 
             return true;
         }));
@@ -174,6 +176,7 @@ public class OrganisationV2ControllerTest {
             assertEquals(input.getHistoryApiKey(), x.historyApiKey());
             assertEquals(input.getDeviceWebhookEndpoint(), x.deviceWebhookEndpoint());
             assertEquals(input.getDeviceWebhookEndpointKey(), x.deviceWebhookEndpointKey());
+            assertEquals(Boolean.TRUE.equals(input.getPolicyServerEnabled()), x.policyServerEnabled());
 
             return true;
         }));
@@ -397,7 +400,8 @@ public class OrganisationV2ControllerTest {
     private OrganisationCreate randomOrganisationCreate() {
         return new OrganisationCreate()
                 .code(randomString())
-                .name(randomString());
+                .name(randomString())
+                .policyServerEnabled(true);
     }
 
     private Organisation randomOrganisation() {
@@ -412,6 +416,7 @@ public class OrganisationV2ControllerTest {
         organisation.setHistoryApiKey(randomString());
         organisation.setDeviceWebhookEndpoint(randomString());
         organisation.setDeviceWebhookEndpointKey(randomString());
+        organisation.setPolicyServerEnabled(true);
 
         return organisation;
     }
@@ -424,7 +429,8 @@ public class OrganisationV2ControllerTest {
                 .smsCallbackUrl(randomString())
                 .historyApiKey(randomString())
                 .deviceWebhookEndpoint(randomString())
-                .deviceWebhookEndpointKey(randomString());
+                .deviceWebhookEndpointKey(randomString())
+                .policyServerEnabled(true);
     }
 
     private OrganisationUriInner randomOrganisationUriInner() {
@@ -446,6 +452,7 @@ public class OrganisationV2ControllerTest {
         assertEquals(expected.isAllowCustomUriWithoutDomain(), actual.getAllowCustomUriWithoutDomain());
         assertEquals(expected.getSmsCallbackUrl(), actual.getSmsCallbackUrl());
         assertEquals(expected.getDeviceWebhookEndpoint(), actual.getDeviceWebhookEndpoint());
+        assertEquals(expected.isPolicyServerEnabled(), actual.getPolicyServerEnabled());
     }
 
     private boolean assertOrganisationCreate(OrganisationCreate expected, String expectedParent, dk.medcom.vdx.organisation.service.model.OrganisationCreate actual) {
@@ -467,6 +474,7 @@ public class OrganisationV2ControllerTest {
         assertEquals(expected.getHistoryApiKey(), actual.historyApiKey());
         assertEquals(expected.getDeviceWebhookEndpoint(), actual.deviceWebhookEndpoint());
         assertEquals(expected.getDeviceWebhookEndpointKey(), actual.deviceWebhookEndpointKey());
+        assertEquals(Boolean.TRUE.equals(expected.getPolicyServerEnabled()), actual.policyServerEnabled());
         return true;
     }
 }
