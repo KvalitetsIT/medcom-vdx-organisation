@@ -182,6 +182,7 @@ public class OrganisationServiceImplTest {
             assertEquals(organisation.smsCallbackUrl(), x.getSmsCallbackUrl());
             assertEquals(organisation.deviceWebhookEndpoint(), x.getDeviceWebhookEndpoint());
             assertEquals(organisation.deviceWebhookEndpointKey(), x.getDeviceWebhookEndpointKey());
+            assertEquals(organisation.policyServerEnabled(), x.isPolicyServerEnabled());
 
             return true;
         }));
@@ -224,6 +225,7 @@ public class OrganisationServiceImplTest {
         assertEquals(organisation.historyApiKey(), result.getHistoryApiKey());
         assertEquals(organisation.deviceWebhookEndpoint(), result.getDeviceWebhookEndpoint());
         assertEquals(organisation.deviceWebhookEndpointKey(), result.getDeviceWebhookEndpointKey());
+        assertEquals(organisation.policyServerEnabled(), result.isPolicyServerEnabled());
 
         Mockito.verify(organisationDao, times(1)).findOrganisation(organisation.organisationCode());
         Mockito.verify(organisationDao, times(1)).findOrganisation(organisation.parentOrganisation());
@@ -237,6 +239,7 @@ public class OrganisationServiceImplTest {
             assertEquals(organisation.smsCallbackUrl(), x.getSmsCallbackUrl());
             assertEquals(organisation.deviceWebhookEndpoint(), x.getDeviceWebhookEndpoint());
             assertEquals(organisation.deviceWebhookEndpointKey(), x.getDeviceWebhookEndpointKey());
+            assertEquals(organisation.policyServerEnabled(), x.isPolicyServerEnabled());
 
             return true;
         }));
@@ -257,7 +260,7 @@ public class OrganisationServiceImplTest {
     @Test
     public void testUpdateOrganisation() {
         var code = randomString();
-        var organisation = new OrganisationUpdate(123, randomString(), true, randomString(), randomString(), randomString(), randomString());
+        var organisation = new OrganisationUpdate(123, randomString(), true, randomString(), randomString(), randomString(), randomString(), true);
         var updatedOrganisation = randomOrganisation();
 
         Mockito.when(organisationDao.findOrganisation(code)).thenReturn(updatedOrganisation);
@@ -278,6 +281,7 @@ public class OrganisationServiceImplTest {
             assertEquals(organisation.historyApiKey(), x.getHistoryApiKey());
             assertEquals(organisation.deviceWebhookEndpoint(), x.getDeviceWebhookEndpoint());
             assertEquals(organisation.deviceWebhookEndpointKey(), x.getDeviceWebhookEndpointKey());
+            assertEquals(organisation.policyServerEnabled(), x.isPolicyServerEnabled());
 
             return true;
         }));
@@ -288,7 +292,7 @@ public class OrganisationServiceImplTest {
     @Test
     public void testUpdateOrganisationOrganisationNotFound() {
         var code = randomString();
-        var organisation = new OrganisationUpdate(123, randomString(), true, randomString(), randomString(), randomString(), randomString());
+        var organisation = new OrganisationUpdate(123, randomString(), true, randomString(), randomString(), randomString(), randomString(), true);
 
         Mockito.when(organisationDao.findOrganisation(code)).thenReturn(null);
         Mockito.when(organisationDao.update(Mockito.any())).thenReturn(true);
@@ -308,6 +312,7 @@ public class OrganisationServiceImplTest {
             assertEquals(organisation.historyApiKey(), x.getHistoryApiKey());
             assertEquals(organisation.deviceWebhookEndpoint(), x.getDeviceWebhookEndpoint());
             assertEquals(organisation.deviceWebhookEndpointKey(), x.getDeviceWebhookEndpointKey());
+            assertEquals(organisation.policyServerEnabled(), x.isPolicyServerEnabled());
 
             return true;
         }));
@@ -318,7 +323,7 @@ public class OrganisationServiceImplTest {
     @Test
     public void testUpdateOrganisationFails() {
         var code = randomString();
-        var organisation = new OrganisationUpdate(123, randomString(), true, randomString(), randomString(), randomString(), randomString());
+        var organisation = new OrganisationUpdate(123, randomString(), true, randomString(), randomString(), randomString(), randomString(), true);
         var updatedOrganisation = randomOrganisation();
 
         Mockito.when(organisationDao.findOrganisation(code)).thenReturn(updatedOrganisation);
@@ -338,6 +343,7 @@ public class OrganisationServiceImplTest {
             assertEquals(organisation.historyApiKey(), x.getHistoryApiKey());
             assertEquals(organisation.deviceWebhookEndpoint(), x.getDeviceWebhookEndpoint());
             assertEquals(organisation.deviceWebhookEndpointKey(), x.getDeviceWebhookEndpointKey());
+            assertEquals(organisation.policyServerEnabled(), x.isPolicyServerEnabled());
 
             return true;
         }));
@@ -356,7 +362,8 @@ public class OrganisationServiceImplTest {
                 randomString(),
                 randomString(),
                 randomString(),
-                randomString());
+                randomString(),
+                true);
     }
 
     private Organisation randomOrganisation() {
