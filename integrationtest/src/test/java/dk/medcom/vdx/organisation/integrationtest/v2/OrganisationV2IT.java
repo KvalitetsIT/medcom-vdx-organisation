@@ -436,6 +436,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
         assertEquals(Boolean.FALSE, result.getAllowCustomUriWithoutDomain());
         assertEquals("some_url", result.getSmsCallbackUrl());
         assertNull(result.getDeviceWebhookEndpoint());
+        assertEquals(Boolean.FALSE, result.getPolicyServerEnabled());
     }
 
     @Test
@@ -457,7 +458,8 @@ class OrganisationV2IT extends AbstractIntegrationTest {
                 .smsSenderName(randomString().substring(0, 10))
                 .historyApiKey(randomString())
                 .deviceWebhookEndpoint(randomString())
-                .deviceWebhookEndpointKey(randomString());
+                .deviceWebhookEndpointKey(randomString())
+                .policyServerEnabled(true);
 
         var result = organisationV2Api.servicesV2OrganisationCodePut("company 2", input);
 
@@ -470,6 +472,11 @@ class OrganisationV2IT extends AbstractIntegrationTest {
         assertEquals(input.getAllowCustomUriWithoutDomain(), result.getAllowCustomUriWithoutDomain());
         assertEquals(input.getSmsSenderName(), result.getSmsSenderName());
         assertEquals(input.getDeviceWebhookEndpoint(), result.getDeviceWebhookEndpoint());
+        assertEquals(input.getPolicyServerEnabled(), result.getPolicyServerEnabled());
+
+        // Verify the flag is persisted, not just echoed back from the request.
+        var getResult = organisationV2Api.servicesV2OrganisationCodeGet("company 2");
+        assertEquals(Boolean.TRUE, getResult.getPolicyServerEnabled());
     }
 
     @Test
@@ -488,6 +495,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
         assertFalse(result.getAllowCustomUriWithoutDomain());
         assertNull(result.getSmsSenderName());
         assertNull(result.getDeviceWebhookEndpoint());
+        assertEquals(Boolean.FALSE, result.getPolicyServerEnabled());
     }
 
     @Test
@@ -595,6 +603,7 @@ class OrganisationV2IT extends AbstractIntegrationTest {
         assertEquals(0, result.getPoolSize(), 0);
         assertEquals(Boolean.FALSE, result.getAllowCustomUriWithoutDomain());
         assertNull(result.getDeviceWebhookEndpoint());
+        assertEquals(Boolean.FALSE, result.getPolicyServerEnabled());
     }
 
     @Test
@@ -610,7 +619,8 @@ class OrganisationV2IT extends AbstractIntegrationTest {
                 .smsCallbackUrl(randomString())
                 .historyApiKey(randomString())
                 .deviceWebhookEndpoint(randomString())
-                .deviceWebhookEndpointKey(randomString());
+                .deviceWebhookEndpointKey(randomString())
+                .policyServerEnabled(true);
 
         var result = organisationV2Api.servicesV2OrganisationPost(input, inputOrganisation);
         assertNotNull(result);
@@ -622,6 +632,11 @@ class OrganisationV2IT extends AbstractIntegrationTest {
         assertEquals(inputOrganisation.getPoolSize(), result.getPoolSize());
         assertEquals(inputOrganisation.getAllowCustomUriWithoutDomain(), result.getAllowCustomUriWithoutDomain());
         assertEquals(inputOrganisation.getDeviceWebhookEndpoint(), result.getDeviceWebhookEndpoint());
+        assertEquals(inputOrganisation.getPolicyServerEnabled(), result.getPolicyServerEnabled());
+
+        // Verify the flag is persisted, not just echoed back from the request.
+        var getResult = organisationV2Api.servicesV2OrganisationCodeGet(inputOrganisation.getCode());
+        assertEquals(Boolean.TRUE, getResult.getPolicyServerEnabled());
     }
 
     @Test

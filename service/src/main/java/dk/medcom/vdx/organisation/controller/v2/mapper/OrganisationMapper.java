@@ -17,7 +17,8 @@ public class OrganisationMapper {
                 .smsSenderName(input.getSmsSenderName())
                 .allowCustomUriWithoutDomain(input.isAllowCustomUriWithoutDomain())
                 .smsCallbackUrl(input.getSmsCallbackUrl())
-                .deviceWebhookEndpoint(input.getDeviceWebhookEndpoint());
+                .deviceWebhookEndpoint(input.getDeviceWebhookEndpoint())
+                .policyServerEnabled(input.isPolicyServerEnabled());
     }
 
     public static OrganisationSimple internalToExternal(dk.medcom.vdx.organisation.service.model.OrganisationSimple input) {
@@ -36,7 +37,8 @@ public class OrganisationMapper {
                 input.getSmsCallbackUrl(),
                 input.getHistoryApiKey(),
                 input.getDeviceWebhookEndpoint(),
-                input.getDeviceWebhookEndpointKey());
+                input.getDeviceWebhookEndpointKey(),
+                Boolean.TRUE.equals(input.getPolicyServerEnabled()));
     }
 
     public static OrganisationUpdate externalToInternal(org.openapitools.model.OrganisationUpdate input) {
@@ -47,6 +49,7 @@ public class OrganisationMapper {
                 input.getSmsCallbackUrl(),
                 input.getHistoryApiKey(),
                 input.getDeviceWebhookEndpoint(),
-                input.getDeviceWebhookEndpointKey());
+                input.getDeviceWebhookEndpointKey(),
+                Boolean.TRUE.equals(input.getPolicyServerEnabled()));
     }
 }

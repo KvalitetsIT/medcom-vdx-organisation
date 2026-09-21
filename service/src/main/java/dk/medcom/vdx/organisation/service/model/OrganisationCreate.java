@@ -9,5 +9,6 @@ public record OrganisationCreate(String parentOrganisation,
                                  String smsCallbackUrl,
                                  String historyApiKey,
                                  String deviceWebhookEndpoint,
-                                 String deviceWebhookEndpointKey) {
+                                 String deviceWebhookEndpointKey,
+                                 boolean policyServerEnabled) {
 }

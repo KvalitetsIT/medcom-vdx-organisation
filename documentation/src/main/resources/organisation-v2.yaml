@@ -634,6 +634,11 @@ components:
           maxLength: 100
           example: this-is-a-key
           description: Endpoint key of device webhook for header
+        policyServerEnabled:
+          description: Whether the VDX policy server manages meetings for this organisation. Defaults to false.
+          type: boolean
+          example: false
+          default: false
 
     organisation-update:
       type: object
@@ -671,6 +676,11 @@ components:
           maxLength: 100
           example: this-is-a-key
           description: Endpoint key of device webhook for header
+        policyServerEnabled:
+          description: Whether the VDX policy server manages meetings for this organisation. Defaults to false.
+          type: boolean
+          example: false
+          default: false
 
     organisation-response:
       type: object
@@ -717,6 +727,10 @@ components:
           maxLength: 100
           example: http://webhook.endpoint/here
           description: Endpoint of device webhook
+        policyServerEnabled:
+          description: Whether the VDX policy server manages meetings for this organisation.
+          type: boolean
+          example: false
 
     organisationtree:
       type: object

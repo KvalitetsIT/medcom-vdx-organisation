@@ -187,6 +187,7 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         input.setHistoryApiKey(randomString());
         input.setDeviceWebhookEndpoint(randomString());
         input.setDeviceWebhookEndpointKey(randomString());
+        input.setPolicyServerEnabled(true);
 
 
         var id = organisationDao.insert(input);
@@ -205,6 +206,7 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         assertEquals(input.getHistoryApiKey(), dbOrganisation.getHistoryApiKey());
         assertEquals(input.getDeviceWebhookEndpoint(), dbOrganisation.getDeviceWebhookEndpoint());
         assertEquals(input.getDeviceWebhookEndpointKey(), dbOrganisation.getDeviceWebhookEndpointKey());
+        assertEquals(input.isPolicyServerEnabled(), dbOrganisation.isPolicyServerEnabled());
     }
 
     @Test
@@ -221,6 +223,7 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         input.setHistoryApiKey(randomString());
         input.setDeviceWebhookEndpoint(randomString());
         input.setDeviceWebhookEndpointKey(randomString());
+        input.setPolicyServerEnabled(true);
 
         var result = organisationDao.update(input);
         assertTrue(result);
@@ -242,6 +245,7 @@ public class OrganisationDaoTest extends AbstractDaoTest {
         assertEquals(input.getHistoryApiKey(), dbOrganisation.getHistoryApiKey());
         assertEquals(input.getDeviceWebhookEndpoint(), dbOrganisation.getDeviceWebhookEndpoint());
         assertEquals(input.getDeviceWebhookEndpointKey(), dbOrganisation.getDeviceWebhookEndpointKey());
+        assertEquals(input.isPolicyServerEnabled(), dbOrganisation.isPolicyServerEnabled());
     }
 
     @Test
