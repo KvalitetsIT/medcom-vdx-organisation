@@ -48,6 +48,16 @@
 
 	<dependencyManagement>
 		<dependencies>
+			<!--
+				TEMP: specification of tomcat core version, to avoid CRITICAL vulnerabilities
+				Remove this when SpringBoot uses this version or higher.
+			-->
+			<dependency>
+				<groupId>org.apache.tomcat.embed</groupId>
+				<artifactId>tomcat-embed-core</artifactId>
+				<version>11.0.26</version>
+			</dependency>
+
 			<!-- Modules in project -->
 			<dependency>
 				<groupId>dk.medcom.vdx.organisation</groupId>
